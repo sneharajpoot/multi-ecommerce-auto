@@ -1,31 +1,92 @@
-// controllers/roleController.js
-const db = require('../config/db'); // Database connection
+const db = require('../models');
+const { Role } = db;
 
 /**
  * Create a new role
- * @param {Object} data - Role data
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
  */
 const createRole = async (req, res) => {
-  // Implement the logic to create a role
-  res.send('Role created');
+  try {
+    const { roleName, description } = req.body;
+    const role = await Role.create({ roleName, description });
+    res.status(201).json(role);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 /**
- * Update an existing role
- * @param {Object} data - Role data
+ * Get all roles
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
+ */
+const getAllRoles = async (req, res) => {
+  try {
+    const roles = await Role.findAll();
+    res.status(200).json(roles);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+/**
+ * Get role by ID
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
+ */
+const getRoleById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const role = await Role.findByPk(id);
+    if (!role) {
+      return res.status(404).json({ error: 'Role not found' });
+    }
+    res.status(200).json(role);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+/**
+ * Update role by ID
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
  */
 const updateRole = async (req, res) => {
-  // Implement the logic to update a role
-  res.send('Role updated');
+  try {
+    const { id } = req.params;
+    const { roleName, description } = req.body;
+    const role = await Role.findByPk(id);
+    if (!role) {
+      return res.status(404).json({ error: 'Role not found' });
+    }
+    role.roleName = roleName;
+    role.description = description;
+    await role.save();
+    res.status(200).json(role);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 /**
- * Delete a role
- * @param {Number} id - Role ID
+ * Delete role by ID
+ * @param {Object} req - Request object
+ * @param {Object} res - Response object
  */
 const deleteRole = async (req, res) => {
-  // Implement the logic to delete a role
-  res.send('Role deleted');
+  try {
+    const { id } = req.params;
+    const role = await Role.findByPk(id);
+    if (!role) {
+      return res.status(404).json({ error: 'Role not found' });
+    }
+    await role.destroy();
+    res.status(200).json({ message: 'Role deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
 
 /**
@@ -64,17 +125,10 @@ const listRolesWithPermissions = async () => {
   }
 };
 
-/**
- * Get all roles
- */
-const getRoles = async (req, res) => {
-  // Implement the logic to get roles
-  res.send('Roles retrieved');
-};
-
 module.exports = {
   createRole,
-  getRoles,
+  getAllRoles,
+  getRoleById,
   updateRole,
   deleteRole,
   assignPermissionToRole,

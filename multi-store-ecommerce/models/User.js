@@ -24,15 +24,7 @@ class User extends Model {
       role: {
         type: DataTypes.ENUM('admin', 'store_admin', 'customer'),
         defaultValue: 'customer',
-      },
-      created_at: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
-      updated_at: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
+      } 
     }, {
       sequelize,
       modelName: 'User',

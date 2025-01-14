@@ -1,12 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const categoryController = require('../controllers/categoryController');
-const { authenticate, authorize } = require('../middleware/auth');
+const { authenticate, isAdmin } = require('../middlewares/authMiddleware');
 
-router.post('/', authenticate, authorize('admin', 'store_admin'), categoryController.createCategory);
-router.get('/', authenticate, authorize('admin', 'store_admin'), categoryController.getCategories);
-router.patch('/:id', authenticate, authorize('admin', 'store_admin'), categoryController.updateCategory);
-router.delete('/:id', authenticate, authorize('admin'), categoryController.deleteCategory);
+router.post('/api/categories', authenticate, isAdmin, categoryController.createCategory);
+
+router.get('/api/categories', authenticate, isAdmin, categoryController.getAllCategories);
+
+router.get('/api/categories/:id', authenticate, isAdmin, categoryController.getCategoryById);
+
+router.put('/api/categories/:id', authenticate, isAdmin, categoryController.updateCategory);
+
+router.delete('/api/categories/:id', authenticate, isAdmin, categoryController.deleteCategory);
 
 module.exports = router;
- 

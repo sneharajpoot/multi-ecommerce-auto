@@ -1,0 +1,5 @@
+{ username: 'admin@example.com', password: 'adminpassword' });
+ 
+ 
+
+{ "email": "admin@example.com", "password": "adminpassword" };

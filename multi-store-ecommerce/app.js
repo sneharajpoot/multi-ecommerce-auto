@@ -2,13 +2,15 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const morgan = require('morgan');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsDoc = require('swagger-jsdoc');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const roleRoutes = require('./routes/roleRoutes');
-const warehouseRoutes = require('./routes/warehouseRoutes');
+// const warehouseRoutes = require('./routes/warehouseRoutes');
 const shippingClassRoutes = require('./routes/shippingClassRoutes');
 const bulkUploadLogRoutes = require('./routes/bulkUploadLogRoutes');
-const categoryRoutes = require('./routes/categoryRoutes'); // Category routes
+// const categoryRoutes = require('./routes/categoryRoutes'); // Category routes
 const relatedProductRoutes = require('./routes/relatedProductRoutes'); // Related products routes
 const productAttributeRoutes = require('./routes/productAttributeRoutes'); // Product attributes routes
 const productMetadataRoutes = require('./routes/productMetadataRoutes'); // Product metadata routes
@@ -17,7 +19,7 @@ const productTagRoutes = require('./routes/productTagRoutes');
 const productReviewRoutes = require('./routes/productReviewRoutes');
 const productPricingTierRoutes = require('./routes/productPricingTierRoutes');
 const taxRuleRoutes = require('./routes/taxRuleRoutes');
-const storeRoutes = require('./routes/storeRoutes');
+// const storeRoutes = require('./routes/storeRoutes');
 const productRoutes = require('./routes/productRoutes'); // Import product routes
 
 dotenv.config(); // Load environment variables from .env file
@@ -31,14 +33,35 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded requests
 app.use(cors()); // Enable Cross-Origin Resource Sharing
 app.use(morgan('dev')); // HTTP request logging (for development)
 
+// Swagger setup
+const swaggerOptions = {
+  swaggerDefinition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Multi-Store E-commerce API',
+      version: '1.0.0',
+      description: 'API documentation for the Multi-Store E-commerce application',
+    },
+    servers: [
+      {
+        url: `http://localhost:${process.env.PORT || 8080}`,
+      },
+    ],
+  },
+  apis: ['./routes/*.js'],
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);
-app.use('/api/warehouses', warehouseRoutes);
+// app.use('/api/warehouses', warehouseRoutes);
 app.use('/api/shipping-classes', shippingClassRoutes);
 app.use('/api/bulk-upload-logs', bulkUploadLogRoutes);
-app.use('/api/categories', categoryRoutes); // Category routes
+// app.use('/api/categories', categoryRoutes); // Category routes
 app.use('/api/related-products', relatedProductRoutes); // Related products routes
 app.use('/api/product-attributes', productAttributeRoutes); // Product attributes routes
 app.use('/api/product-metadata', productMetadataRoutes); // Product metadata routes
@@ -47,12 +70,21 @@ app.use('/api/product-tags', productTagRoutes);
 app.use('/api/product-reviews', productReviewRoutes);
 app.use('/api/product-pricing-tiers', productPricingTierRoutes);
 app.use('/api/tax-rules', taxRuleRoutes);
-app.use('/api/stores', storeRoutes);
+// app.use('/api/stores', storeRoutes);
 app.use('/api/products', productRoutes); // Use product routes
 
 // Health Check Endpoint
 app.get('/', (req, res) => {
   res.status(200).send('Multi-Store E-commerce Backend is Running');
+});
+
+// Error Handling Middleware for JSON parsing errors
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    console.error('Bad JSON');
+    return res.status(400).json({ error: 'Invalid JSON' });
+  }
+  next(err);
 });
 
 // Error Handling Middleware

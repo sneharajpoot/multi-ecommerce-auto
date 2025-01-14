@@ -3,6 +3,10 @@ const jwt = require('../utils/jwtHelper');
 const db = require('../models'); // Correct path to models
 const { User } = db;
 
+// bcrypt.hash('Asd@1212', 10).then((hash) => {
+//   console.log('---->', hash)
+// })
+console.log('---->', )
 /**
  * Register a store owner.
  * @param {Object} req - Request object.
@@ -51,8 +55,8 @@ exports.registerCustomer = async (req, res) => {
     // Insert user
     const [userResult] = await db.sequelize.query(
       `
-      INSERT INTO Users (uuid, name, email, password, roleId, createdAt, updatedAt)
-      VALUES (UUID(), ?, ?, ?, ?, NOW(), NOW())
+      INSERT INTO Users (uuid, name, email, password, role)
+      VALUES (UUID(), ?, ?, ?, ?)
       `,
       {
         replacements: [name, email, hashedPassword, 3], // Role ID: Customer
@@ -69,43 +73,20 @@ exports.registerCustomer = async (req, res) => {
 };
 
 // User Login
-exports.loginold = async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const [user] = await db.query(`SELECT * FROM Users WHERE email = ?`, [email]);
-    if (!user.length) {
-      return res.status(404).json({ error: 'Invalid email or password' });
-    }
-
-    const isPasswordMatch = await bcrypt.compare(password, user[0].password);
-    if (!isPasswordMatch) {
-      return res.status(400).json({ error: 'Invalid email or password' });
-    }
-
-    const accessToken = jwt.generateToken({ id: user[0].id, roleId: user[0].roleId });
-    const refreshToken = jwt.generateRefreshToken({ id: user[0].id, roleId: user[0].roleId });
-
-    return res.status(200).json({ message: 'Login successful', accessToken, refreshToken });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: error.message });
-  }
-};
-
 exports.login = async (req, res) => {
   try {
-      const { email, password } = req.body;
-      const user = await User.findOne({ where: { email } });
-      if (!user || !(await bcrypt.compare(password, user.password))) {
-          return res.status(401).json({ success: false, message: 'Invalid email or password.' });
-      }
-      const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
-      res.status(200).json({ success: true, token });
+    const { email, password } = req.body;
+    const user = await User.findOne({ where: { email } });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+    }
+    const token = jwt.generateRefreshToken({ id: user.id, role: user.role } , '1d' );
+    res.status(200).json({ success: true, token });
   } catch (error) {
-      res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
+
 // Refresh Token
 exports.refreshToken = async (req, res) => {
   const { refreshToken } = req.body;
@@ -129,7 +110,6 @@ exports.logout = (req, res) => {
   try {
     return res.status(200).json({ message: 'Logged out successfully' });
   } catch (error) {
-    console.error(error);
     return res.status(500).json({ error: error.message });
   }
 };
@@ -155,7 +135,6 @@ exports.changePassword = async (req, res) => {
 
     return res.status(200).json({ message: 'Password changed successfully' });
   } catch (error) {
-    console.error(error);
     return res.status(500).json({ error: error.message });
   }
 };
@@ -177,7 +156,6 @@ exports.forgotPassword = async (req, res) => {
 
     return res.status(200).json({ message: 'Password reset link sent to your email' });
   } catch (error) {
-    console.error(error);
     return res.status(500).json({ error: error.message });
   }
 };
@@ -195,7 +173,6 @@ exports.resetPassword = async (req, res) => {
 
     return res.status(200).json({ message: 'Password reset successfully' });
   } catch (error) {
-    console.error(error);
     return res.status(400).json({ error: 'Invalid or expired reset token' });
   }
 };
