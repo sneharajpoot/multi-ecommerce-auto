@@ -1,0 +1,38 @@
+.home-container {
+  padding: 20px;
+  margin: 0 auto;
+  max-width: 800px;
+  text-align: center;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.home-container h1 {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+}
+
+.home-container p {
+  font-size: 1.2em;
+  color: #555;
+}
+
+.slider {
+  margin: 20px 0;
+}
+
+.slide {
+  background-color: #ddd;
+  padding: 20px;
+  margin: 10px 0;
+  border-radius: 8px;
+}
+
+.footer {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #333;
+  color: white;
+  border-radius: 8px;
+}

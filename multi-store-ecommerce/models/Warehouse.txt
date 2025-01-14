@@ -1,0 +1,12 @@
+// File: models/Warehouse.js
+
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/database');
+
+const Warehouse = sequelize.define('Warehouse', {
+    store_id: { type: DataTypes.INTEGER, allowNull: false },
+    name: { type: DataTypes.STRING, allowNull: false },
+    location: { type: DataTypes.TEXT, allowNull: false },
+}, { timestamps: true });
+
+module.exports = Warehouse;

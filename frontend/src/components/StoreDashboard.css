@@ -1,0 +1,10 @@
+/* Add your CSS styles for the StoreDashboard component here */
+
+/* Example styles */
+.store-dashboard {
+    /* ...existing code... */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* ...existing code... */
+}
