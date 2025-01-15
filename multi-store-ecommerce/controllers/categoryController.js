@@ -1,36 +1,102 @@
-const { Category } = require('../models');
+const db = require('../models');
+const { Category } = db;
 
-const createCategory = async (req, res) => {
-    try {
-        const category = await Category.create(req.body);
-        res.status(201).json({ success: true, data: category });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+/**
+ * Create a new category.
+ * @param {Object} req - Request object.
+ * @param {Object} res - Response object.
+ */
+exports.createCategory = async (req, res) => {
+  const { name } = req.body;
+
+  try {
+    const category = await Category.create({ name });
+    return res.status(201).json(category);
+  } catch (error) {
+    console.error('Error creating category:', error.message);
+    return res.status(500).json({ error: 'Failed to create category' });
+  }
+};
+
+/**
+ * Get all categories.
+ * @param {Object} req - Request object.
+ * @param {Object} res - Response object.
+ */
+exports.getAllCategories = async (req, res) => {
+  try {
+    const categories = await Category.findAll();
+    return res.status(200).json(categories);
+  } catch (error) {
+    console.error('Error fetching categories:', error.message);
+    return res.status(500).json({ error: 'Failed to fetch categories' });
+  }
+};
+
+/**
+ * Get category by ID.
+ * @param {Object} req - Request object.
+ * @param {Object} res - Response object.
+ */
+exports.getCategoryById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const category = await Category.findByPk(id);
+    if (!category) {
+      return res.status(404).json({ error: 'Category not found' });
     }
+
+    return res.status(200).json(category);
+  } catch (error) {
+    console.error('Error fetching category:', error.message);
+    return res.status(500).json({ error: 'Failed to fetch category' });
+  }
 };
 
-const getCategories = async (req, res) => {
-    try {
-        const categories = await Category.findAll();
-        res.status(200).json({ success: true, data: categories });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+/**
+ * Update category by ID.
+ * @param {Object} req - Request object.
+ * @param {Object} res - Response object.
+ */
+exports.updateCategory = async (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+
+  try {
+    const category = await Category.findByPk(id);
+    if (!category) {
+      return res.status(404).json({ error: 'Category not found' });
     }
+
+    category.name = name;
+    await category.save();
+
+    return res.status(200).json({ message: 'Category updated successfully', category });
+  } catch (error) {
+    console.error('Error updating category:', error.message);
+    return res.status(500).json({ error: 'Failed to update category' });
+  }
 };
 
-const updateCategory = (req, res) => {
-    // ...logic to update a category...
-    res.status(200).json({ message: 'Category updated successfully' });
-};
+/**
+ * Delete category by ID.
+ * @param {Object} req - Request object.
+ * @param {Object} res - Response object.
+ */
+exports.deleteCategory = async (req, res) => {
+  const { id } = req.params;
 
-const deleteCategory = (req, res) => {
-    // ...logic to delete a category...
-    res.status(200).json({ message: 'Category deleted successfully' });
-};
+  try {
+    const category = await Category.findByPk(id);
+    if (!category) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
 
-module.exports = {
-    createCategory,
-    getCategories,
-    updateCategory,
-    deleteCategory
+    await category.destroy();
+    return res.status(200).json({ message: 'Category deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting category:', error.message);
+    return res.status(500).json({ error: 'Failed to delete category' });
+  }
 };

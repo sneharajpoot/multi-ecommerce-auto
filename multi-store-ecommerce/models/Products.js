@@ -1,6 +1,6 @@
 const { Model, DataTypes } = require('sequelize');
 
-class Product extends Model {
+class Products extends Model {
   static init(sequelize) {
     return super.init({
       id: {
@@ -32,21 +32,21 @@ class Product extends Model {
         type: DataTypes.ENUM('active', 'inactive'),
         defaultValue: 'active',
       },
-      created_at: {
+      createdAt: {
         type: DataTypes.DATE,
         allowNull: false,
       },
-      updated_at: {
+      updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
       },
     }, {
       sequelize,
-      modelName: 'Product',
+      modelName: 'Products',
       tableName: 'Products',
       timestamps: true,
     });
   }
 }
 
-module.exports = Product;
+module.exports = Products;

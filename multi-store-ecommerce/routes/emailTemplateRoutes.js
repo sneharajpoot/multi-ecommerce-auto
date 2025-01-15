@@ -12,7 +12,40 @@ const emailTemplateValidation = {
   isHtml: 'boolean',
 };
 
-// Add EmailTemplate
+/**
+ * @swagger
+ * /email-template:
+ *   post:
+ *     summary: Add a new email template
+ *     tags: [Email Template]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The name of the email template
+ *               purpose:
+ *                 type: string
+ *                 description: The purpose of the email template
+ *               subject:
+ *                 type: string
+ *                 description: The subject of the email template
+ *               body:
+ *                 type: string
+ *                 description: The body of the email template
+ *               isHtml:
+ *                 type: boolean
+ *                 description: Whether the email template is in HTML format
+ *     responses:
+ *       201:
+ *         description: Email template added successfully
+ *       500:
+ *         description: Internal server error
+ */
 router.post('/email-template', validateRequest(emailTemplateValidation), async (req, res) => {
   try {
     const result = await addEmailTemplate(req.body);
@@ -22,7 +55,47 @@ router.post('/email-template', validateRequest(emailTemplateValidation), async (
   }
 });
 
-// Update EmailTemplate
+/**
+ * @swagger
+ * /email-template/{id}:
+ *   put:
+ *     summary: Update an existing email template
+ *     tags: [Email Template]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the email template to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The name of the email template
+ *               purpose:
+ *                 type: string
+ *                 description: The purpose of the email template
+ *               subject:
+ *                 type: string
+ *                 description: The subject of the email template
+ *               body:
+ *                 type: string
+ *                 description: The body of the email template
+ *               isHtml:
+ *                 type: boolean
+ *                 description: Whether the email template is in HTML format
+ *     responses:
+ *       200:
+ *         description: Email template updated successfully
+ *       500:
+ *         description: Internal server error
+ */
 router.put('/email-template/:id', validateRequest(emailTemplateValidation), async (req, res) => {
   try {
     await updateEmailTemplate(req.params.id, req.body);
@@ -32,7 +105,25 @@ router.put('/email-template/:id', validateRequest(emailTemplateValidation), asyn
   }
 });
 
-// Delete EmailTemplate
+/**
+ * @swagger
+ * /email-template/{id}:
+ *   delete:
+ *     summary: Delete an email template
+ *     tags: [Email Template]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the email template to delete
+ *     responses:
+ *       200:
+ *         description: Email template deleted successfully
+ *       500:
+ *         description: Internal server error
+ */
 router.delete('/email-template/:id', async (req, res) => {
   try {
     await deleteEmailTemplate(req.params.id);

@@ -2,4 +2,14 @@
  
  
 
-{ "email": "admin@example.com", "password": "adminpassword" };
+{ "email": "admin@example.com", "password": "adminpassword" }
+
+{
+  "name": "My Store",
+  "currency": "USD",
+  "timezone": "America/New_York"
+}
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Niwicm9sZSI6InN0b3JlX2FkbWluIiwiaWF0IjoxNzM2OTQyOTA4LCJleHAiOjE3MzcwMjkzMDh9.oK8poaAQ4xN-NPkFR2HEGOyJjtcO1FVm8l3YRwZGgww
+
+

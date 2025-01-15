@@ -5,11 +5,36 @@ const {
   getUserRolesByUserId,
   removeUserRole,
 } = require('../controllers/roleAssignmentController');
+const { authenticateAdmin } = require('../middleware/authenticateAdmin'); // Assuming you have this middleware
 
 /**
- * Assign a role to a user
+ * @swagger
+ * /assign-role:
+ *   post:
+ *     summary: Assign a role to a user (Admin only)
+ *     tags: [Role Assignment]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: The ID of the user
+ *               roleId:
+ *                 type: string
+ *                 description: The ID of the role
+ *     responses:
+ *       200:
+ *         description: Role assigned successfully
+ *       400:
+ *         description: userId and roleId are required
+ *       500:
+ *         description: Internal server error
  */
-router.post('/assign-role', async (req, res) => {
+router.post('/assign-role', authenticateAdmin, async (req, res) => {
   try {
     const { userId, roleId } = req.body;
 
@@ -25,14 +50,25 @@ router.post('/assign-role', async (req, res) => {
 });
 
 /**
- * Get roles assigned to a user
+ * @swagger
+ * /user-roles/{userId}:
+ *   get:
+ *     summary: Get roles assigned to a user (Admin only)
+ *     tags: [Role Assignment]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the user
+ *     responses:
+ *       200:
+ *         description: A list of roles and permissions
+ *       500:
+ *         description: Internal server error
  */
-
-/**
- * Route to fetch roles and permissions for a specific user by userId.
- * GET /user-roles/:userId
- */
-router.get('/user-roles/:userId', async (req, res) => {
+router.get('/user-roles/:userId', authenticateAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
     const userRolesWithPermissions = await userRolesController.getUserRolesByUserId(userId);
@@ -45,9 +81,33 @@ router.get('/user-roles/:userId', async (req, res) => {
 });
 
 /**
- * Remove a role from a user
+ * @swagger
+ * /remove-role:
+ *   delete:
+ *     summary: Remove a role from a user (Admin only)
+ *     tags: [Role Assignment]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: The ID of the user
+ *               roleId:
+ *                 type: string
+ *                 description: The ID of the role
+ *     responses:
+ *       200:
+ *         description: Role removed successfully
+ *       400:
+ *         description: userId and roleId are required
+ *       500:
+ *         description: Internal server error
  */
-router.delete('/remove-role', async (req, res) => {
+router.delete('/remove-role', authenticateAdmin, async (req, res) => {
   try {
     const { userId, roleId } = req.body;
 

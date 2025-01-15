@@ -7,10 +7,11 @@ const swaggerJsDoc = require('swagger-jsdoc');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const roleRoutes = require('./routes/roleRoutes');
-// const warehouseRoutes = require('./routes/warehouseRoutes');
+const storeRoutes = require('./routes/storeRoutes'); // Import store routes
+const categoryRoutes = require('./routes/categoryRoutes'); // Import category routes
+const productRoutes = require('./routes/productRoutes'); // Import product routes
 const shippingClassRoutes = require('./routes/shippingClassRoutes');
 const bulkUploadLogRoutes = require('./routes/bulkUploadLogRoutes');
-// const categoryRoutes = require('./routes/categoryRoutes'); // Category routes
 const relatedProductRoutes = require('./routes/relatedProductRoutes'); // Related products routes
 const productAttributeRoutes = require('./routes/productAttributeRoutes'); // Product attributes routes
 const productMetadataRoutes = require('./routes/productMetadataRoutes'); // Product metadata routes
@@ -19,8 +20,6 @@ const productTagRoutes = require('./routes/productTagRoutes');
 const productReviewRoutes = require('./routes/productReviewRoutes');
 const productPricingTierRoutes = require('./routes/productPricingTierRoutes');
 const taxRuleRoutes = require('./routes/taxRuleRoutes');
-// const storeRoutes = require('./routes/storeRoutes');
-const productRoutes = require('./routes/productRoutes'); // Import product routes
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -47,21 +46,40 @@ const swaggerOptions = {
         url: `http://localhost:${process.env.PORT || 8080}`,
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
   },
   apis: ['./routes/*.js'],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.get('/swagger.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerDocs);
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);
-// app.use('/api/warehouses', warehouseRoutes);
+app.use('/api/stores', storeRoutes); // Use store routes
+app.use('/api/categories', categoryRoutes); // Use category routes
+app.use('/api/products', productRoutes); // Use product routes
 app.use('/api/shipping-classes', shippingClassRoutes);
 app.use('/api/bulk-upload-logs', bulkUploadLogRoutes);
-// app.use('/api/categories', categoryRoutes); // Category routes
 app.use('/api/related-products', relatedProductRoutes); // Related products routes
 app.use('/api/product-attributes', productAttributeRoutes); // Product attributes routes
 app.use('/api/product-metadata', productMetadataRoutes); // Product metadata routes
@@ -70,8 +88,6 @@ app.use('/api/product-tags', productTagRoutes);
 app.use('/api/product-reviews', productReviewRoutes);
 app.use('/api/product-pricing-tiers', productPricingTierRoutes);
 app.use('/api/tax-rules', taxRuleRoutes);
-// app.use('/api/stores', storeRoutes);
-app.use('/api/products', productRoutes); // Use product routes
 
 // Health Check Endpoint
 app.get('/', (req, res) => {

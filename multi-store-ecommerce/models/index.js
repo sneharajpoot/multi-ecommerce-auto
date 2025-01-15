@@ -18,6 +18,7 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 // Import models
+// db.Store = require('./Stores');
 
 let failModel = []; // Initialize failModel as an array
 fs.readdirSync(__dirname)
