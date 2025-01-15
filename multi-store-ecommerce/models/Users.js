@@ -1,6 +1,6 @@
 const { Model, DataTypes } = require('sequelize');
 
-class User extends Model {
+class Users extends Model {
   static init(sequelize) {
     return super.init({
       id: {
@@ -27,11 +27,11 @@ class User extends Model {
       } 
     }, {
       sequelize,
-      modelName: 'User',
-      tableName: 'users',
+      modelName: 'Users',
+      tableName: 'Users',
       timestamps: true,
     });
   }
 }
 
-module.exports = User;
+module.exports = Users;

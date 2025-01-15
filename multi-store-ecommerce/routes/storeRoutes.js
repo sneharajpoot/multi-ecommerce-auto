@@ -1,7 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const storeController = require('../controllers/storeController');
-const { authenticate, authorize } = require('../middlewares/authMiddleware');
+const { authenticate, isStoreAdmin } = require('../middlewares/authMiddleware');
+const validateRequest = require('../utils/validationMiddleware');
+
+// Validation schema for registering a store
+const registerStoreValidation = {
+  name: 'required|string',
+  currency: 'required|string',
+  timezone: 'required|string',
+};
 
 /**
  * @swagger
@@ -20,10 +28,10 @@ const { authenticate, authorize } = require('../middlewares/authMiddleware');
  *             properties:
  *               name:
  *                 type: string
- *               description:
+ *               currency:
  *                 type: string
- *               ownerId:
- *                 type: integer
+ *               timezone:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Store created successfully
@@ -32,7 +40,7 @@ const { authenticate, authorize } = require('../middlewares/authMiddleware');
  *       500:
  *         description: Internal server error
  */
-router.post('/register', authenticate, authorize('store_admin'), storeController.registerStore);
+router.post('/register', authenticate, isStoreAdmin, validateRequest(registerStoreValidation), storeController.registerStore);
 
 /**
  * @swagger
@@ -48,7 +56,7 @@ router.post('/register', authenticate, authorize('store_admin'), storeController
  *       500:
  *         description: Internal server error
  */
-router.get('/', authenticate, authorize('admin', 'store_admin'), storeController.getAllStores);
+router.get('/', authenticate, storeController.getAllStores);
 
 /**
  * @swagger
@@ -73,7 +81,7 @@ router.get('/', authenticate, authorize('admin', 'store_admin'), storeController
  *       500:
  *         description: Internal server error
  */
-router.get('/:id', authenticate, authorize('admin', 'store_admin'), storeController.getStoreById);
+router.get('/:id', authenticate, storeController.getStoreById);
 
 /**
  * @swagger
@@ -109,7 +117,7 @@ router.get('/:id', authenticate, authorize('admin', 'store_admin'), storeControl
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', authenticate, authorize('admin', 'store_admin'), storeController.updateStore);
+router.put('/:id', authenticate, storeController.updateStore);
 
 /**
  * @swagger
@@ -134,6 +142,6 @@ router.put('/:id', authenticate, authorize('admin', 'store_admin'), storeControl
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', authenticate, authorize('admin'), storeController.deleteStore);
+router.delete('/:id', authenticate, storeController.deleteStore);
 
 module.exports = router;

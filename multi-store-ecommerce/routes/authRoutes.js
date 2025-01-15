@@ -9,7 +9,6 @@ const registerValidation = {
   name: 'required|string',
   email: 'required|string',
   password: 'required|string|min:6',
-  roleId: 'required|integer',
 };
 
 const loginValidation = {
@@ -54,8 +53,6 @@ const resetPasswordValidation = {
  *                 type: string
  *               password:
  *                 type: string
- *               roleId:
- *                 type: integer
  *     responses:
  *       201:
  *         description: User created successfully
@@ -128,7 +125,7 @@ router.post('/register-store', authController.registerStoreOwner);
  *       500:
  *         description: Internal server error
  */
-router.post('/register-customer', authController.registerCustomer);
+router.post('/register-customer', validateRequest(registerValidation), authController.registerCustomer);
 
 /**
  * @swagger

@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('../utils/jwtHelper');
 const db = require('../models'); // Correct path to models
-const { User } = db;
+const { Users } = db;
 
 // bcrypt.hash('Asd@1212', 10).then((hash) => {
 //   console.log('---->', hash)
@@ -18,21 +18,29 @@ exports.registerStoreOwner = async (req, res) => {
   const transaction = await db.sequelize.transaction(); // Use transactions for atomic operations
 
   try {
+    // Check if email already exists
+    const existingUser = await Users.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Email already exists' });
+    }
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create the user
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      role: 'store_admin'
-    }, { transaction });
+    // Insert user
+    const [userResult] = await db.sequelize.query(
+      `
+      INSERT INTO Users (uuid, name, email, password, role)
+      VALUES (UUID(), ?, ?, ?, ?)
+      `,
+      {
+        replacements: [name, email, hashedPassword, 'store_admin'], // Default role: Store Admin
+        type: db.Sequelize.QueryTypes.INSERT,
+      }
+    );
 
-    // Commit the transaction
-    await transaction.commit();
-
-    return res.status(201).json(user);
+    const userId = userResult; // Last inserted user ID
+    return res.status(201).json({ userId, name, email });
   } catch (error) {
     // Rollback the transaction in case of error
     await transaction.rollback();
@@ -49,6 +57,12 @@ exports.registerCustomer = async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
+    // Check if email already exists
+    const existingUser = await Users.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Email already exists' });
+    }
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -59,7 +73,7 @@ exports.registerCustomer = async (req, res) => {
       VALUES (UUID(), ?, ?, ?, ?)
       `,
       {
-        replacements: [name, email, hashedPassword, 3], // Role ID: Customer
+        replacements: [name, email, hashedPassword, 'customer'], // Default role: Customer
         type: db.Sequelize.QueryTypes.INSERT,
       }
     );
@@ -76,7 +90,7 @@ exports.registerCustomer = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ where: { email } });
+    const user = await Users.findOne({ where: { email } });
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }

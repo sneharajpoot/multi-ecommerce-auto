@@ -1,24 +1,30 @@
 // controllers/storeController.js
 
-const Store = require('../models/Stores');
+const db = require('../models'); // Correct path to models
+const { Store } = db;
 
-// Register a new store by store admin
-const registerStore = async (req, res) => {
+/**
+ * Register a new store.
+ * @param {Object} req - Request object.
+ * @param {Object} res - Response object.
+ */
+exports.registerStore = async (req, res) => {
+  const { name, currency, timezone } = req.body;
+  const ownerId = req.user.id; // Assuming the authenticated user is the store admin
+
   try {
-    const { name, address, owner } = req.body;
-
-    const newStore = new Store({
+    // Create the store
+    const store = await Store.create({
       name,
-      address,
-      owner,
-      isApproved: false // Initially, the store is not approved
+      ownerId,
+      currency,
+      timezone,
     });
 
-    await newStore.save();
-
-    res.status(201).json({ message: 'Store registered successfully', store: newStore });
+    return res.status(201).json(store);
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Error registering store:', error.message);
+    return res.status(500).json({ error: 'Failed to register store' });
   }
 };
 
@@ -105,7 +111,6 @@ const createStore = async (req, res) => {
 
 module.exports = {
   createStore,
-  registerStore,
   activateStore,
   deactivateStore,
   getStoreDetails,
