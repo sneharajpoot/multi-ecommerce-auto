@@ -12,7 +12,7 @@ const getAuthHeaders = () => {
 
 export const fetchStores = async () => {
   try {
-    const response = await axios.get(`${config.apiBaseUrl}/stores`, getAuthHeaders());
+    const response = await axios.get(`${config.apiBaseUrl}/stores`, getAuthHeaders());  
     return response.data;
   } catch (error) {
     console.error('Error fetching stores:', error);

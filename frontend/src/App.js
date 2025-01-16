@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom";
 import { Provider, useSelector, useDispatch } from "react-redux";
 import store from "./store";
 import Navbar from "./components/Navbar";
@@ -14,6 +14,7 @@ import { toast } from 'react-toastify'; // Import react-toastify
 import axiosInstance from './axiosConfig'; // Import the configured axios instance
 import StoreList from './components/StoreList'; // Import the StoreList component
 import { loadUser } from './actions/authActions'; // Import the loadUser action
+import CategoryList from './components/CategoryList'; // Import the CategoryList component
 
 const App = () => {
   const dispatch = useDispatch();
@@ -39,20 +40,22 @@ const App = () => {
   return (
     <Provider store={store}>
       <Router>
-        <Navbar />
-        <Switch>
-          <Route path="/" exact component={Home} />
-          <Route path="/login" component={Login} />
-          <Route path="/admin" render={() => (
-            <ProtectedRoute isAuthenticated={isAuthenticated} userRole={userRole} requiredRole="admin">
-              <AdminPanel />
-            </ProtectedRoute>
-          )} />
-          <Route path="/product/:id" component={ProductDetail} />
-          <Route path="/admin-signup" component={AdminSignup} />
-          <ProtectedRoute path="/dashboard" component={Dashboard} /> {/* Use ProtectedRoute for dashboard */}
-          <ProtectedRoute path="/dashboard/stores" component={StoreList} /> {/* Ensure this line is correct */}
-        </Switch>
+        <Navbar /> 
+          <Switch>
+            <Route path="/" exact component={Home} />
+            <Route path="/login" component={Login} />
+            <Route path="/admin" render={() => (
+              <ProtectedRoute isAuthenticated={isAuthenticated} userRole={userRole} requiredRole="admin">
+                <AdminPanel />
+              </ProtectedRoute>
+            )} />
+            <Route path="/product/:id" component={ProductDetail} />
+            <Route path="/admin-signup" component={AdminSignup} />
+            <ProtectedRoute path="/dashboard" component={Dashboard} /> {/* Use ProtectedRoute for dashboard */}
+            <ProtectedRoute path="/dashboard/stores" component={StoreList} /> {/* Ensure this line is correct */}
+            <Route path="/stores" component={StoreList} />
+            <Route path="/categories" component={CategoryList} /> {/* Add the route for CategoryList */}
+          </Switch> 
       </Router>
     </Provider>
   );
