@@ -19,6 +19,9 @@ const { authenticate, authorize } = require('../middlewares/authMiddleware');
  *           type: integer
  *         name:
  *           type: string
+ *         status:
+ *           type: string
+ *           enum: [active, inactive]
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -173,5 +176,45 @@ router.put('/:id', authenticate, authorize('admin', 'store_admin'), categoryCont
  *         description: Internal server error
  */
 router.delete('/:id', authenticate, authorize('admin', 'store_admin'), categoryController.deleteCategory);
+
+/**
+ * @swagger
+ * /api/categories/{id}/toggle-status:
+ *   patch:
+ *     summary: Toggle the status of a category
+ *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Category ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [active, inactive]
+ *                 description: The new status of the category
+ *     responses:
+ *       200:
+ *         description: Category status updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Category'
+ *       404:
+ *         description: Category not found
+ *       500:
+ *         description: Internal server error
+ */
+router.patch('/:id/toggle-status', authenticate, authorize('admin', 'store_admin'), categoryController.toggleCategoryStatus);
 
 module.exports = router;

@@ -66,7 +66,7 @@ const { authenticate, authorize } = require('../middleware/auth');
  *       500:
  *         description: Internal server error
  */
-router.post('/', authenticate, authorize('admin', 'store_admin'), productMetadataController.addProductMetadata);
+router.post('/:productId', authenticate, authorize('admin', 'store_admin'), productMetadataController.addProductMetadata);
 
 /**
  * @swagger
@@ -97,7 +97,7 @@ router.post('/', authenticate, authorize('admin', 'store_admin'), productMetadat
  *       500:
  *         description: Internal server error
  */
-router.get('/:product_id', authenticate, authorize('admin', 'store_admin'), productMetadataController.getProductMetadata);
+router.get('/:productId', authenticate, authorize('admin', 'store_admin'), productMetadataController.getProductMetadata);
 
 /**
  * @swagger
@@ -137,7 +137,7 @@ router.get('/:product_id', authenticate, authorize('admin', 'store_admin'), prod
  *       500:
  *         description: Internal server error
  */
-router.patch('/:id', authenticate, authorize('admin', 'store_admin'), productMetadataController.updateProductMetadata);
+router.patch('/:productId/:id', authenticate, authorize('admin', 'store_admin'), productMetadataController.updateProductMetadata);
 
 /**
  * @swagger
@@ -162,6 +162,6 @@ router.patch('/:id', authenticate, authorize('admin', 'store_admin'), productMet
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', authenticate, authorize('admin', 'store_admin'), productMetadataController.deleteProductMetadata);
+router.delete('/:productId/:id', authenticate, authorize('admin', 'store_admin'), productMetadataController.deleteProductMetadata);
 
 module.exports = router;

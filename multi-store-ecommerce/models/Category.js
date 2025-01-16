@@ -13,6 +13,15 @@ class Category extends Model {
                     type: DataTypes.STRING,
                     allowNull: false,
                 },
+                description: {
+                    type: DataTypes.STRING,
+                    allowNull: false,
+                },
+                
+                status : {
+                    type: DataTypes.BOOLEAN,
+                    allowNull: false,
+                },
                 createdAt: {
                     type: DataTypes.DATE,
                     allowNull: false,

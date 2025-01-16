@@ -7,10 +7,10 @@ const { Category } = db;
  * @param {Object} res - Response object.
  */
 exports.createCategory = async (req, res) => {
-  const { name } = req.body;
+  const { name,description } = req.body;
 
   try {
-    const category = await Category.create({ name });
+    const category = await Category.create({ name,description });
     return res.status(201).json(category);
   } catch (error) {
     console.error('Error creating category:', error.message);
@@ -61,7 +61,7 @@ exports.getCategoryById = async (req, res) => {
  */
 exports.updateCategory = async (req, res) => {
   const { id } = req.params;
-  const { name } = req.body;
+  const { name,description } = req.body;
 
   try {
     const category = await Category.findByPk(id);
@@ -70,6 +70,8 @@ exports.updateCategory = async (req, res) => {
     }
 
     category.name = name;
+    category.description = description;
+    
     await category.save();
 
     return res.status(200).json({ message: 'Category updated successfully', category });
@@ -98,5 +100,32 @@ exports.deleteCategory = async (req, res) => {
   } catch (error) {
     console.error('Error deleting category:', error.message);
     return res.status(500).json({ error: 'Failed to delete category' });
+  }
+};
+
+/**
+ * Toggle the status of a category.
+ * @param {Object} req - Request object.
+ * @param {Object} res - Response object.
+ */
+exports.toggleCategoryStatus = async (req, res) => {
+  console.log('toggleCategoryStatus');
+  const { id } = req.params;
+  const { status } = req.body;
+
+  try {
+    const category = await Category.findByPk(id);
+    if (!category) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+
+    category.status = !category.status;
+    let resr = await category.save();
+    console.log('res', resr);
+
+    return res.status(200).json({ message: 'Category status updated successfully', category });
+  } catch (error) {
+    console.error('Error updating category status:', error.message);
+    return res.status(500).json({ error: 'Failed to update category status' });
   }
 };

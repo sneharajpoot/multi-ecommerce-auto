@@ -87,7 +87,7 @@ const registerStoreValidation = {
  */
 router.post('/register', authenticate, validateRequest(registerStoreValidation), (req, res, next) => {
   req.body.ownerId = req.user.id;
-  storeController.registerStore(req, res, next);
+  storeController.registerStore(req, res, next).catch(next);
 });
 
 /**
@@ -108,7 +108,9 @@ router.post('/register', authenticate, validateRequest(registerStoreValidation),
  *       500:
  *         description: Internal server error
  */
-router.get('/', authenticate, authorize('admin', 'store_admin'), storeController.getAllStores);
+router.get('/', authenticate, authorize('admin', 'store_admin'), (req, res, next) => {
+  storeController.getAllStores(req, res, next).catch(next);
+});
 
 /**
  * @swagger
@@ -135,7 +137,9 @@ router.get('/', authenticate, authorize('admin', 'store_admin'), storeController
  *       500:
  *         description: Internal server error
  */
-router.get('/:id', authenticate, authorize('admin', 'store_admin'), storeController.getStoreById);
+router.get('/:id', authenticate, authorize('admin', 'store_admin'), (req, res, next) => {
+  storeController.getStoreById(req, res, next).catch(next);
+});
 
 /**
  * @swagger
@@ -173,7 +177,9 @@ router.get('/:id', authenticate, authorize('admin', 'store_admin'), storeControl
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', authenticate, authorize('admin', 'store_admin'), storeController.updateStore);
+router.put('/:id', authenticate, authorize('admin', 'store_admin'), (req, res, next) => {
+  storeController.updateStore(req, res, next).catch(next);
+});
 
 /**
  * @swagger
@@ -196,7 +202,9 @@ router.put('/:id', authenticate, authorize('admin', 'store_admin'), storeControl
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', authenticate, authorize('admin', 'store_admin'), storeController.deleteStore);
+router.delete('/:id', authenticate, authorize('admin', 'store_admin'), (req, res, next) => {
+  storeController.deleteStore(req, res, next).catch(next);
+});
 
 /**
  * @swagger
@@ -223,13 +231,15 @@ router.delete('/:id', authenticate, authorize('admin', 'store_admin'), storeCont
  *       500:
  *         description: Internal server error
  */
-router.patch('/:id/approve', authenticate, authorize('admin'), storeController.approveStore);
+router.patch('/:id/approve', authenticate, authorize('admin'), (req, res, next) => {
+  storeController.approveStore(req, res, next).catch(next);
+});
 
 /**
  * @swagger
  * /api/stores/{id}/activate:
  *   patch:
- *     summary: Activate a store
+ *     summary: Activate or deactivate a store
  *     tags: [Stores]
  *     parameters:
  *       - in: path
@@ -238,9 +248,19 @@ router.patch('/:id/approve', authenticate, authorize('admin'), storeController.a
  *           type: integer
  *         required: true
  *         description: Store ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               active:
+ *                 type: boolean
+ *                 description: Set to true to activate the store, false to deactivate
  *     responses:
  *       200:
- *         description: Store activated successfully
+ *         description: Store status updated successfully
  *         content:
  *           application/json:
  *             schema:
@@ -250,7 +270,22 @@ router.patch('/:id/approve', authenticate, authorize('admin'), storeController.a
  *       500:
  *         description: Internal server error
  */
-router.patch('/:id/activate', authenticate, authorize('admin', 'store_admin'), storeController.activateStore);
+router.patch('/:id/activate', authenticate, authorize('admin', 'store_admin'), async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { active } = req.body;
+
+    if (typeof active !== 'boolean') {
+      return res.status(400).json({ error: 'Invalid request: "active" must be a boolean' });
+    }
+
+    const store = active ? await storeController.activateStore(id) : await storeController.deactivateStore(id);
+
+    res.status(200).json({ message: `Store ${active ? 'activated' : 'deactivated'} successfully`, store });
+  } catch (error) {
+    next(error);
+  }
+});
 
 /**
  * @swagger
@@ -277,6 +312,14 @@ router.patch('/:id/activate', authenticate, authorize('admin', 'store_admin'), s
  *       500:
  *         description: Internal server error
  */
-router.patch('/:id/deactivate', authenticate, authorize('admin', 'store_admin'), storeController.deactivateStore);
+router.patch('/:id/deactivate', authenticate, authorize('admin', 'store_admin'), (req, res, next) => {
+  storeController.deactivateStore(req, res, next).catch(next);
+});
+
+// Error handling middleware
+router.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({ error: err.message || 'Internal Server Error' });
+});
 
 module.exports = router;
