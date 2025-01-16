@@ -1,0 +1,53 @@
+.dashboard {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #343a40;
+  color: white;
+  padding: 20px;
+  position: fixed;
+  top: 60px; /* Adjust for fixed top navbar */
+  bottom: 0;
+  left: 0;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add shadow */
+}
+
+.sidebar h2 {
+  margin-bottom: 20px;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  margin: 10px 0;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 250px; /* Adjust for fixed sidebar */
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-bottom: 1px solid #dee2e6;
+  position: fixed;
+  top: 60px; /* Adjust for fixed top navbar */
+  left: 250px; /* Adjust for fixed sidebar */
+  right: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add shadow */
+}
+
+.content {
+  padding: 20px;
+  margin-top: 120px; /* Adjust for fixed topbar */
+}

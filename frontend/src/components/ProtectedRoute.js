@@ -1,16 +1,23 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+import { Route, Redirect } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
-const ProtectedRoute = ({ isAuthenticated, userRole, requiredRole, children }) => {
-  if (!isAuthenticated) {
-    return <Redirect to="/login" />;
-  }
+const ProtectedRoute = ({ component: Component, requiredRole, ...rest }) => {
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const userRole = useSelector((state) => state.auth.userRole);
 
-  if (userRole !== requiredRole) {
-    return <Redirect to="/" />;
-  }
-
-  return children;
+  return (
+    <Route
+      {...rest}
+      render={(props) =>
+        isAuthenticated && (!requiredRole || userRole === requiredRole) ? (
+          <Component {...props} />
+        ) : (
+          <Redirect to="/login" />
+        )
+      }
+    />
+  );
 };
 
 export default ProtectedRoute;
