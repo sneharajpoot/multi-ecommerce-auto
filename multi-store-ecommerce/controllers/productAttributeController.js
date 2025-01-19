@@ -30,15 +30,24 @@ exports.updateProductAttribute = async (req, res) => {
 
     for (const update of updates) {
       const { id, ...data } = update;
+      if(id){
+
+      
       const [updated] = await ProductAttribute.update(data, { where: { id } });
       if (updated) {
         const updatedAttribute = await ProductAttribute.findByPk(id);
         updatedAttributes.push(updatedAttribute);
       }
+    } else {
+      const newAttribute = await ProductAttribute.create({ attributeName:data.attributeName, attributeValue:data.attributeValue, product_id :productId });
+      updatedAttributes.push(newAttribute);
+    }
+ 
     }
 
     res.status(200).json({ success: true, message: 'Product attributes updated successfully.', data: updatedAttributes });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ success: false, message: error.message });
   }
 };

@@ -103,7 +103,7 @@ router.get('/:id', getRolePermissionById);
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', validateRequest(rolePermissionValidation), updateRolePermission);
+router.patch('/:roleId', updateRolePermission);
 
 /**
  * @swagger

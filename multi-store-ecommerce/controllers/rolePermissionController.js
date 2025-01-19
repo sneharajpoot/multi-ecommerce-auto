@@ -1,5 +1,6 @@
-const db = require('../models'); // Correct path to models
-const { RolePermissions } = db;
+const db = require('../config/db');
+const Models = require('../models'); // Correct path to models
+const { RolePermissions, Role, Module, Permission } = Models;
 
 // Create RolePermission
 exports.createRolePermission = async (req, res) => {
@@ -16,9 +17,33 @@ exports.createRolePermission = async (req, res) => {
 // Get All RolePermissions
 exports.getAllRolePermissions = async (req, res) => {
   try {
-    const rolePermissions = await RolePermissions.findAll();
-    res.status(200).json(rolePermissions);
+    //
+    // const rolePermissions = await RolePermissions.findAll();
+
+    let sql = `
+      SELECT r.id roleId, r.roleName, m.id moduleId, m.name moduleName , 
+      COALESCE(rp.id, 0) AS rolePermissionId, 
+      COALESCE(rp.view, FALSE) AS view, 
+      COALESCE(rp.edit, FALSE) AS edit 
+      FROM Roles r JOIN Modules m LEFT 
+      JOIN RolePermissions rp ON rp.roleId=r.id and rp.moduleId = m.id  `;
+
+    let roleId = req.query.roleId;
+
+    if (roleId) {
+
+      sql += ` WHERE r.id = ${roleId} `;
+    }
+    const rolePermissions = await db.query(sql);
+
+
+
+    console.log(rolePermissions[0])
+
+    res.status(200).json(rolePermissions[0]);
+
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: 'Internal Server Error', message: error.message });
   }
 };
@@ -28,7 +53,24 @@ exports.getRolePermissionById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const rolePermission = await RolePermissions.findByPk(id);
+
+    // use sql query to get rolePermission
+    const rolePermission = await db.query(`
+      SELECT r.id roleId, r.roleName, m.id moduleId, m.name moduleName , 
+      COALESCE(rp.id, 0) AS rolePermissionId, 
+      COALESCE(rp.view, FALSE) AS view, 
+      COALESCE(rp.edit, FALSE) AS edit 
+      FROM Roles r JOIN Modules m LEFT 
+      WHERE rp.id = ${id}`,
+      { type: QueryTypes.SELECT });
+
+    // const rolePermission = await RolePermissions.findByPk(id, {
+    //   include: [
+    //     { model: Role, attributes: ['id', 'name'] },
+    //     { model: Permission, attributes: ['id', 'action'] },
+    //     { model: Module, attributes: ['id', 'name'] },
+    //   ],
+    // });
     if (!rolePermission) {
       return res.status(404).json({ error: 'RolePermission not found' });
     }
@@ -40,20 +82,40 @@ exports.getRolePermissionById = async (req, res) => {
 
 // Update RolePermission
 exports.updateRolePermission = async (req, res) => {
-  const { id } = req.params;
-  const { roleId, permissionId } = req.body;
+  const { roleId } = req.params;
+  const { rolePermissionId, moduleId, view, edit } = req.body;
 
+  console.log( rolePermissionId, moduleId, view, edit)
   try {
-    const rolePermission = await RolePermissions.findByPk(id);
-    if (!rolePermission) {
-      return res.status(404).json({ error: 'RolePermission not found' });
+    if (rolePermissionId) {
+
+      const rolePermission = await RolePermissions.findByPk(rolePermissionId);
+      if (!rolePermission) {
+        return res.status(404).json({ error: 'RolePermission not found' });
+      }
+
+      // update rolePermission
+      rolePermission.view = view;
+      rolePermission.edit = edit;
+      rolePermission.moduleId = moduleId;
+      rolePermission.roleId = roleId;
+
+     let resp =  await rolePermission.save();
+
+     console.log('resp-->s', resp)
+      // rolePermission.roleId = roleId;
+      // rolePermission.permissionId = permissionId;
+      // rolePermission.moduleId = moduleId;
+
+      // await rolePermission.save();
+
+    } else {
+
+      const newRolePermission = await RolePermissions.create({ roleId, moduleId, view, edit });
     }
 
-    rolePermission.roleId = roleId;
-    rolePermission.permissionId = permissionId;
-    await rolePermission.save();
 
-    res.status(200).json({ message: 'RolePermission updated successfully', rolePermission });
+    res.status(200).json({ message: 'RolePermission updated successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error', message: error.message });
   }

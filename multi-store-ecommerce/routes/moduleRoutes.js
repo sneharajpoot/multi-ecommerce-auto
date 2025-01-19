@@ -103,7 +103,7 @@ router.get('/:id', getModuleById);
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', validateRequest(moduleValidation), updateModule);
+router.patch('/:id', validateRequest(moduleValidation), updateModule);
 
 /**
  * @swagger

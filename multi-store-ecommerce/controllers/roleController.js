@@ -1,12 +1,15 @@
 const db = require('../models'); // Correct path to models
+const { v4: uuidv4 } = require('uuid');
 const { Roles } = db;
 
 // Create Role
 exports.createRole = async (req, res) => {
-  const { name, description } = req.body;
+  const { roleName, description } = req.body;
 
   try {
-    const newRole = await Roles.create({ name, description });
+    // add uuid also to the role
+    const uuid = uuidv4();
+    const newRole = await Roles.create({ uuid, roleName, description });
     res.status(201).json({ message: 'Role created successfully', role: newRole });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error', message: error.message });
@@ -42,7 +45,7 @@ exports.getRoleById = async (req, res) => {
 // Update Role
 exports.updateRole = async (req, res) => {
   const { id } = req.params;
-  const { name, description } = req.body;
+  const { roleName, description } = req.body;
 
   try {
     const role = await Roles.findByPk(id);
@@ -50,7 +53,7 @@ exports.updateRole = async (req, res) => {
       return res.status(404).json({ error: 'Role not found' });
     }
 
-    role.name = name;
+    role.roleName = roleName;
     role.description = description;
     await role.save();
 
@@ -112,4 +115,3 @@ exports.listRolesWithPermissions = async () => {
     throw new Error('Failed to retrieve roles and permissions');
   }
 };
- 

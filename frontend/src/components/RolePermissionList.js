@@ -19,6 +19,8 @@ const RolePermissionList = () => {
     setLoading(true); // Set loading to true
     try {
       const response = await fetchRolePermissions();
+
+      console.log(response.data);
       setRolePermissions(response.data);
     } catch (error) {
       setError('Error fetching role permissions.');
@@ -104,6 +106,7 @@ const RolePermissionList = () => {
     <div className=" " >
       <div className="row justify-content-center">
         <div className="col-md-10">
+          
           <h2 className="text-center my-4">Role Permission List</h2>
           {message && <div className="alert alert-success">{message}</div>}
           {error && <div className="alert alert-danger">{error}</div>}
@@ -123,9 +126,10 @@ const RolePermissionList = () => {
             <tbody>
               {rolePermissions.map((rolePermission) => (
                 <tr key={rolePermission.id}>
-                  <td>{rolePermission.id}</td>
-                  <td>{roles.find(role => role.id === rolePermission.roleId)?.name}</td>
-                  <td>{permissions.find(permission => permission.id === rolePermission.permissionId)?.name}</td>
+                  <td> {rolePermission.id}</td>
+                  <td> {rolePermission.action}</td> 
+                  <td> {rolePermission.module_name}</td>
+                  {/* <td>{permissions.find(permission => permission.id === rolePermission.permissionId)?.name}</td> */}
                   <td>
                     <Button variant="primary" className="me-2" onClick={() => handleShowModal(rolePermission)}>Edit</Button>
                     <Button variant="danger" className="me-2" onClick={() => handleDeleteRolePermission(rolePermission.id)}>Delete</Button>
@@ -149,7 +153,7 @@ const RolePermissionList = () => {
                   >
                     <option value="">Select Role</option>
                     {roles.map(role => (
-                      <option key={role.id} value={role.id}>{role.name}</option>
+                      <option key={role.id} value={role.id}>{role.roleName}</option>
                     ))}
                   </Form.Select>
                 </Form.Group>
@@ -161,7 +165,7 @@ const RolePermissionList = () => {
                   >
                     <option value="">Select Permission</option>
                     {permissions.map(permission => (
-                      <option key={permission.id} value={permission.id}>{permission.name}</option>
+                      <option key={permission.id} value={permission.id}>{permission.action}</option>
                     ))}
                   </Form.Select>
                 </Form.Group>

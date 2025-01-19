@@ -16,9 +16,14 @@ class RolePermissions extends Model {
                 type: DataTypes.INTEGER,
                 allowNull: false,
             },
-            permissionId: {
-                type: DataTypes.INTEGER,
+            view: {
+                type: DataTypes.BOOLEAN,
                 allowNull: true,
+            },
+
+            edit: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
             },
 
             createdAt: {

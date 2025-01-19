@@ -107,7 +107,7 @@ router.get('/:id', authenticate, isAdmin, roleController.getRoleById);
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', authenticate, isAdmin, roleController.updateRole);
+router.patch('/:id', authenticate, isAdmin, roleController.updateRole);
 
 /**
  * @swagger
