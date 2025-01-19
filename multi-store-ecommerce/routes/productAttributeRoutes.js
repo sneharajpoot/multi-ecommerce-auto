@@ -66,7 +66,7 @@ const { authenticate, authorize } = require('../middleware/auth');
  *       500:
  *         description: Internal server error
  */
-router.post('/:productId', authenticate, authorize('admin', 'store_admin'), productAttributeController.addProductAttribute);
+router.post('/:productId', authenticate, productAttributeController.addProductAttribute);
 
 /**
  * @swagger
@@ -97,7 +97,7 @@ router.post('/:productId', authenticate, authorize('admin', 'store_admin'), prod
  *       500:
  *         description: Internal server error
  */
-router.get('/:productId', authenticate, authorize('admin', 'store_admin'), productAttributeController.getProductAttributes);
+router.get('/:productId', authenticate, productAttributeController.getProductAttributes);
 
 /**
  * @swagger
@@ -137,7 +137,7 @@ router.get('/:productId', authenticate, authorize('admin', 'store_admin'), produ
  *       500:
  *         description: Internal server error
  */
-router.patch('/:productId/:id', authenticate, authorize('admin', 'store_admin'), productAttributeController.updateProductAttribute);
+router.patch('/:productId', authenticate, productAttributeController.updateProductAttribute);
 
 /**
  * @swagger
@@ -162,6 +162,6 @@ router.patch('/:productId/:id', authenticate, authorize('admin', 'store_admin'),
  *       500:
  *         description: Internal server error
  */
-router.delete('/:productId/:id', authenticate, authorize('admin', 'store_admin'), productAttributeController.deleteProductAttribute);
+router.delete('/:id', authenticate, productAttributeController.deleteProductAttribute);
 
 module.exports = router;

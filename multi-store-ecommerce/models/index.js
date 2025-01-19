@@ -14,11 +14,9 @@ const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
 
 const db = {};
 
-db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-// Import models
-// db.Store = require('./Stores');
+// Import models 
 
 let failModel = []; // Initialize failModel as an array
 fs.readdirSync(__dirname)

@@ -20,6 +20,10 @@ const productTagRoutes = require('./routes/productTagRoutes');
 const productReviewRoutes = require('./routes/productReviewRoutes');
 const productPricingTierRoutes = require('./routes/productPricingTierRoutes');
 const taxRuleRoutes = require('./routes/taxRuleRoutes');
+const moduleRoutes = require('./routes/moduleRoutes'); // Import module routes
+const permissionRoutes = require('./routes/permissionRoutes'); // Import permission routes
+const rolePermissionRoutes = require('./routes/rolePermissionRoutes'); // Import role permission routes
+const roleAssignmentRoutes = require('./routes/roleAssignmentRoutes'); // Import role assignment routes
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -31,6 +35,12 @@ app.use(express.json()); // Parse JSON requests
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded requests
 app.use(cors()); // Enable Cross-Origin Resource Sharing
 app.use(morgan('dev')); // HTTP request logging (for development)
+
+// Set strict-origin-when-cross-origin header
+app.use((req, res, next) => {
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
 
 // Swagger setup
 const swaggerOptions = {
@@ -88,6 +98,10 @@ app.use('/api/product-tags', productTagRoutes);
 app.use('/api/product-reviews', productReviewRoutes);
 app.use('/api/product-pricing-tiers', productPricingTierRoutes);
 app.use('/api/tax-rules', taxRuleRoutes);
+app.use('/api/modules', moduleRoutes); // Use module routes
+app.use('/api/permissions', permissionRoutes); // Use permission routes
+app.use('/api/role-permissions', rolePermissionRoutes); // Use role permission routes
+app.use('/api/role-assignments', roleAssignmentRoutes); // Use role assignment routes
 
 // Health Check Endpoint
 app.get('/', (req, res) => {

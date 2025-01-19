@@ -24,7 +24,15 @@ class Users extends Model {
       role: {
         type: DataTypes.ENUM('admin', 'store_admin', 'customer'),
         defaultValue: 'customer',
-      } 
+      },
+      status: {
+        type: DataTypes.ENUM('active', 'inactive', 'pending'),
+        defaultValue: 'customer',
+      },
+      is_deleted: {
+        type: DataTypes.INTEGER, 
+        defaultValue: 0,
+      },
     }, {
       sequelize,
       modelName: 'Users',

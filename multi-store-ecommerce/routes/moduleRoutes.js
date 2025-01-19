@@ -1,16 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const roleController = require('../controllers/roleController');
-const { authenticate, isAdmin } = require('../middlewares/authMiddleware');
+const { createModule, getAllModules, getModuleById, updateModule, deleteModule } = require('../controllers/moduleController');
+const validateRequest = require('../utils/validationMiddleware');
+
+// Validation schema for Module
+const moduleValidation = {
+  name: 'required|string',
+  description: 'string',
+};
 
 /**
  * @swagger
- * /api/roles:
+ * /api/modules:
  *   post:
- *     summary: Create a new role
- *     tags: [Roles]
- *     security:
- *       - bearerAuth: []
+ *     summary: Create a new module
+ *     tags: [Modules]
  *     requestBody:
  *       required: true
  *       content:
@@ -18,74 +22,68 @@ const { authenticate, isAdmin } = require('../middlewares/authMiddleware');
  *           schema:
  *             type: object
  *             properties:
- *               roleName:
+ *               name:
  *                 type: string
  *               description:
  *                 type: string
  *     responses:
  *       201:
- *         description: Role created successfully
- *       400:
- *         description: Bad request
+ *         description: Module created successfully
  *       500:
  *         description: Internal server error
  */
-router.post('/', authenticate, isAdmin, roleController.createRole);
+router.post('/', validateRequest(moduleValidation), createModule);
 
 /**
  * @swagger
- * /api/roles:
+ * /api/modules:
  *   get:
- *     summary: Get all roles
- *     tags: [Roles]
- *     security:
- *       - bearerAuth: []
+ *     summary: Get all modules
+ *     tags: [Modules]
  *     responses:
  *       200:
- *         description: A list of roles
+ *         description: List of modules
  *       500:
  *         description: Internal server error
  */
-router.get('/', authenticate, isAdmin, roleController.getAllRoles);
+router.get('/', getAllModules);
 
 /**
  * @swagger
- * /api/roles/{id}:
+ * /api/modules/{id}:
  *   get:
- *     summary: Get a role by ID
- *     tags: [Roles]
- *     security:
- *       - bearerAuth: []
+ *     summary: Get a module by ID
+ *     tags: [Modules]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
+ *         description: The ID of the module
  *     responses:
  *       200:
- *         description: Role details
+ *         description: Module details
  *       404:
- *         description: Role not found
+ *         description: Module not found
  *       500:
  *         description: Internal server error
  */
-router.get('/:id', authenticate, isAdmin, roleController.getRoleById);
+router.get('/:id', getModuleById);
 
 /**
  * @swagger
- * /api/roles/{id}:
+ * /api/modules/{id}:
  *   put:
- *     summary: Update a role by ID
- *     tags: [Roles]
- *     security:
- *       - bearerAuth: []
+ *     summary: Update a module
+ *     tags: [Modules]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
+ *         description: The ID of the module
  *     requestBody:
  *       required: true
  *       content:
@@ -93,44 +91,42 @@ router.get('/:id', authenticate, isAdmin, roleController.getRoleById);
  *           schema:
  *             type: object
  *             properties:
- *               roleName:
+ *               name:
  *                 type: string
  *               description:
  *                 type: string
  *     responses:
  *       200:
- *         description: Role updated successfully
- *       400:
- *         description: Bad request
+ *         description: Module updated successfully
  *       404:
- *         description: Role not found
+ *         description: Module not found
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', authenticate, isAdmin, roleController.updateRole);
+router.put('/:id', validateRequest(moduleValidation), updateModule);
 
 /**
  * @swagger
- * /api/roles/{id}:
+ * /api/modules/{id}:
  *   delete:
- *     summary: Delete a role by ID
- *     tags: [Roles]
- *     security:
- *       - bearerAuth: []
+ *     summary: Delete a module
+ *     tags: [Modules]
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
+ *         description: The ID of the module
  *     responses:
  *       200:
- *         description: Role deleted successfully
+ *         description: Module deleted successfully
  *       404:
- *         description: Role not found
+ *         description: Module not found
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', authenticate, isAdmin, roleController.deleteRole);
+router.delete('/:id', deleteModule);
 
 module.exports = router;
+

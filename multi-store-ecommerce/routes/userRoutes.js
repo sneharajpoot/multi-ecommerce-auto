@@ -1,14 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { getUserList, assignRole, updateUser, deleteUser, createUser } = require('../controllers/userController');
-const { authenticate, isAdmin } = require('../middlewares/authMiddleware');
+const { getUserList, assignRole, updateUser, deleteUser, createUser, updateUserStatus } = require('../controllers/userController');
+const { isAdmin } = require('../middlewares/authMiddleware');
 const validateRequest = require('../utils/validationMiddleware');
+const { authenticate, authorize } = require('../middleware/auth');
 
 // Validation schema for updating a user
 const updateUserValidation = {
   name: 'required|string',
   email: 'required|string',
-  roleId: 'required|integer',
+  role: 'required|integer',
 };
 
 // Validation schema for deleting a user
@@ -22,6 +23,15 @@ const createUserValidation = {
   email: 'required|string',
   password: 'required|string',
   role: 'required|string|in:admin,store_admin,customer'
+};
+
+
+
+router.post('/', authenticate, validateRequest(createUserValidation), createUser );
+
+// Validation schema for updating user status
+const updateUserStatusValidation = {
+  status: 'required|string|in:active,inactive'
 };
 
 /**
@@ -55,7 +65,7 @@ const createUserValidation = {
  *       500:
  *         description: Internal server error
  */
-router.post('/api/users/create', authenticate, isAdmin, validateRequest(createUserValidation), createUser);
+router.post('/create', authenticate, validateRequest(createUserValidation), createUser);
 
 /**
  * @swagger
@@ -84,7 +94,8 @@ router.post('/api/users/create', authenticate, isAdmin, validateRequest(createUs
  *       500:
  *         description: Internal server error
  */
-router.get('/api/users', isAdmin, async (req, res) => {
+
+router.get('/', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -129,7 +140,8 @@ router.get('/api/users', isAdmin, async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.patch('/api/users/assign-role', authenticate, isAdmin, assignRole);
+
+router.patch('/assign-role', authenticate, assignRole);
 
 /**
  * @swagger
@@ -167,9 +179,52 @@ router.patch('/api/users/assign-role', authenticate, isAdmin, assignRole);
  *       500:
  *         description: Internal server error
  */
-router.put('/api/users/:id', authenticate, validateRequest(updateUserValidation), async (req, res) => {
+
+router.put('/:id', authenticate, validateRequest(updateUserValidation), async (req, res) => {
   try {
     const result = await updateUser(req.params.id, req.body);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   patch:
+ *     summary: Update user status
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [active, inactive]
+ *     responses:
+ *       200:
+ *         description: User status updated successfully
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Internal server error
+ */
+router.patch('/:id/status', validateRequest(updateUserStatusValidation), async (req, res) => {
+  try {
+    const result = await updateUserStatus(req.params.id, req.body.status);
     res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -199,7 +254,7 @@ router.put('/api/users/:id', authenticate, validateRequest(updateUserValidation)
  *       500:
  *         description: Internal server error
  */
-router.delete('/api/users/:id', authenticate, validateRequest(deleteUserValidation), async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const result = await deleteUser(req.params.id);
     res.status(200).json(result);

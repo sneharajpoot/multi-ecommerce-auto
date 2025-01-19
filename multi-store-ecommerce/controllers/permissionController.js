@@ -1,70 +1,77 @@
-/**
- * Create a new permission
- * @param {Object} data - Permission data
- */
-const createPermission = async (data) => {
-    const { action, description } = data;
-    try {
-      const result = await db.query(
-        'INSERT INTO Permissions (action, description, createdAt, updatedAt) VALUES (?, ?, NOW(), NOW())',
-        [action, description]
-      );
-      return { id: result.insertId, action, description };
-    } catch (error) {
-      console.error('Error creating permission:', error.message);
-      throw new Error('Failed to create permission');
+const db = require('../models'); // Correct path to models
+const { Permissions } = db;
+
+// Create Permission
+exports.createPermission = async (req, res) => {
+  const { action, description } = req.body;
+
+  try {
+    const newPermission = await Permissions.create({ action, description });
+    res.status(201).json({ message: 'Permission created successfully', permission: newPermission });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error', message: error.message });
+  }
+};
+
+// Get All Permissions
+exports.listPermissions = async (req, res) => {
+  try {
+    const permissions = await Permissions.findAll();
+    res.status(200).json(permissions);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error', message: error.message });
+  }
+};
+
+// Get Permission by ID
+exports.getPermissionById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const permission = await Permissions.findByPk(id);
+    if (!permission) {
+      return res.status(404).json({ error: 'Permission not found' });
     }
-  };
-  
-  /**
-   * Get a list of permissions
-   */
-  const listPermissions = async () => {
-    try {
-      const permissions = await db.query('SELECT * FROM Permissions');
-      return permissions;
-    } catch (error) {
-      console.error('Error listing permissions:', error.message);
-      throw new Error('Failed to retrieve permissions');
+    res.status(200).json(permission);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error', message: error.message });
+  }
+};
+
+// Update Permission
+exports.updatePermission = async (req, res) => {
+  const { id } = req.params;
+  const { action, description } = req.body;
+
+  try {
+    const permission = await Permissions.findByPk(id);
+    if (!permission) {
+      return res.status(404).json({ error: 'Permission not found' });
     }
-  };
-  
-  /**
-   * Update a permission
-   * @param {Object} data - Permission data
-   */
-  const updatePermission = async (data) => {
-    const { id, action, description } = data;
-    try {
-      await db.query(
-        'UPDATE Permissions SET action = ?, description = ?, updatedAt = NOW() WHERE id = ?',
-        [action, description, id]
-      );
-      return { id, action, description };
-    } catch (error) {
-      console.error('Error updating permission:', error.message);
-      throw new Error('Failed to update permission');
+
+    permission.action = action;
+    permission.description = description;
+    await permission.save();
+
+    res.status(200).json({ message: 'Permission updated successfully', permission });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error', message: error.message });
+  }
+};
+
+// Delete Permission
+exports.deletePermission = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const permission = await Permissions.findByPk(id);
+    if (!permission) {
+      return res.status(404).json({ error: 'Permission not found' });
     }
-  };
-  
-  /**
-   * Delete a permission
-   * @param {Number} id - Permission ID
-   */
-  const deletePermission = async (id) => {
-    try {
-      await db.query('DELETE FROM Permissions WHERE id = ?', [id]);
-      return { message: 'Permission deleted successfully' };
-    } catch (error) {
-      console.error('Error deleting permission:', error.message);
-      throw new Error('Failed to delete permission');
-    }
-  };
-  
-  module.exports = {
-    createPermission,
-    listPermissions,
-    updatePermission,
-    deletePermission,
-  };
-  
+
+    await permission.destroy();
+    res.status(200).json({ message: 'Permission deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error', message: error.message });
+  }
+};

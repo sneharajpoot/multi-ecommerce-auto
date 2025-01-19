@@ -1,5 +1,5 @@
 const db = require('../models'); // Correct path to models
-const { Stores, Products } = db;
+const { Stores, Products, ProductMetadata, ProductAttribute, Category } = db;
 const { Op } = require('sequelize');
 
 exports.createProduct = async (req, res) => {
@@ -40,27 +40,57 @@ exports.listProducts = async (req, res) => {
     const offset = (page - 1) * limit;
 
     const where = {};
-    if (store_id) {
-      where.store_id = store_id;
-    }
-    if (name) {
-      where.name = { [Op.like]: `%{name}%` };
-    }
-    if (quantity) {
-      where.quantity = { [Op.gte]: quantity };
-    }
+    
+    // if (name) {
+    //   where.name = { [Op.like]: `%{name}%` };
+    // }
+    // if (quantity) {
+    //   where.quantity = { [Op.gte]: quantity };
+    // }
 
-    const { count, rows } = await Products.findAndCountAll({
-      where,
-      limit: parseInt(limit),
-      offset: parseInt(offset),
-    });
+    // const replacements = { name: `%${name}%`, limit: parseInt(limit), offset: parseInt(offset) };
+    const replacements = {  limit: parseInt(limit), offset: parseInt(offset) };
+    if (store_id) {
+      replacements.store_id = store_id;
+    } else {
+      replacements.store_id = null;
+    }
+    // if (quantity) {
+    //   replacements.quantity = quantity;
+    // } else {
+    //   replacements.quantity = 0;
+    // }
+
+    const products = await db.sequelize.query(
+      `SELECT p.*, c.name as category_name, s.name as store_name
+       FROM Products p
+       LEFT JOIN Categories c ON p.category_id = c.id
+       LEFT JOIN Stores s ON p.store_id = s.id
+       WHERE (:store_id IS NULL OR p.store_id = :store_id)   
+       LIMIT :limit OFFSET :offset`,
+      {
+        replacements,
+        type: db.sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    const count = await db.sequelize.query(
+      `SELECT COUNT(*) as count
+       FROM Products p
+       LEFT JOIN Categories c ON p.category_id = c.id
+       LEFT JOIN Stores s ON p.store_id = s.id
+       WHERE (:store_id IS NULL OR p.store_id = :store_id)    `,
+      {
+        replacements,
+        type: db.sequelize.QueryTypes.SELECT,
+      }
+    );
 
     res.status(200).json({
-      totalItems: count,
-      totalPages: Math.ceil(count / limit),
+      totalItems: count[0].count,
+      totalPages: Math.ceil(count[0].count / limit),
       currentPage: parseInt(page),
-      products: rows,
+      products,
     });
   } catch (error) {
     console.error('Error fetching products:', error.message);
@@ -71,13 +101,37 @@ exports.listProducts = async (req, res) => {
 exports.getProductById = async (req, res) => {
   try {
     const { product_id } = req.params;
-    const product = await Products.findByPk(product_id);
+    const product = await db.sequelize.query(
+      `SELECT p.*  FROM Products p WHERE p.id = :product_id`,
+      {
+        replacements: { product_id },
+        type: db.sequelize.QueryTypes.SELECT,
+      }
+    );
 
-    if (!product) {
+    
+    const productAttributes = await db.sequelize.query(
+      `SELECT  pa.*  FROM ProductAttributes pa WHERE pa.product_id = :product_id`, 
+      {
+        replacements: { product_id },
+        type: db.sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    
+    const productMetadata = await db.sequelize.query(
+      `SELECT  pm.*  FROM ProductMetadata pm WHERE pm.product_id = :product_id`,
+      {
+        replacements: { product_id },
+        type: db.sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    if (!product.length) {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    res.status(200).json(product);
+    res.status(200).json({product, productAttributes, productMetadata});
   } catch (error) {
     console.error('Error fetching product:', error.message);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -89,15 +143,16 @@ exports.updateProduct = async (req, res) => {
     const { product_id } = req.params;
     const updates = req.body;
 
+    console.log(updates, product_id);
     const product = await Products.findByPk(product_id);
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
 
     // Ensure store_id is not updated
-    if (updates.store_id && updates.store_id !== product.store_id) {
-      return res.status(400).json({ error: 'store_id cannot be updated' });
-    }
+    // if (updates.store_id && updates.store_id !== product.store_id) {
+    //   return res.status(400).json({ error: 'store_id cannot be updated' });
+    // }
 
     // Check if SKU is unique within the store if it's being updated and is different from the current SKU
     if (updates.sku && updates.sku !== product.sku) {

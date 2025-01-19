@@ -10,7 +10,7 @@ const {
 /**
  * Route to create a new permission
  */
-router.post('/permissions', async (req, res) => {
+router.post('', async (req, res) => {
   try {
     const { action, description } = req.body;
     if (!action) return res.status(400).json({ error: 'Action is required' });
@@ -25,7 +25,7 @@ router.post('/permissions', async (req, res) => {
 /**
  * Route to get a list of permissions
  */
-router.get('/permissions', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const permissions = await listPermissions();
     res.status(200).json(permissions);
@@ -37,7 +37,7 @@ router.get('/permissions', async (req, res) => {
 /**
  * Route to update a permission
  */
-router.put('/permissions/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { action, description } = req.body;
@@ -53,7 +53,7 @@ router.put('/permissions/:id', async (req, res) => {
 /**
  * Route to delete a permission
  */
-router.delete('/permissions/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
