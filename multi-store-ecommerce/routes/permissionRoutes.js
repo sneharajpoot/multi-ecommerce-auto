@@ -1,10 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {
-  createPermission,
-  listPermissions,
-  updatePermission,
-  deletePermission,
+const { createPermission, listPermissions, updatePermission, deletePermission,
 } = require('../controllers/permissionController');
 
 /**
@@ -30,6 +26,7 @@ router.get('/', async (req, res) => {
     const permissions = await listPermissions();
     res.status(200).json(permissions);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: error.message });
   }
 });

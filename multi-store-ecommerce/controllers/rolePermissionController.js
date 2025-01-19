@@ -1,12 +1,12 @@
 const db = require('../models'); // Correct path to models
-const { RolePermission } = db;
+const { RolePermissions } = db;
 
 // Create RolePermission
 exports.createRolePermission = async (req, res) => {
   const { roleId, permissionId } = req.body;
 
   try {
-    const newRolePermission = await RolePermission.create({ roleId, permissionId });
+    const newRolePermission = await RolePermissions.create({ roleId, permissionId });
     res.status(201).json({ message: 'RolePermission created successfully', rolePermission: newRolePermission });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error', message: error.message });
@@ -16,7 +16,7 @@ exports.createRolePermission = async (req, res) => {
 // Get All RolePermissions
 exports.getAllRolePermissions = async (req, res) => {
   try {
-    const rolePermissions = await RolePermission.findAll();
+    const rolePermissions = await RolePermissions.findAll();
     res.status(200).json(rolePermissions);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error', message: error.message });
@@ -28,7 +28,7 @@ exports.getRolePermissionById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const rolePermission = await RolePermission.findByPk(id);
+    const rolePermission = await RolePermissions.findByPk(id);
     if (!rolePermission) {
       return res.status(404).json({ error: 'RolePermission not found' });
     }
@@ -44,7 +44,7 @@ exports.updateRolePermission = async (req, res) => {
   const { roleId, permissionId } = req.body;
 
   try {
-    const rolePermission = await RolePermission.findByPk(id);
+    const rolePermission = await RolePermissions.findByPk(id);
     if (!rolePermission) {
       return res.status(404).json({ error: 'RolePermission not found' });
     }
@@ -64,7 +64,7 @@ exports.deleteRolePermission = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const rolePermission = await RolePermission.findByPk(id);
+    const rolePermission = await RolePermissions.findByPk(id);
     if (!rolePermission) {
       return res.status(404).json({ error: 'RolePermission not found' });
     }

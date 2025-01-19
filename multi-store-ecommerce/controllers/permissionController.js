@@ -9,17 +9,19 @@ exports.createPermission = async (req, res) => {
     const newPermission = await Permissions.create({ action, description });
     res.status(201).json({ message: 'Permission created successfully', permission: newPermission });
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    res.status(500).json({ error: error.message || 'Internal Server Error', message: error.message });
   }
 };
 
 // Get All Permissions
 exports.listPermissions = async (req, res) => {
   try {
+    console.log('listPermissions');
     const permissions = await Permissions.findAll();
-    res.status(200).json(permissions);
+    return (permissions);
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    console.log(error);
+    throw new Error({ error:  error.message || 'Internal Server Error', message: error.message });
   }
 };
 
@@ -34,7 +36,7 @@ exports.getPermissionById = async (req, res) => {
     }
     res.status(200).json(permission);
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    res.status(500).json({ error: error.message || 'Internal Server Error', message: error.message });
   }
 };
 
@@ -55,7 +57,7 @@ exports.updatePermission = async (req, res) => {
 
     res.status(200).json({ message: 'Permission updated successfully', permission });
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    res.status(500).json({ error: error.message || 'Internal Server Error', message: error.message });
   }
 };
 
@@ -72,6 +74,6 @@ exports.deletePermission = async (req, res) => {
     await permission.destroy();
     res.status(200).json({ message: 'Permission deleted successfully' });
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    res.status(500).json({ error: error.message || 'Internal Server Error', message: error.message });
   }
 };
