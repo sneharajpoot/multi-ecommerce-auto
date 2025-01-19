@@ -18,8 +18,8 @@ export const getProductAttributes = (productId) => {
   return axios.get(`${config.apiBaseUrl}/product-attributes/${productId}`, getAuthHeaders());
 };
 
-export const updateProductAttributes = (productId, id, attributes) => {
-  return axios.patch(`${config.apiBaseUrl}/product-attributes/${productId}/${id}`, attributes, getAuthHeaders());
+export const updateProductAttributes = (productId,   attributes) => {
+  return axios.patch(`${config.apiBaseUrl}/product-attributes/${productId}`, attributes, getAuthHeaders());
 };
 
 export const deleteProductAttributes = (productId,id) => {

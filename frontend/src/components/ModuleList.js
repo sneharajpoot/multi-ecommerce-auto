@@ -32,7 +32,7 @@ const ModuleList = () => {
     setLoading(true);
     try {
       if (isEditMode) {
-        await updateModule(currentModule);
+        await updateModule(currentModule.id, currentModule);
         setMessage('Module updated successfully.');
       } else {
         await addModule(currentModule);

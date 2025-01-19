@@ -14,7 +14,6 @@ import UserList from './UserList'; // Import the UserList component
 import AddUser from './AddUser'; // Import the AddUser component
 import UpdateUser from './UpdateUser'; // Import the UpdateUser component
 import RoleList from './RoleList'; // Import the RoleList component
-import PermissionList from './PermissionList'; // Import the PermissionList component
 import ModuleList from './ModuleList'; // Import the ModuleList component
 import RolePermissionList from './RolePermissionList'; // Import the RolePermissionList component
 
@@ -33,9 +32,7 @@ const Dashboard = () => {
           <li><Link to={`${url}/categories`}>Categories</Link></li> {/* Add the Categories tab */}
           <li><Link to={`${url}/users`}>Users</Link></li> {/* Add the Users tab */}
           <li><Link to={`${url}/roles`}>Roles</Link></li> {/* Add the Roles tab */}
-          <li><Link to={`${url}/permissions`}>Permissions</Link></li> {/* Add the Permissions tab */}
           <li><Link to={`${url}/modules`}>Modules</Link></li> {/* Add the Modules tab */}
-          <li><Link to={`${url}/role-permissions`}>Role Permissions</Link></li> {/* Add the Role Permissions tab */}
         </ul>
       </div>
       <div className="main-content">
@@ -59,12 +56,8 @@ const Dashboard = () => {
             <ProtectedRoute path={`${path}/users/update/:id`} component={UpdateUser} />
             {/* Add the routes for Roles */}
             <ProtectedRoute path={`${path}/roles`} component={RoleList} />
-            {/* Add the routes for Permissions */}
-            <ProtectedRoute path={`${path}/permissions`} component={PermissionList} />
             {/* Add the routes for Modules */}
             <ProtectedRoute path={`${path}/modules`} component={ModuleList} />
-            {/* Add the routes for Role Permissions */}
-            <ProtectedRoute path={`${path}/role-permissions`} component={RolePermissionList} />
           </Switch>
         </div>
       </div>

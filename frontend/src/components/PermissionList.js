@@ -100,7 +100,7 @@ const PermissionList = () => {
               {permissions.map((permission) => (
                 <tr key={permission.id}>
                   <td>{permission.id}</td>
-                  <td>{permission.name}</td>
+                  <td>{permission.action}</td>
                   <td>{permission.description}</td>
                   <td>
                     <Button variant="primary" className="me-2" onClick={() => handleShowModal(permission)}>Edit</Button>

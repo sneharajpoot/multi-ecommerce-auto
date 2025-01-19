@@ -10,8 +10,8 @@ const getAuthHeaders = () => {
   };
 };
 
-export const fetchRolePermissions = () => {
-  return axios.get(`${config.apiBaseUrl}/role-permissions`, getAuthHeaders());
+export const fetchRolePermissions = (roleId) => {
+  return axios.get(`${config.apiBaseUrl}/role-permissions?roleId=${roleId}`, getAuthHeaders());
 };
 
 export const fetchRolePermissionById = (id) => {
@@ -22,8 +22,8 @@ export const addRolePermission = (rolePermission) => {
   return axios.post(`${config.apiBaseUrl}/role-permissions`, rolePermission, getAuthHeaders());
 };
 
-export const updateRolePermission = (id, rolePermission) => {
-  return axios.patch(`${config.apiBaseUrl}/role-permissions/${id}`, rolePermission, getAuthHeaders());
+export const updateRolePermission = (roleid, rolePermission) => {
+  return axios.patch(`${config.apiBaseUrl}/role-permissions/${roleid}`, rolePermission, getAuthHeaders());
 };
 
 export const deleteRolePermission = (id) => {

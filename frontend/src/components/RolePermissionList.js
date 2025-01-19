@@ -2,13 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { fetchRolePermissions, addRolePermission, updateRolePermission, deleteRolePermission } from '../api/rolePermissionApi'; // Import the API functions
 import { fetchRoles } from '../api/roleApi'; // Import the API function for fetching roles
 import { fetchPermissions } from '../api/permissionApi'; // Import the API function for fetching permissions
+import { fetchModules } from '../api/moduleApi'; // Import the API function for fetching modules
 import { Modal, Button, Form } from 'react-bootstrap'; // Import Bootstrap components
 
 const RolePermissionList = () => {
   const [rolePermissions, setRolePermissions] = useState([]);
   const [roles, setRoles] = useState([]);
   const [permissions, setPermissions] = useState([]);
-  const [currentRolePermission, setCurrentRolePermission] = useState({ id: '', roleId: '', permissionId: '' });
+  const [modules, setModules] = useState([]);
+  const [currentRolePermission, setCurrentRolePermission] = useState({ id: '', roleId: '', permissionId: '', moduleId: '' });
   const [showModal, setShowModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [message, setMessage] = useState('');
@@ -48,10 +50,20 @@ const RolePermissionList = () => {
     }
   };
 
+  const getModules = async () => {
+    try {
+      const response = await fetchModules();
+      setModules(response.data);
+    } catch (error) {
+      console.error('Error fetching modules:', error);
+    }
+  };
+
   useEffect(() => {
     getRolePermissions();
     getRoles();
     getPermissions();
+    getModules();
   }, []);
 
   const handleSaveRolePermission = async () => {
@@ -92,7 +104,7 @@ const RolePermissionList = () => {
     }
   };
 
-  const handleShowModal = (rolePermission = { id: '', roleId: '', permissionId: '' }) => {
+  const handleShowModal = (rolePermission = { id: '', roleId: '', permissionId: '', moduleId: '' }) => {
     setCurrentRolePermission(rolePermission);
     setIsEditMode(!!rolePermission.id);
     setShowModal(true);
@@ -120,6 +132,7 @@ const RolePermissionList = () => {
                 <th>ID</th>
                 <th>Role</th>
                 <th>Permission</th>
+                <th>Module</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -127,9 +140,9 @@ const RolePermissionList = () => {
               {rolePermissions.map((rolePermission) => (
                 <tr key={rolePermission.id}>
                   <td> {rolePermission.id}</td>
-                  <td> {rolePermission.action}</td> 
-                  <td> {rolePermission.module_name}</td>
-                  {/* <td>{permissions.find(permission => permission.id === rolePermission.permissionId)?.name}</td> */}
+                  <td>{ rolePermission.roleName }</td>
+                  <td>{ rolePermission.action}</td>
+                  <td>{ rolePermission.module_name}</td>
                   <td>
                     <Button variant="primary" className="me-2" onClick={() => handleShowModal(rolePermission)}>Edit</Button>
                     <Button variant="danger" className="me-2" onClick={() => handleDeleteRolePermission(rolePermission.id)}>Delete</Button>
@@ -166,6 +179,18 @@ const RolePermissionList = () => {
                     <option value="">Select Permission</option>
                     {permissions.map(permission => (
                       <option key={permission.id} value={permission.id}>{permission.action}</option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formModuleId">
+                  <Form.Label>Module</Form.Label>
+                  <Form.Select
+                    value={currentRolePermission.moduleId}
+                    onChange={(e) => setCurrentRolePermission({ ...currentRolePermission, moduleId: e.target.value })}
+                  >
+                    <option value="">Select Module</option>
+                    {modules.map(module => (
+                      <option key={module.id} value={module.id}>{module.name}</option>
                     ))}
                   </Form.Select>
                 </Form.Group>
