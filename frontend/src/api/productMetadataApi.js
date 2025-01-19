@@ -14,14 +14,14 @@ export const addProductMetadata = (productId, metadata) => {
   return axios.post(`${config.apiBaseUrl}/product-metadata/${productId}`, metadata, getAuthHeaders());
 };
 
-export const getProductMetadata = (productId) => {
+export const fetchProductMetadata = (productId) => {
   return axios.get(`${config.apiBaseUrl}/product-metadata/${productId}`, getAuthHeaders());
 };
 
-export const updateProductMetadata = (productId, id, metadata) => {
-  return axios.patch(`${config.apiBaseUrl}/product-metadata/${productId}/${id}`, metadata, getAuthHeaders());
+export const updateProductMetadata = (productId, metadata) => {
+  return axios.patch(`${config.apiBaseUrl}/product-metadata/${productId}`, metadata, getAuthHeaders());
 };
 
-export const deleteProductMetadata = (productId, id) => {
-  return axios.delete(`${config.apiBaseUrl}/product-metadata/${productId}/${id}`, getAuthHeaders());
+export const deleteProductMetadata = (id) => {
+  return axios.delete(`${config.apiBaseUrl}/product-metadata/${id}`, getAuthHeaders());
 };

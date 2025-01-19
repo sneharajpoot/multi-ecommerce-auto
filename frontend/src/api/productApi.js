@@ -10,8 +10,17 @@ const getAuthHeaders = () => {
   };
 };
 
-export const fetchProducts = () => {
-  return axios.get(`${config.apiBaseUrl}/products`, getAuthHeaders());
+export const fetchProducts = (page, store_id, category_id) => {
+  const params = {
+    page,
+    store_id,
+    category_id
+  };
+  return axios.get(`${config.apiBaseUrl}/products`, { params, ...getAuthHeaders() });
+};
+
+export const fetchProductById = (id) => {
+  return axios.get(`${config.apiBaseUrl}/products/${id}`, getAuthHeaders());
 };
 
 export const addProduct = (product) => {
