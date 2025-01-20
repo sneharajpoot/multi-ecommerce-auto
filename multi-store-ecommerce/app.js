@@ -24,6 +24,7 @@ const moduleRoutes = require('./routes/moduleRoutes'); // Import module routes
 const permissionRoutes = require('./routes/permissionRoutes'); // Import permission routes
 const rolePermissionRoutes = require('./routes/rolePermissionRoutes'); // Import role permission routes
 const roleAssignmentRoutes = require('./routes/roleAssignmentRoutes'); // Import role assignment routes
+const productImageRoutes = require('./routes/productImageRoutes'); // Import product image routes
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -102,6 +103,7 @@ app.use('/api/modules', moduleRoutes); // Use module routes
 app.use('/api/permissions', permissionRoutes); // Use permission routes
 app.use('/api/role-permissions', rolePermissionRoutes); // Use role permission routes
 app.use('/api/role-assignments', roleAssignmentRoutes); // Use role assignment routes
+app.use('/api/product-images', productImageRoutes); // Use product image routes
 
 // Health Check Endpoint
 app.get('/', (req, res) => {
