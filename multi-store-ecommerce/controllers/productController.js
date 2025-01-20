@@ -127,11 +127,21 @@ exports.getProductById = async (req, res) => {
       }
     );
 
+    // product image 
+    const productImage = await db.sequelize.query(
+      `SELECT id, product_id ,url ,is_primary, createdAt, updatedAt FROM Product_Images WHERE  product_id = :product_id `,
+      {
+        replacements: { product_id },
+        type: db.sequelize.QueryTypes.SELECT,
+
+      }
+    )
+
     if (!product.length) {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    res.status(200).json({product, productAttributes, productMetadata});
+    res.status(200).json({product, productAttributes, productMetadata, productImage});
   } catch (error) {
     console.error('Error fetching product:', error.message);
     res.status(500).json({ error: 'Internal Server Error' });

@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { addProductImage, getProductImages, updateProductImage, deleteProductImage } = require('../controllers/productImageController');
+const { addProductImage, getProductImages, updateProductImage, deleteProductImage, viewUploadedImage, setprimary } = require('../controllers/productImageController');
 const validateRequest = require('../utils/validationMiddleware');
 
 const upload = multer({ dest: 'uploads/' });
 
 // Validation schema for ProductImage
 const productImageValidation = {
-  isPrimary: 'boolean',
+  is_primary: 'boolean',
 };
 
 /**
@@ -42,7 +42,7 @@ const productImageValidation = {
  *       500:
  *         description: Internal server error
  */
-router.post('/:productId', upload.single('image'), validateRequest(productImageValidation), addProductImage);
+router.post('/:productId', upload.single('images'), validateRequest(productImageValidation), addProductImage);
 
 /**
  * @swagger
@@ -94,6 +94,7 @@ router.get('/:productId', getProductImages);
  *         description: Internal server error
  */
 router.put('/:id', validateRequest(productImageValidation), updateProductImage);
+router.patch('/setprimary/:productId/:id', setprimary);
 
 /**
  * @swagger
@@ -114,6 +115,9 @@ router.put('/:id', validateRequest(productImageValidation), updateProductImage);
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', deleteProductImage);
+router.delete('/:productId/:id', deleteProductImage);
+
+// Route to view uploaded image
+router.get('/view/:imageName', viewUploadedImage);
 
 module.exports = router;

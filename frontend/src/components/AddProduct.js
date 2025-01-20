@@ -4,6 +4,7 @@ import { addProductMetadata } from '../api/productMetadataApi'; // Import the AP
 import { addProductAttributes } from '../api/productAttributesApi'; // Import the API function for adding product attributes
 import { fetchStores } from '../api/storeApi'; // Import the API function for fetching stores
 import { fetchCategories } from '../api/categoryApi'; // Import the API function for fetching categories
+import { uploadProductImage, deleteProductImage, setPrimaryImage } from '../api/productImageApi'; // Import the API function for uploading and deleting product image
 import { useHistory } from 'react-router-dom'; // Import useHistory for navigation
 
 const AddProduct = ({ onProductAdded }) => {
@@ -16,6 +17,10 @@ const AddProduct = ({ onProductAdded }) => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false); // Add loading state
     const [step, setStep] = useState(1); // Add step state
+    const [image, setImage] = useState(null); // Add image state
+    const [images, setImages] = useState([]); // Add images state
+    const [primaryImageIndex, setPrimaryImageIndex] = useState(null); // Add primary image index state
+    const [uploadedImages, setUploadedImages] = useState([]); // Add uploaded images state
     const history = useHistory(); // Initialize useHistory
 
     useEffect(() => {
@@ -47,22 +52,24 @@ const AddProduct = ({ onProductAdded }) => {
         getCategories();
     }, []);
 
-    const handleAddProduct = async () => {
-        setLoading(true); // Set loading to true
-        try {
-            const response = await addProduct(product);
-            setProduct({ ...product, id: response.data.id }); // Save the product ID
-            setMessage('Product added successfully!');
-            setError('');
-            setStep(2); // Move to step 2 for adding metadata
-        } catch (error) {
-            setError('Error adding product.');
-            setMessage('');
-            console.error('Error adding product:', error);
-        } finally {
-            setLoading(false); // Set loading to false
-        }
-    };
+// ...existing code...
+const handleAddProduct = async () => {
+    setLoading(true); // Set loading to true
+    try {
+        const response = await addProduct(product);
+        setProduct({ ...product, id: response.data.product.id }); // Save the product ID
+        setMessage('Product added successfully!');
+        setError('');
+        setStep(2); // Move to step 2 for adding metadata
+    } catch (error) {
+        setError('Error adding product.');
+        setMessage('');
+        console.error('Error adding product:', error);
+    } finally {
+        setLoading(false); // Set loading to false
+    }
+};
+// ...existing code...
 
     const handleAddMetadata = async () => {
         setLoading(true); // Set loading to true
@@ -88,11 +95,32 @@ const AddProduct = ({ onProductAdded }) => {
             await addProductAttributes(product.id, attributesWithProductId);
             setMessage('Product attributes added successfully!');
             setError('');
-            setStep(4); // Move to final step
+            setStep(4); // Move to step 4 for uploading image
         } catch (error) {
             setError('Error adding product attributes.');
             setMessage('');
             console.error('Error adding product attributes:', error);
+        } finally {
+            setLoading(false); // Set loading to false
+        }
+    };
+
+    const handleUploadImage = async () => {
+        setLoading(true); // Set loading to true
+        try {
+            const formData = new FormData();
+            images.forEach((image, index) => {
+                formData.append('images', image);
+                formData.append('is_primary', index === primaryImageIndex);
+            });
+            await uploadProductImage(product.id, formData);
+            setMessage('Product images uploaded successfully!');
+            setError('');
+            setStep(5); // Move to final step
+        } catch (error) {
+            setError('Error uploading product images.');
+            setMessage('');
+            console.error('Error uploading product images:', error);
         } finally {
             setLoading(false); // Set loading to false
         }
@@ -132,11 +160,72 @@ const AddProduct = ({ onProductAdded }) => {
         setAttributes(newAttributes);
     };
 
+    const handleImageChange = async (e) => {
+        setLoading(true); // Set loading to true
+        try {
+            const formData = new FormData();
+            Array.from(e.target.files).forEach((file, index) => {
+                formData.append('images', file);
+                formData.append('is_primary', uploadedImages.length === 0 && index === 0);
+            });
+            const response = await uploadProductImage(product.id, formData);
+            setUploadedImages([...uploadedImages, response.data.image]);
+            setMessage('Images uploaded successfully!');
+            setError('');
+        } catch (error) {
+            setError('Error uploading images.');
+            setMessage('');
+            console.error('Error uploading images:', error);
+        } finally {
+            setLoading(false); // Set loading to false
+        }
+        e.target.value = null; // Clear the input value to allow re-uploading the same file
+    };
+
+    const handleDeleteImage = async (imageId) => {
+        setLoading(true); // Set loading to true
+        try {
+            await deleteProductImage(product.id, imageId);
+            setUploadedImages(uploadedImages.filter(image => image.id !== imageId));
+            setMessage('Image deleted successfully!');
+            setError('');
+        } catch (error) {
+            setError('Error deleting image.');
+            setMessage('');
+            console.error('Error deleting image:', error);
+        } finally {
+            setLoading(false); // Set loading to false
+        }
+    };
+
+    const handlePrimaryImageChange = async (index) => {
+        setLoading(true); // Set loading to true
+        try {
+            const imageId = uploadedImages[index].id;
+            await setPrimaryImage(product.id, imageId);
+            setPrimaryImageIndex(index);
+            setMessage('Primary image updated successfully!');
+            setError('');
+        } catch (error) {
+            setError('Error updating primary image.');
+            setMessage('');
+            console.error('Error updating primary image:', error);
+        } finally {
+            setLoading(false); // Set loading to false
+        }
+    };
+
+    const handleAddMoreImages = (e) => {
+        setImages([...images, ...Array.from(e.target.files)]);
+        e.target.value = null; // Clear the input value to allow re-uploading the same file
+    };
+
     const steps = [
         { step: 1, label: 'Add Product' },
         { step: 2, label: 'Add Product Metadata' },
         { step: 3, label: 'Add Product Attributes' },
-        { step: 4, label: 'Product Added Successfully' }
+        { step: 4, label: 'Upload Product Image' }, // Add new step for uploading image
+        { step: 5, label: 'Product Added Successfully' }
     ];
 
     return (
@@ -314,6 +403,47 @@ const AddProduct = ({ onProductAdded }) => {
                     </div>
                     <button type="button" className="btn btn-secondary" onClick={addAttributeField}>Add Attribute Field</button>
                     <button type="button" className="btn btn-primary" onClick={handleAddAttributes} disabled={loading}>Save Attributes</button>
+                    <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={loading}>Cancel</button>
+                </form>
+            ) : step === 4 ? (
+                <form>
+                    <div className="mb-3">
+                        <label htmlFor="formProductImages" className="form-label">Product Images</label>
+                        <input
+                            type="file"
+                            className="form-control"
+                            id="formProductImages"
+                            multiple
+                            onChange={handleImageChange}
+                        />
+                    </div>
+                    {uploadedImages.length > 0 && (
+                        <div className="mb-3">
+                            <label className="form-label">Select Primary Image</label>
+                            <div className="d-flex flex-wrap">
+                                {uploadedImages.map((image, index) => (
+                                    <div key={image.id} className="m-2 position-relative">
+                                        <img src={image.url} alt={`Product ${index}`} width="100" height="100" />
+                                        <div className="form-check">
+                                            <input
+                                                className="form-check-input"
+                                                type="radio"
+                                                name="primaryImage"
+                                                id={`primaryImage${index}`}
+                                                checked={primaryImageIndex === index}
+                                                onChange={() => handlePrimaryImageChange(index)}
+                                            />
+                                            <label className="form-check-label" htmlFor={`primaryImage${index}`}>
+                                                Primary
+                                            </label>
+                                        </div>
+                                        <button type="button" className="btn btn-danger btn-sm position-absolute top-0 end-0" onClick={() => handleDeleteImage(image.id)}>Delete</button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    <button type="button" className="btn btn-primary" onClick={handleUploadImage} disabled={loading}>Upload Images</button>
                     <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={loading}>Cancel</button>
                 </form>
             ) : (
