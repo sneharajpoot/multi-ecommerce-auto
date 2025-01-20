@@ -3,7 +3,7 @@ const { ProductAttribute } = require('../models');
 exports.addProductAttribute = async (req, res) => {
   try {
     let { productId } = req.params;
-    let body = req.body.map((attribute) => ({ ...attribute, productId:productId }));
+    let body = req.body.map((attribute) => ({ ...attribute, productId: productId }));
     const attributes = await ProductAttribute.bulkCreate(body);
     res.status(201).json({ success: true, message: 'Product attributes added successfully.', data: attributes });
   } catch (error) {
@@ -23,22 +23,38 @@ exports.getProductAttributes = async (req, res) => {
 
 exports.updateProductAttribute = async (req, res) => {
   try {
-    const updates = req.body;
-    let { productId } = req.params;
+    const { productId } = req.params;
+    const attributeArray = req.body;
 
-    const updatedAttributes = [];
-
-    for (const update of updates) {
-      const { id, ...data } = update;
-      const [updated] = await ProductAttribute.update(data, { where: { id } });
-      if (updated) {
-        const updatedAttribute = await ProductAttribute.findByPk(id);
-        updatedAttributes.push(updatedAttribute);
-      }
+    if (!Array.isArray(attributeArray)) {
+      return res.status(400).json({ error: 'Request body must be an array' });
     }
+
+    const existingAttribute = await ProductAttribute.findAll({ where: { product_id: productId } });
+    const existingKeys = existingAttribute.map((metadata) => metadata.attributeValue);
+
+    const updatedAttributes = await Promise.all(
+      attributeArray.map(async (metadata) => {
+        const { id, attributeName, attributeValue } = metadata;
+        if (existingKeys.includes(attributeValue)) {
+          const existingAttribute = await ProductAttribute.findOne({ where: { product_id: productId, attributeName } });
+          existingAttribute.attributeValue = attributeValue;
+          return await existingAttribute.save();
+        } else {
+          return await ProductAttribute.create({ product_id: productId, attributeName, attributeValue });
+        }
+      })
+    );
+
+    const newKeys = attributeArray.map((metadata) => metadata.attributeName);
+    const keysToDelete = existingKeys.filter((attributeName) => !newKeys.includes(attributeName));
+
+    await ProductAttribute.destroy({ where: { product_id: productId, attributeName: keysToDelete } });
+
 
     res.status(200).json({ success: true, message: 'Product attributes updated successfully.', data: updatedAttributes });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ success: false, message: error.message });
   }
 };

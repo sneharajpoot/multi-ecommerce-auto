@@ -6,6 +6,7 @@ import { fetchStores } from '../api/storeApi'; // Import the API function for fe
 import { fetchCategories } from '../api/categoryApi'; // Import the API function for fetching categories
 import { uploadProductImage, deleteProductImage, setPrimaryImage } from '../api/productImageApi'; // Import the API function for uploading and deleting product image
 import { useHistory } from 'react-router-dom'; // Import useHistory for navigation
+import config from '../config';
 
 const AddProduct = ({ onProductAdded }) => {
     const [product, setProduct] = useState({ name: '', description: '', price: '', sku: '', category_id: '', store_id: '' });
@@ -108,18 +109,18 @@ const handleAddProduct = async () => {
     const handleUploadImage = async () => {
         setLoading(true); // Set loading to true
         try {
-            const formData = new FormData();
-            images.forEach((image, index) => {
-                formData.append('images', image);
-                formData.append('is_primary', index === primaryImageIndex);
-            });
-            await uploadProductImage(product.id, formData);
-            setMessage('Product images uploaded successfully!');
-            setError('');
+            // const formData = new FormData();
+            // images.forEach((image, index) => {
+            //     formData.append('images', image);
+            //     formData.append('is_primary', index === primaryImageIndex);
+            // });
+            // await uploadProductImage(product.id, formData);
+            // setMessage('Product images uploaded successfully!');
+            // setError('');
             setStep(5); // Move to final step
         } catch (error) {
-            setError('Error uploading product images.');
-            setMessage('');
+            // setError('Error uploading product images.');
+            // setMessage('');
             console.error('Error uploading product images:', error);
         } finally {
             setLoading(false); // Set loading to false
@@ -423,7 +424,7 @@ const handleAddProduct = async () => {
                             <div className="d-flex flex-wrap">
                                 {uploadedImages.map((image, index) => (
                                     <div key={image.id} className="m-2 position-relative">
-                                        <img src={image.url} alt={`Product ${index}`} width="100" height="100" />
+                                        <img src={config.imgBaseUrl + image.url} alt={`Product ${index}`} width="100" height="100" />
                                         <div className="form-check">
                                             <input
                                                 className="form-check-input"
@@ -443,7 +444,7 @@ const handleAddProduct = async () => {
                             </div>
                         </div>
                     )}
-                    <button type="button" className="btn btn-primary" onClick={handleUploadImage} disabled={loading}>Upload Images</button>
+                    <button type="button" className="btn btn-primary" onClick={handleUploadImage} disabled={loading}>Next</button>
                     <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={loading}>Cancel</button>
                 </form>
             ) : (

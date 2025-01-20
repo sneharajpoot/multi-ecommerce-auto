@@ -42,6 +42,9 @@ const UpdateProduct = ({ onProductUpdated }) => {
         });
         setMetadata(response.data.productMetadata);
         setAttributes(response.data.productAttributes);
+        setUploadedImages(response.data.productImage);
+        const primaryImageIndex = response.data.productImage.findIndex(image => image.is_primary === 1);
+        setPrimaryImageIndex(primaryImageIndex);
       } catch (error) {
         console.error('Error fetching product:', error);
       } finally {
@@ -131,18 +134,13 @@ const UpdateProduct = ({ onProductUpdated }) => {
   const handleUploadImage = async () => {
     setLoading(true); // Set loading to true
     try {
-      const formData = new FormData();
-      images.forEach((image, index) => {
-        formData.append('images', image);
-        formData.append('is_primary', index === primaryImageIndex);
-      });
-      await uploadProductImage(id, formData);
-      setMessage('Product images uploaded successfully!');
-      setError('');
+      
+      // setMessage('Product images uploaded successfully!');
+      // setError('');
       setStep(5); // Move to final step
     } catch (error) {
-      setError('Error uploading product images.');
-      setMessage('');
+      // setError('Error uploading product images.');
+      // setMessage('');
       console.error('Error uploading product images:', error);
     } finally {
       setLoading(false); // Set loading to false
@@ -475,7 +473,7 @@ const handlePrimaryImageChange = async (index) => {
                 </div>
             </div>
         )}
-        <button type="button" className="btn btn-primary" onClick={handleUploadImage} disabled={loading}>Upload Images</button>
+        <button type="button" className="btn btn-primary" onClick={handleUploadImage} disabled={loading}>Next</button>
         <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={loading}>Cancel</button>
     </form>
       ) : (

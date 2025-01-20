@@ -68,6 +68,7 @@ exports.updateProductMetadata = async (req, res) => {
 
     res.status(200).json({ message: 'Product metadata updated successfully', metadata: updatedMetadata });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: 'Internal Server Error', message: error.message });
   }
 };
