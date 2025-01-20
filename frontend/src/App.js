@@ -15,6 +15,7 @@ import axiosInstance from './axiosConfig'; // Import the configured axios instan
 import StoreList from './components/StoreList'; // Import the StoreList component
 import { loadUser } from './actions/authActions'; // Import the loadUser action
 import CategoryList from './components/CategoryList'; // Import the CategoryList component
+import ProductTags from './components/ProductTags'; // Import the ProductTags component
 
 const App = () => {
   const dispatch = useDispatch();
@@ -55,6 +56,7 @@ const App = () => {
             <ProtectedRoute path="/dashboard/stores" component={StoreList} /> {/* Ensure this line is correct */}
             <Route path="/stores" component={StoreList} />
             <Route path="/categories" component={CategoryList} /> {/* Add the route for CategoryList */}
+            <ProtectedRoute path="/dashboard/product-tags" component={ProductTags} /> {/* Add new route for ProductTags */}
           </Switch> 
       </Router>
     </Provider>
