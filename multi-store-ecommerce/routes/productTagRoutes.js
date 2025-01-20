@@ -62,7 +62,21 @@ const { authenticate, authorize } = require('../middleware/auth');
  *       500:
  *         description: Internal server error
  */
-router.post('/', authenticate, authorize('admin', 'store_admin'), productTagController.addProductTag);
+router.post('/', authenticate, productTagController.addProductTag);
+
+/**
+ * @swagger
+ * /api/product-tags:
+ *   get:
+ *     summary: Get all product tags
+ *     tags: [Product Tags]
+ *     responses:
+ *       200:
+ *         description: List of product tags
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/', productTagController.getProductTags);
 
 /**
  * @swagger
@@ -93,7 +107,7 @@ router.post('/', authenticate, authorize('admin', 'store_admin'), productTagCont
  *       500:
  *         description: Internal server error
  */
-router.get('/:product_id', authenticate, authorize('admin', 'store_admin'), productTagController.getProductTags);
+router.get('/:product_id', authenticate, productTagController.getProductTags);
 
 /**
  * @swagger
@@ -118,6 +132,6 @@ router.get('/:product_id', authenticate, authorize('admin', 'store_admin'), prod
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', authenticate, authorize('admin', 'store_admin'), productTagController.deleteProductTag);
+router.delete('/:id', authenticate, productTagController.deleteProductTag);
 
 module.exports = router;

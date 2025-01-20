@@ -5,14 +5,17 @@ import { addProductAttributes, updateProductAttributes } from '../api/productAtt
 import { fetchStores } from '../api/storeApi'; // Import the API function for fetching stores
 import { fetchCategories } from '../api/categoryApi'; // Import the API function for fetching categories
 import { uploadProductImage, deleteProductImage, setPrimaryImage } from '../api/productImageApi'; // Import the API functions for uploading and deleting product image
+import { addProductTag, deleteProductTag, fetchProductTags } from '../api/productTagApi'; // Import the API functions for managing product tags
 import { useHistory, useParams } from 'react-router-dom'; // Import useHistory and useParams for navigation
-
+import { Modal, Button, Form } from 'react-bootstrap'; // Import Bootstrap components
 import config from '../config';
+
 const UpdateProduct = ({ onProductUpdated }) => {
   const { id } = useParams(); // Get the product ID from the URL
   const [product, setProduct] = useState({ name: '', description: '', price: '', sku: '', category_id: '', store_id: '' });
   const [metadata, setMetadata] = useState([{ key: '', value: '' }]);
   const [attributes, setAttributes] = useState([{ attributeName: '', attributeValue: '' }]);
+  const [tags, setTags] = useState([]); // Add tags state
   const [stores, setStores] = useState([]);
   const [categories, setCategories] = useState([]);
   const [message, setMessage] = useState('');
@@ -23,6 +26,8 @@ const UpdateProduct = ({ onProductUpdated }) => {
   const [images, setImages] = useState([]); // Add images state
   const [primaryImageIndex, setPrimaryImageIndex] = useState(null); // Add primary image index state
   const [uploadedImages, setUploadedImages] = useState([]); // Add uploaded images state
+  const [showTagModal, setShowTagModal] = useState(false); // Add state for showing tag modal
+  const [currentTag, setCurrentTag] = useState({ tag: '' }); // Add state for current tag
   const history = useHistory(); // Initialize useHistory
 
   useEffect(() => {
@@ -44,7 +49,8 @@ const UpdateProduct = ({ onProductUpdated }) => {
         setAttributes(response.data.productAttributes);
         setUploadedImages(response.data.productImage);
         const primaryImageIndex = response.data.productImage.findIndex(image => image.is_primary === 1);
-        setPrimaryImageIndex(primaryImageIndex);
+        setPrimaryImageIndex(primaryImageIndex); 
+        setTags(response.data?.productTag );
       } catch (error) {
         console.error('Error fetching product:', error);
       } finally {
@@ -243,6 +249,57 @@ const handlePrimaryImageChange = async (index) => {
     e.target.value = null; // Clear the input value to allow re-uploading the same file
   };
 
+  const handleShowTagModal = () => {
+    setCurrentTag({ tag: '' });
+    setShowTagModal(true);
+  };
+
+  const handleCloseTagModal = () => {
+    setShowTagModal(false);
+  };
+
+  const handleSaveTag = async () => {
+    setLoading(true);
+    try {
+        const newTag = { ...currentTag, product_id: product.id };
+        await addProductTag(newTag);
+        await getTags(product.id);
+        handleCloseTagModal();
+    } catch (error) {
+        console.error('Error saving tag:', error);
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  const handleDeleteTag = async (id) => {
+    setLoading(true);
+    try {
+        await deleteProductTag(id);
+        await getTags(product.id);
+    } catch (error) {
+        console.error('Error deleting tag:', error);
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  const getTags = async (productId) => {
+    setLoading(true);
+    try {
+        const response = await fetchProductTags(productId);
+        setTags(response.data?.data || []);
+    } catch (error) {
+        console.error('Error fetching tags:', error);
+    } finally {
+        setLoading(false);
+    }
+  };
+
+  const handleTagChange = (e) => {
+    setCurrentTag({ ...currentTag, tag: e.target.value });
+  };
+
   const steps = [
     { step: 1, label: 'Step 1 Update Product' },
     { step: 2, label: 'Step 2 Metadata' },
@@ -347,6 +404,18 @@ const handlePrimaryImageChange = async (index) => {
                 <option key={store.id} value={store.id}>{store.name}</option>
               ))}
             </select>
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Tags</label>
+            <ul>
+              {tags.map((tag, index) => (
+                <li key={index}>
+                  {tag.tag}
+                  <Button variant="danger" size="sm" className="ms-2" onClick={() => handleDeleteTag(tag.id)}>Delete</Button>
+                </li>
+              ))}
+            </ul>
+            <Button variant="primary" onClick={handleShowTagModal}>Add Tag</Button>
           </div>
           <button type="button" className="btn btn-primary" onClick={handleSaveProduct} disabled={loading}>
             Update Product
@@ -482,6 +551,32 @@ const handlePrimaryImageChange = async (index) => {
           <button type="button" className="btn btn-primary" onClick={handleCancel}>Back to Product List</button>
         </div>
       )}
+      <Modal show={showTagModal} onHide={handleCloseTagModal}>
+        <Modal.Header closeButton>
+            <Modal.Title>Add Tag</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+            <Form>
+                <Form.Group controlId="formTag">
+                    <Form.Label>Tag</Form.Label>
+                    <Form.Control
+                        type="text"
+                        placeholder="Enter tag"
+                        value={currentTag.tag}
+                        onChange={handleTagChange}
+                    />
+                </Form.Group>
+            </Form>
+        </Modal.Body>
+        <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseTagModal}>
+                Close
+            </Button>
+            <Button variant="primary" onClick={handleSaveTag}>
+                Save Tag
+            </Button>
+        </Modal.Footer>
+    </Modal>
     </div>
   );
 };
