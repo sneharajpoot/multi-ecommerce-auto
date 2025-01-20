@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { addProduct } from '../api/productApi'; // Import the API function
-import { addProductMetadata } from '../api/productMetadataApi'; // Import the API function for adding product metadata
-import { addProductAttributes } from '../api/productAttributesApi'; // Import the API function for adding product attributes
+import { addProduct,  fetchProductById, updateProduct } from '../api/productApi'; // Import the API functions
+import { addProductMetadata, fetchProductMetadata, updateProductMetadata } from '../api/productMetadataApi'; // Import the API functions for adding and fetching product metadata
+import { addProductAttributes, updateProductAttributes } from '../api/productAttributesApi'; // Import the API functions for adding and updating product attributes
 import { fetchStores } from '../api/storeApi'; // Import the API function for fetching stores
 import { fetchCategories } from '../api/categoryApi'; // Import the API function for fetching categories
 import { uploadProductImage, deleteProductImage, setPrimaryImage } from '../api/productImageApi'; // Import the API function for uploading and deleting product image
-import { addProductTag, deleteProductTag, fetchProductTags } from '../api/productTagApi'; // Import the API function for adding product tags
-import { useHistory } from 'react-router-dom'; // Import useHistory for navigation
+import { addProductTag, deleteProductTag, fetchProductTags,  } from '../api/productTagApi'; // Import the API function for adding product tags
+import { fetchProductImages,  } from '../api/productImageApi'; // Import the API function for adding product tags
+import { getProductAttributes,  } from '../api/productAttributesApi'; // Import the API function for adding product tags
+
+import { useHistory, useParams } from 'react-router-dom'; // Import useHistory and useParams for navigation
 import { Modal, Button, Form } from 'react-bootstrap'; // Import Bootstrap components
 import config from '../config';
 
 const AddProduct = ({ onProductAdded }) => {
+    const { id } = useParams(); // Get the product ID from the URL
     const [product, setProduct] = useState({ name: '', description: '', price: '', sku: '', category_id: '', store_id: '' });
     const [metadata, setMetadata] = useState([{ key: '', value: '' }]);
     const [attributes, setAttributes] = useState([{ attributeName: '', attributeValue: '' }]);
@@ -54,9 +58,43 @@ const AddProduct = ({ onProductAdded }) => {
             }
         };
 
+        const getProductData = async () => {
+            if (id) {
+                setLoading(true); // Set loading to true
+                try {
+                    const productResponse = await fetchProductById(id);
+                    const productData = productResponse.data.product[0];
+                    setProduct({
+                        id: productData.id,
+                        name: productData.name,
+                        description: productData.description,
+                        price: productData.price,
+                        sku: productData.sku,
+                        category_id: productData.category_id,
+                        store_id: productData.store_id
+                    });
+                    const metadataResponse = await fetchProductMetadata(id);
+                    setMetadata(metadataResponse.data);
+                    const attributesResponse = await getProductAttributes(id);
+                    setAttributes(attributesResponse.data);
+                    const tagsResponse = await fetchProductTags(id);
+                    setTags(tagsResponse.data?.data || []);
+                    const imagesResponse = await fetchProductImages(id);
+                    setUploadedImages(imagesResponse.data);
+                    const primaryImageIndex = imagesResponse.data.findIndex(image => image.is_primary === 1);
+                    setPrimaryImageIndex(primaryImageIndex);
+                } catch (error) {
+                    console.error('Error fetching product data:', error);
+                } finally {
+                    setLoading(false); // Set loading to false
+                }
+            }
+        };
+
         getStores();
         getCategories();
-    }, []);
+        getProductData();
+    }, [id]);
 
     const handleAddProduct = async () => {
         setLoading(true); // Set loading to true
@@ -70,6 +108,23 @@ const AddProduct = ({ onProductAdded }) => {
             setError('Error adding product.');
             setMessage('');
             console.error('Error adding product:', error);
+        } finally {
+            setLoading(false); // Set loading to false
+        }
+    };
+ 
+
+    const handleUpdateProduct = async () => {
+        setLoading(true); // Set loading to true
+        try {
+            await updateProduct(product.id, product);
+            setMessage('Product updated successfully!');
+            setError('');
+            setStep(2); // Move to step 2 for adding metadata
+        } catch (error) {
+            setError('Error updating product.');
+            setMessage('');
+            console.error('Error updating product:', error);
         } finally {
             setLoading(false); // Set loading to false
         }
@@ -92,6 +147,23 @@ const AddProduct = ({ onProductAdded }) => {
         }
     };
 
+    const handleUpdateMetadata = async () => {
+        setLoading(true); // Set loading to true
+        try {
+            const metadataWithProductId = metadata.map(data => ({ ...data, productId: product.id }));
+            await updateProductMetadata(product.id, metadataWithProductId);
+            setMessage('Product metadata updated successfully!');
+            setError('');
+            setStep(3); // Move to step 3 for adding attributes
+        } catch (error) {
+            setError('Error updating product metadata.');
+            setMessage('');
+            console.error('Error updating product metadata:', error);
+        } finally {
+            setLoading(false); // Set loading to false
+        }
+    };
+
     const handleAddAttributes = async () => {
         setLoading(true); // Set loading to true
         try {
@@ -104,6 +176,23 @@ const AddProduct = ({ onProductAdded }) => {
             setError('Error adding product attributes.');
             setMessage('');
             console.error('Error adding product attributes:', error);
+        } finally {
+            setLoading(false); // Set loading to false
+        }
+    };
+
+    const handleUpdateAttributes = async () => {
+        setLoading(true); // Set loading to true
+        try {
+            const attributesWithProductId = attributes.map(data => ({ ...data, productId: product.id }));
+            await updateProductAttributes(product.id, attributesWithProductId);
+            setMessage('Product attributes updated successfully!');
+            setError('');
+            setStep(4); // Move to step 4 for uploading image
+        } catch (error) {
+            setError('Error updating product attributes.');
+            setMessage('');
+            console.error('Error updating product attributes:', error);
         } finally {
             setLoading(false); // Set loading to false
         }
@@ -229,7 +318,6 @@ const AddProduct = ({ onProductAdded }) => {
             const newTag = { ...currentTag, product_id: product.id };
             await addProductTag(newTag);
             await getTags(product.id);
-            // setTags([...tags, newTag]);
             handleCloseTagModal();
         } catch (error) {
             console.error('Error saving tag:', error);
@@ -254,7 +342,7 @@ const AddProduct = ({ onProductAdded }) => {
         setLoading(true);
         try {
             const response = await fetchProductTags(productId);
-            setTags(response.data?.data ||[] );
+            setTags(response.data?.data || []);
         } catch (error) {
             console.error('Error fetching tags:', error);
         } finally {
@@ -380,7 +468,9 @@ const AddProduct = ({ onProductAdded }) => {
                             </ul>
                             <Button variant="primary" onClick={handleShowTagModal}>Add Tag</Button>
                         </div>
-                        <button type="button" className="btn btn-primary" onClick={handleAddProduct} disabled={loading}>Add Product</button>
+                        <button type="button" className="btn btn-primary" onClick={product.id ? handleUpdateProduct : handleAddProduct} disabled={loading}>
+                            {product.id ? 'Update Product' : 'Add Product'}
+                        </button>
                         <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={loading}>Cancel</button>
                     </form>
 
@@ -449,7 +539,9 @@ const AddProduct = ({ onProductAdded }) => {
                         ))}
                     </div>
                     <button type="button" className="btn btn-secondary" onClick={addMetadataField}>Add Metadata Field</button>
-                    <button type="button" className="btn btn-primary" onClick={handleAddMetadata} disabled={loading}>Save Metadata</button>
+                    <button type="button" className="btn btn-primary" onClick={id ? handleUpdateMetadata : handleAddMetadata} disabled={loading}>
+                        {id ? 'Update Metadata' : 'Save Metadata'}
+                    </button>
                     <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={loading}>Cancel</button>
                 </form>
             ) : step === 3 ? (
@@ -490,7 +582,9 @@ const AddProduct = ({ onProductAdded }) => {
                         ))}
                     </div>
                     <button type="button" className="btn btn-secondary" onClick={addAttributeField}>Add Attribute Field</button>
-                    <button type="button" className="btn btn-primary" onClick={handleAddAttributes} disabled={loading}>Save Attributes</button>
+                    <button type="button" className="btn btn-primary" onClick={id ? handleUpdateAttributes : handleAddAttributes} disabled={loading}>
+                        {id ? 'Update Attributes' : 'Save Attributes'}
+                    </button>
                     <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={loading}>Cancel</button>
                 </form>
             ) : step === 4 ? (

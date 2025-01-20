@@ -22,3 +22,7 @@ export const deleteProductImage = (productId, imageId) => {
 export const setPrimaryImage = (productId, imageId) => {
   return axios.patch(`${config.apiBaseUrl}/product-images/setprimary/${productId}/${imageId}`, {}, getAuthHeaders());
 };
+
+export const fetchProductImages = (productId) => {
+  return axios.get(`${config.apiBaseUrl}/product-images/${productId}`, getAuthHeaders());
+};

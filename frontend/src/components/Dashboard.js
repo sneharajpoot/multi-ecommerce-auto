@@ -15,7 +15,6 @@ import AddUser from './AddUser'; // Import the AddUser component
 import UpdateUser from './UpdateUser'; // Import the UpdateUser component
 import RoleList from './RoleList'; // Import the RoleList component
 import ModuleList from './ModuleList'; // Import the ModuleList component
-import RolePermissionList from './RolePermissionList'; // Import the RolePermissionList component
 import ProductTags from './ProductTags'; // Import the ProductTags component
 
 const Dashboard = () => {
