@@ -34,6 +34,74 @@ exports.createProduct = async (req, res) => {
   }
 };
 
+exports.searchProducts = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, store_id, name, quantity,query } = req.body;
+    const offset = (page - 1) * limit;
+
+    let sqlq = ''; 
+
+    // const replacements = { name: `%${name}%`, limit: parseInt(limit), offset: parseInt(offset) };
+    let replacements = {  limit: parseInt(limit), offset: parseInt(offset) };
+    if (store_id) {
+      replacements.store_id = store_id;
+    } else {
+      replacements.store_id = null;
+    }
+    
+    if(query) {
+      replacements.query = `%${query}%`;
+    
+      sqlq = `WHERE (p.name LIKE :query OR p.description LIKE :query) `;
+    }
+    if(store_id) 
+      replacements.store_id = store_id || null;
+
+
+    //   replacements = { 
+    //   limit: parseInt(limit, 10),
+    //   offset: parseInt(offset, 10)
+    // };
+
+    let sql =
+    `SELECT p.*, c.name as category_name, s.name as store_name
+     FROM Products p
+     LEFT JOIN Categories c ON p.category_id = c.id
+     LEFT JOIN Stores s ON p.store_id = s.id
+       ${sqlq} LIMIT :limit OFFSET :offset `;
+       //
+    //  
+     console.log(sql);
+    const products = await db.sequelize.query(sql,
+      {
+        replacements,
+        type: db.sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    const count = await db.sequelize.query(
+      `SELECT COUNT(*) as count
+       FROM Products p
+       LEFT JOIN Categories c ON p.category_id = c.id
+       LEFT JOIN Stores s ON p.store_id = s.id
+          ${sqlq} `,
+      {
+        replacements,
+        type: db.sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    res.status(200).json({
+      totalItems: count[0].count,
+      totalPages: Math.ceil(count[0].count / limit),
+      currentPage: parseInt(page),
+      products,
+    });
+  } catch (error) {
+    console.error('Error fetching products:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 exports.listProducts = async (req, res) => {
   try {
     const { page = 1, limit = 10, store_id, name, quantity } = req.query;

@@ -81,6 +81,8 @@ const { authenticate, authorize } = require('../middlewares/authMiddleware'); //
  */
 router.post('/', authenticate, authorize('admin', 'store_admin'), productController.createProduct);
 
+router.post('/search', productController.searchProducts);
+
 /**
  * @swagger
  * /api/products:

@@ -1,21 +1,13 @@
-.home-container {
-  padding: 20px;
-  margin: 0 auto;
-  max-width: 800px;
+.text-center {
   text-align: center;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.home-container h1 {
-  font-size: 2.5em;
-  margin-bottom: 20px;
+.mt-5 {
+  margin-top: 3rem !important;
 }
 
-.home-container p {
-  font-size: 1.2em;
-  color: #555;
+.mt-4 {
+  margin-top: 1.5rem !important;
 }
 
 .slider {
@@ -30,9 +22,51 @@
 }
 
 .footer {
-  margin-top: 20px;
-  padding: 10px;
-  background-color: #333;
-  color: white;
-  border-radius: 8px;
+  margin-top: 40px;
+  padding: 20px 0;
+  background-color: #f8f9fa;
+  color: #333;
+  border-top: 1px solid #ddd;
+}
+
+.footer h5 {
+  font-size: 1.25rem;
+  margin-bottom: 15px;
+}
+
+.footer ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer ul li {
+  margin-bottom: 10px;
+}
+
+.footer ul li a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.footer ul li a:hover {
+  text-decoration: underline;
+}
+
+.header-section {
+  padding: 20px 0;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+}
+
+.header-section .logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.hero-section {
+  margin-bottom: 20px;
+}
+
+.card {
+  margin-bottom: 20px;
 }

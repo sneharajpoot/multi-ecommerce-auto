@@ -19,7 +19,14 @@ export const fetchProducts = (page, store_id, category_id) => {
   return axios.get(`${config.apiBaseUrl}/products`, { params, ...getAuthHeaders() });
 };
 
+
+export const searchProducts = (params) => { 
+  return axios.post(`${config.apiBaseUrl}/products/search`, params, { ...getAuthHeaders() });
+};
+
+
 export const fetchProductById = (id) => {
+  console.log('fetchProductById', id);
   return axios.get(`${config.apiBaseUrl}/products/${id}`, getAuthHeaders());
 };
 

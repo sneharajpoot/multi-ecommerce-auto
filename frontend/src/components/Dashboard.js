@@ -9,7 +9,6 @@ import CategoryList from './CategoryList'; // Import the CategoryList component
 import ProductList from './ProductList'; // Import the ProductList component
 import AddProduct from './AddProduct'; // Import the AddProduct component
 import UpdateProduct from './UpdateProduct'; // Import the UpdateProduct component
-import ProductDetail from './ProductDetail'; // Import the ProductDetail component
 import UserList from './UserList'; // Import the UserList component
 import AddUser from './AddUser'; // Import the AddUser component
 import UpdateUser from './UpdateUser'; // Import the UpdateUser component
@@ -46,7 +45,6 @@ const Dashboard = () => {
             <ProtectedRoute path={`${path}/products`} exact component={ProductList} />
             <ProtectedRoute path={`${path}/products/add`} component={AddProduct} />
             <ProtectedRoute path={`${path}/products/update/:id`} component={UpdateProduct} />
-            <ProtectedRoute path={`${path}/products/:id`} component={ProductDetail} />
             <ProtectedRoute path={`${path}/orders`} component={Orders} />
             <ProtectedRoute path={`${path}/settings`} component={Settings} />
             {/* Add the route for Categories */}

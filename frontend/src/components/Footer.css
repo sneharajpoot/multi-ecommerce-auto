@@ -1,0 +1,30 @@
+.footer {
+  margin-top: 40px;
+  padding: 20px 0;
+  background-color: #f8f9fa;
+  color: #333;
+  border-top: 1px solid #ddd;
+}
+
+.footer h5 {
+  font-size: 1.25rem;
+  margin-bottom: 15px;
+}
+
+.footer ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer ul li {
+  margin-bottom: 10px;
+}
+
+.footer ul li a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.footer ul li a:hover {
+  text-decoration: underline;
+}
