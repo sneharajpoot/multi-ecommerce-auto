@@ -13,7 +13,9 @@ console.log('---->', )
  * @param {Object} res - Response object.
  */
 exports.registerStoreOwner = async (req, res) => {
-  const { name, email, password, storeName, currency, timezone } = req.body;
+  // if key not fount in req.body then it will be undefined assign empty string
+
+  const { ownerName, email, password, storeName, currency='', timezone = '' } = req.body;
 
   const transaction = await db.sequelize.transaction(); // Use transactions for atomic operations
 
@@ -27,6 +29,7 @@ exports.registerStoreOwner = async (req, res) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    console.log('---->', ownerName, email, hashedPassword)
     // Insert user
     const [userResult] = await db.sequelize.query(
       `
@@ -34,16 +37,31 @@ exports.registerStoreOwner = async (req, res) => {
       VALUES (UUID(), ?, ?, ?, ?)
       `,
       {
-        replacements: [name, email, hashedPassword, 'store_admin'], // Default role: Store Admin
-        type: db.Sequelize.QueryTypes.INSERT,
+        replacements: [ownerName, email, hashedPassword, 'store_admin'], // Default role: Store Admin
+        type: db.sequelize.QueryTypes.INSERT,
       }
     );
 
+    // Add store details
+    const [storeResult] = await db.sequelize.query(
+      `INSERT INTO Stores(name , ownerId, currency, timezone ) 
+      VALUES 
+      ( ?, ? ,? ,? ) `,
+      {
+        replacements: [storeName, userResult,  currency, timezone ], // Last inserted user ID
+        type: db.sequelize.QueryTypes.INSERT,
+        // transaction,
+      }
+    );
+
+    console.log('--store-->', storeResult)
+
     const userId = userResult; // Last inserted user ID
-    return res.status(201).json({ userId, name, email });
+    return res.status(201).json({ userId, email });
   } catch (error) {
     // Rollback the transaction in case of error
     await transaction.rollback();
+    console.error('Error registering store owner:', error.message);
     return res.status(500).json({ error: error.message });
   }
 };
@@ -66,6 +84,7 @@ exports.registerCustomer = async (req, res) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    console.log('---->', name, email, hashedPassword)
     // Insert user
     const [userResult] = await db.sequelize.query(
       `
@@ -74,12 +93,12 @@ exports.registerCustomer = async (req, res) => {
       `,
       {
         replacements: [name, email, hashedPassword, 'customer'], // Default role: Customer
-        type: db.Sequelize.QueryTypes.INSERT,
+        type: db.sequelize.QueryTypes.INSERT,
       }
     );
 
     const userId = userResult; // Last inserted user ID
-    return res.status(201).json({ userId, name, email });
+    return res.status(201).json({ result:true ,message: '' , userId, name, email });
   } catch (error) {
     console.error('Error registering customer:', error.message);
     return res.status(500).json({ error: 'Failed to register customer' });
