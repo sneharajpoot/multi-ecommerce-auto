@@ -26,6 +26,11 @@ const rolePermissionRoutes = require('./routes/rolePermissionRoutes'); // Import
 const roleAssignmentRoutes = require('./routes/roleAssignmentRoutes'); // Import role assignment routes
 const productImageRoutes = require('./routes/productImageRoutes'); // Import product image routes
 const productVariantRoutes = require('./routes/productVariantRoutes');
+const cartRoutes = require('./routes/cartRoutes');
+
+
+
+
 dotenv.config(); // Load environment variables from .env file
 
 // Initialize the app
@@ -105,6 +110,8 @@ app.use('/api/role-permissions', rolePermissionRoutes); // Use role permission r
 app.use('/api/role-assignments', roleAssignmentRoutes); // Use role assignment routes
 app.use('/api/product-images', productImageRoutes); // Use product image routes
 app.use('/api/product-variants', productVariantRoutes);
+app.use('/api/cart', cartRoutes);
+
 // Health Check Endpoint
 app.get('/', (req, res) => {
   res.status(200).send('Multi-Store E-commerce Backend is Running');

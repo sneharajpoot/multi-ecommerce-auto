@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Row, Col, Card, Image, Modal } from 'react-bootstrap';
+import { Container, Row, Col, Card, Image, Modal, Button } from 'react-bootstrap';
 import { fetchProductById } from '../api/productApi'; // Correct the import for fetchProductById
 import './ProductPage.css'; // Import the CSS file for styling
 import config from '../config';
+import axios from 'axios'; // Import axios for API calls
 
 const ProductPage = () => {
   const { productId } = useParams();
@@ -58,6 +59,19 @@ const ProductPage = () => {
     setShowModal(false);
   };
 
+  const handleAddToCart = async () => {
+    try {
+      const customerId = 1; // Replace with actual customer ID
+      const response = await axios.put(`/cart/${customerId}`, {
+        product_id: product.id,
+        quantity: 1
+      });
+      console.log('Product added to cart:', response.data);
+    } catch (error) {
+      console.error('Error adding product to cart:', error);
+    }
+  };
+
   return (
     <Container className="mt-5">
       <Row>
@@ -82,6 +96,7 @@ const ProductPage = () => {
           <h1>{product.name}</h1>
           <p>{product.description}</p>
           <h3>${product.price}</h3>
+          <Button variant="primary" onClick={handleAddToCart}>Add to Cart</Button> {/* Add to Cart button */}
           <h4>Attributes:</h4>
           <ul>
             {product.attributes.map(attr => (

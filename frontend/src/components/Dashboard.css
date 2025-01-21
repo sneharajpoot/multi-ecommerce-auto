@@ -9,7 +9,7 @@
   color: white;
   padding: 20px;
   position: fixed;
-  top: 60px; /* Adjust for fixed top navbar */
+  top: 0px; /* Adjust for fixed top navbar */
   bottom: 0;
   left: 0;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add shadow */
@@ -39,8 +39,7 @@
   background-color: #f8f9fa;
   padding: 20px;
   border-bottom: 1px solid #dee2e6;
-  position: fixed;
-  top: 60px; /* Adjust for fixed top navbar */
+  position: fixed; 
   left: 250px; /* Adjust for fixed sidebar */
   right: 0;
   z-index: 1000;
