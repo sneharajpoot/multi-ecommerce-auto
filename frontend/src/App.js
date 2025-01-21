@@ -8,7 +8,8 @@ import Login from "./components/Login";
 import AdminPanel from "./components/AdminPanel";
 import ProductDetail from "./components/ProductDetail";
 import ProtectedRoute from "./components/ProtectedRoute";
-import AdminSignup from "./components/AdminSignup";
+import Signup from "./components/Signup"; // Import the renamed Signup component
+import StoreSignup from "./components/StoreSignup"; // Import the new StoreSignup component
 import Dashboard from "./components/Dashboard"; // Import the new component
 import { toast } from 'react-toastify'; // Import react-toastify
 import axiosInstance from './axiosConfig'; // Import the configured axios instance
@@ -51,7 +52,8 @@ const App = () => {
               </ProtectedRoute>
             )} />
             <Route path="/product/:id" component={ProductDetail} />
-            <Route path="/admin-signup" component={AdminSignup} />
+            <Route path="/admin-signup" component={Signup} /> {/* Update route for Signup */}
+            <Route path="/store-signup" component={StoreSignup} /> {/* Add route for StoreSignup */}
             <ProtectedRoute path="/dashboard" component={Dashboard} /> {/* Use ProtectedRoute for dashboard */}
             <ProtectedRoute path="/dashboard/stores" component={StoreList} /> {/* Ensure this line is correct */}
             <Route path="/stores" component={StoreList} />

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios'; // Import axios
+import { registerCustomer } from '../api/authApi'; // Import the registerCustomer API function
 import "./AdminSignup.css"; // Import the new CSS file
 
 const AdminSignup = () => {
@@ -28,11 +28,11 @@ const AdminSignup = () => {
     }
 
     try {
-      const res = await axios.post('/admin/signup', formData); // Use axios.post
-      setSuccess(res.data.msg);
+      const res = await registerCustomer(formData); // Use registerCustomer API function
+      setSuccess('Registration successful! Please check your email for verification.');
       setError('');
     } catch (err) {
-      setError(err.response.data.msg);
+      setError(err.response.data.error || 'An error occurred during registration.');
       setSuccess('');
     }
   };
