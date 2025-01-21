@@ -52,6 +52,7 @@ const App = () => {
           <Route path="/" exact>
             <TopBar /> {/* Use the TopBar component for customer routes */}
             <Home />
+            <Footer /> {/* Use the Footer component */}
           </Route>
           <Route path="/login" component={Login} />
           <Route path="/admin" render={() => (
@@ -62,20 +63,16 @@ const App = () => {
           <Route path="/product/:productId">
             <TopBar /> {/* Use the TopBar component for customer routes */}
             <ProductPage />
+            <Footer /> {/* Use the Footer component */}
           </Route>
           <Route path="/admin-signup" component={Signup} /> {/* Update route for Signup */}
           <Route path="/store-signup" component={StoreSignup} /> {/* Add route for StoreSignup */}
           <ProtectedRoute path="/dashboard" component={Dashboard} /> {/* Use ProtectedRoute for dashboard */}
-          <ProtectedRoute path="/dashboard/stores" component={StoreList} /> {/* Ensure this line is correct */}
-          <Route path="/stores" component={StoreList} />
-          <Route path="/categories" component={CategoryList} /> {/* Add the route for CategoryList */}
-          <ProtectedRoute path="/dashboard/product-tags" component={ProductTags} /> {/* Add new route for ProductTags */}
           <Route path="/about-us" component={AboutUs} /> {/* Add route for AboutUs */}
           <Route path="/contact" component={Contact} /> {/* Add route for Contact */}
           <Route path="/privacy-policy" component={PrivacyPolicy} /> {/* Add route for PrivacyPolicy */}
           <Route path="/return-policy" component={ReturnPolicy} /> {/* Add route for ReturnPolicy */}
         </Switch>
-        <Footer /> {/* Use the Footer component */}
       </Router>
     </Provider>
   );
