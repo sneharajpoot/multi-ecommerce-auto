@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { addProduct,  fetchProductById, updateProduct } from '../api/productApi'; // Import the API functions
+import { addProduct, fetchProductById, updateProduct } from '../api/productApi'; // Import the API functions
 import { addProductMetadata, fetchProductMetadata, updateProductMetadata } from '../api/productMetadataApi'; // Import the API functions for adding and fetching product metadata
 import { addProductAttributes, updateProductAttributes } from '../api/productAttributesApi'; // Import the API functions for adding and updating product attributes
 import { fetchStores } from '../api/storeApi'; // Import the API function for fetching stores
 import { fetchCategories } from '../api/categoryApi'; // Import the API function for fetching categories
 import { uploadProductImage, deleteProductImage, setPrimaryImage } from '../api/productImageApi'; // Import the API function for uploading and deleting product image
-import { addProductTag, deleteProductTag, fetchProductTags,  } from '../api/productTagApi'; // Import the API function for adding product tags
-import { fetchProductImages,  } from '../api/productImageApi'; // Import the API function for adding product tags
-import { getProductAttributes,  } from '../api/productAttributesApi'; // Import the API function for adding product tags
+import { addProductTag, deleteProductTag, fetchProductTags, } from '../api/productTagApi'; // Import the API function for adding product tags
+import { fetchProductImages, } from '../api/productImageApi'; // Import the API function for adding product tags
+import { getProductAttributes, } from '../api/productAttributesApi'; // Import the API function for adding product tags
+import { addProductVariant, updateProductVariant, deleteProductVariant, fetchProductVariants } from '../api/productVariantApi'; // Import the API functions for managing product variants
 
 import { useHistory, useParams } from 'react-router-dom'; // Import useHistory and useParams for navigation
 import { Modal, Button, Form } from 'react-bootstrap'; // Import Bootstrap components
@@ -19,6 +20,7 @@ const AddProduct = ({ onProductAdded }) => {
     const [metadata, setMetadata] = useState([{ key: '', value: '' }]);
     const [attributes, setAttributes] = useState([{ attributeName: '', attributeValue: '' }]);
     const [tags, setTags] = useState([]); // Add tags state
+    const [variants, setVariants] = useState([{ id: 0, product_id: '', name: '', sku: '', price: '', stock: '' }]); // Add variants state [{id:'',product_id:'',name:'',sku:'',price:''stock:''} ]
     const [stores, setStores] = useState([]);
     const [categories, setCategories] = useState([]);
     const [message, setMessage] = useState('');
@@ -31,6 +33,8 @@ const AddProduct = ({ onProductAdded }) => {
     const [uploadedImages, setUploadedImages] = useState([]); // Add uploaded images state
     const [showTagModal, setShowTagModal] = useState(false); // Add state for showing tag modal
     const [currentTag, setCurrentTag] = useState({ tag: '' }); // Add state for current tag
+    const [showVariantModal, setShowVariantModal] = useState(false); // Add state for showing variant modal
+    const [currentVariant, setCurrentVariant] = useState({ name: '', sku: '', price: '', stock: '' }); // Add state for current variant
     const history = useHistory(); // Initialize useHistory
 
     useEffect(() => {
@@ -83,6 +87,8 @@ const AddProduct = ({ onProductAdded }) => {
                     setUploadedImages(imagesResponse.data);
                     const primaryImageIndex = imagesResponse.data.findIndex(image => image.is_primary === 1);
                     setPrimaryImageIndex(primaryImageIndex);
+                    const variantsResponse = await fetchProductVariants(id);
+                    setVariants(variantsResponse.data);
                 } catch (error) {
                     console.error('Error fetching product data:', error);
                 } finally {
@@ -112,7 +118,7 @@ const AddProduct = ({ onProductAdded }) => {
             setLoading(false); // Set loading to false
         }
     };
- 
+
 
     const handleUpdateProduct = async () => {
         setLoading(true); // Set loading to true
@@ -354,6 +360,70 @@ const AddProduct = ({ onProductAdded }) => {
         setCurrentTag({ ...currentTag, tag: e.target.value });
     };
 
+    const handleShowVariantModal = () => {
+        setCurrentVariant({ name: '', sku: '', price: '', stock: '' });
+        setShowVariantModal(true);
+    };
+
+
+    const addVariant = () => {
+        setVariants([...variants, { id: 0, name: '', sku: '', price: '', stock: '' }]);
+    };
+
+    const handleCloseVariantModal = () => {
+        setShowVariantModal(false);
+    };
+
+    const handleSaveVariant = async () => {
+        setLoading(true);
+        try { 
+            await addProductVariant(product.id, variants);
+            await getVariants(product.id);
+            handleCloseVariantModal();
+        } catch (error) {
+            console.error('Error saving variant:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDeleteVariant = async (index) => {
+        setLoading(true);
+        try {
+            // remove variant from array using index
+            const newVariants = [...variants];
+            newVariants.splice(index, 1);
+            setVariants(newVariants);
+            // await deleteProductVariant(id);
+            // await getVariants(product.id);
+        } catch (error) {
+            console.error('Error deleting variant:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getVariants = async (productId) => {
+        setLoading(true);
+        try {
+            const response = await fetchProductVariants(productId);
+            setVariants(response.data);
+        } catch (error) {
+            console.error('Error fetching variants:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleVariantChange = (index, e) => {
+        console.log('index', index)
+        console.log('e', e)
+        console.log('currentVariant', e.target.name, e.target.value)
+        variants[index][e.target.name] = e.target.value;
+        setVariants([...variants]);
+        // setCurrentVariant({ ...currentVariant, [e.target.name]: e.target.value });
+    };
+
     const steps = [
         { step: 1, label: 'Add Product' },
         { step: 2, label: 'Add Product Metadata' },
@@ -382,8 +452,8 @@ const AddProduct = ({ onProductAdded }) => {
             {error && <div className="alert alert-danger">{error}</div>}
             {loading && <div className="loader">Loading...</div>} {/* Add loader */}
             {step === 1 ? (
-                <>
-                    <form>
+                <> {/* Add product form */}
+                    <div>
                         <div className="mb-3">
                             <label htmlFor="formProductName" className="form-label">Name</label>
                             <input
@@ -468,11 +538,66 @@ const AddProduct = ({ onProductAdded }) => {
                             </ul>
                             <Button variant="primary" onClick={handleShowTagModal}>Add Tag</Button>
                         </div>
-                        <button type="button" className="btn btn-primary" onClick={product.id ? handleUpdateProduct : handleAddProduct} disabled={loading}>
-                            {product.id ? 'Update Product' : 'Add Product'}
-                        </button>
-                        <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={loading}>Cancel</button>
-                    </form>
+                        <div className="mb-3">
+                            <label className="form-label">Variants</label>
+                            {variants.map((variant, index) => (
+                                <div className='row'>
+                                    <div className='col-2'>
+                                        <div className="mb-3">
+                                            <label htmlFor="formVariantName" className="form-label">Name</label>
+                                            <input type="text" className="form-control" id="formVariantName" placeholder="Enter variant name" name="name" value={variant.name} onChange={(event) => { handleVariantChange(index, event) }} />
+                                        </div>
+                                    </div>
+                                    <div className='col-2'>
+                                        <div className="mb-3">
+                                            <label htmlFor="formVariantSku" className="form-label">SKU</label>
+                                            <input type="text" className="form-control" id="formVariantSku" placeholder="Enter variant SKU" name="sku" value={variant.sku} onChange={(event) => { handleVariantChange(index, event) }} />
+                                        </div>
+                                    </div>
+                                    <div className='col-2'>
+
+                                        <div className="mb-3">
+                                            <label htmlFor="formVariantPrice" className="form-label">Price</label>
+                                            <input type="number" className="form-control" id="formVariantPrice" placeholder="Enter variant price" name="price" value={variant.price} onChange={(event) => { handleVariantChange(index, event) }} />
+                                        </div>
+                                    </div>
+                                    <div className='col-2'>
+
+                                        <div className="mb-3">
+                                            <label htmlFor="formVariantStock" className="form-label">Stock</label>
+                                            <input type="number" className="form-control" id="formVariantStock" placeholder="Enter variant stock" name="stock" value={variant.stock} onChange={(event) => { handleVariantChange(index, event) }} />
+                                        </div>
+                                    </div>
+                                    <div className='col-2'>
+
+                                        <div className="mb-3">
+                                            <Button variant="danger" size="sm" className="ms-2" onClick={() => handleDeleteVariant(index)}>Delete</Button>
+
+                                            {variants.length - 1 === index && <Button type="button" className="btn btn-primary" onClick={() => addVariant()}  >+</Button>}
+                                            {/* <Button type="button" className="btn btn-primary"  onClick={()=> addVariant()}  >+</Button> */}
+                                        </div>
+                                    </div>
+                                </div>
+                                // <li key={index}>
+                                //     {variant.name} - {variant.sku} - {variant.price} - {variant.stock}
+                                //     <Button variant="danger" size="sm" className="ms-2" onClick={() => handleDeleteVariant(variant.id)}>Delete</Button>
+                                // </li>
+                            ))}
+
+                            <form>
+                                <Button variant="primary" onClick={handleSaveVariant}>Save Variant</Button>
+                            </form>
+
+
+
+
+                        </div>
+                    </div>
+                    <button type="button" className="btn btn-primary" onClick={product.id ? handleUpdateProduct : handleAddProduct} disabled={loading}>
+                        {product.id ? 'Update Product' : 'Add Product'}
+                    </button>
+                    <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={loading}>Cancel</button>
+
 
                     <Modal show={showTagModal} onHide={handleCloseTagModal}>
                         <Modal.Header closeButton>
@@ -497,6 +622,64 @@ const AddProduct = ({ onProductAdded }) => {
                             </Button>
                             <Button variant="primary" onClick={handleSaveTag}>
                                 Save Tag
+                            </Button>
+                        </Modal.Footer>
+                    </Modal>
+
+                    <Modal show={showVariantModal} onHide={handleCloseVariantModal}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Add Variant</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <Form>
+                                <Form.Group controlId="formVariantName">
+                                    <Form.Label>Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Enter variant name"
+                                        name="name"
+                                        value={currentVariant.name}
+                                        onChange={handleVariantChange}
+                                    />
+                                </Form.Group>
+                                <Form.Group controlId="formVariantSku">
+                                    <Form.Label>SKU</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Enter variant SKU"
+                                        name="sku"
+                                        value={currentVariant.sku}
+                                        onChange={handleVariantChange}
+                                    />
+                                </Form.Group>
+                                <Form.Group controlId="formVariantPrice">
+                                    <Form.Label>Price</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        placeholder="Enter variant price"
+                                        name="price"
+                                        value={currentVariant.price}
+                                        onChange={handleVariantChange}
+                                    />
+                                </Form.Group>
+                                <Form.Group controlId="formVariantStock">
+                                    <Form.Label>Stock</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        placeholder="Enter variant stock"
+                                        name="stock"
+                                        value={currentVariant.stock}
+                                        onChange={handleVariantChange}
+                                    />
+                                </Form.Group>
+                            </Form>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={handleCloseVariantModal}>
+                                Close
+                            </Button>
+                            <Button variant="primary" onClick={handleSaveVariant}>
+                                Save Variant
                             </Button>
                         </Modal.Footer>
                     </Modal>
@@ -633,9 +816,10 @@ const AddProduct = ({ onProductAdded }) => {
                     <p>Product, metadata, and attributes added successfully!</p>
                     <button type="button" className="btn btn-primary" onClick={handleCancel}>Back to Product List</button>
                 </div>
-            )}
+            )
+            }
 
-        </div>
+        </div >
     );
 };
 

@@ -4,8 +4,9 @@ import { addProductMetadata, updateProductMetadata } from '../api/productMetadat
 import { addProductAttributes, updateProductAttributes } from '../api/productAttributesApi'; // Import the API functions for adding and updating product attributes
 import { fetchStores } from '../api/storeApi'; // Import the API function for fetching stores
 import { fetchCategories } from '../api/categoryApi'; // Import the API function for fetching categories
-import { uploadProductImage, deleteProductImage, setPrimaryImage } from '../api/productImageApi'; // Import the API functions for uploading and deleting product image
+import { uploadProductImage, deleteProductImage, setPrimaryImage, fetchProductImages } from '../api/productImageApi'; // Import the API functions for uploading and deleting product image
 import { addProductTag, deleteProductTag, fetchProductTags } from '../api/productTagApi'; // Import the API functions for managing product tags
+import { addProductVariant, updateProductVariant, deleteProductVariant, fetchProductVariants } from '../api/productVariantApi'; // Import the API functions for managing product variants
 import { useHistory, useParams } from 'react-router-dom'; // Import useHistory and useParams for navigation
 import { Modal, Button, Form } from 'react-bootstrap'; // Import Bootstrap components
 import config from '../config';
@@ -16,6 +17,7 @@ const UpdateProduct = ({ onProductUpdated }) => {
   const [metadata, setMetadata] = useState([{ key: '', value: '' }]);
   const [attributes, setAttributes] = useState([{ attributeName: '', attributeValue: '' }]);
   const [tags, setTags] = useState([]); // Add tags state
+  const [variants, setVariants] = useState([{ id: 0, product_id: '', name: '', sku: '', price: '', stock: '' }]); // Add variants state
   const [stores, setStores] = useState([]);
   const [categories, setCategories] = useState([]);
   const [message, setMessage] = useState('');
@@ -28,6 +30,8 @@ const UpdateProduct = ({ onProductUpdated }) => {
   const [uploadedImages, setUploadedImages] = useState([]); // Add uploaded images state
   const [showTagModal, setShowTagModal] = useState(false); // Add state for showing tag modal
   const [currentTag, setCurrentTag] = useState({ tag: '' }); // Add state for current tag
+  const [showVariantModal, setShowVariantModal] = useState(false); // Add state for showing variant modal
+  const [currentVariant, setCurrentVariant] = useState({ name: '', sku: '', price: '', stock: '' }); // Add state for current variant
   const history = useHistory(); // Initialize useHistory
 
   useEffect(() => {
@@ -49,8 +53,9 @@ const UpdateProduct = ({ onProductUpdated }) => {
         setAttributes(response.data.productAttributes);
         setUploadedImages(response.data.productImage);
         const primaryImageIndex = response.data.productImage.findIndex(image => image.is_primary === 1);
-        setPrimaryImageIndex(primaryImageIndex); 
-        setTags(response.data?.productTag );
+        setPrimaryImageIndex(primaryImageIndex);
+        setTags(response.data?.productTag);
+        setVariants(response.data?.productVariant || []);
       } catch (error) {
         console.error('Error fetching product:', error);
       } finally {
@@ -140,13 +145,8 @@ const UpdateProduct = ({ onProductUpdated }) => {
   const handleUploadImage = async () => {
     setLoading(true); // Set loading to true
     try {
-      
-      // setMessage('Product images uploaded successfully!');
-      // setError('');
       setStep(5); // Move to final step
     } catch (error) {
-      // setError('Error uploading product images.');
-      // setMessage('');
       console.error('Error uploading product images:', error);
     } finally {
       setLoading(false); // Set loading to false
@@ -190,59 +190,59 @@ const UpdateProduct = ({ onProductUpdated }) => {
   const handleImageChange = async (e) => {
     setLoading(true); // Set loading to true
     try {
-        const formData = new FormData();
-        Array.from(e.target.files).forEach((file, index) => {
-            formData.append('images', file);
-            formData.append('is_primary', uploadedImages.length === 0 && index === 0);
-        });
-        const response = await uploadProductImage(id, formData);
-        console.log("response", response)
-        console.log("response", uploadedImages)
-        setUploadedImages([...uploadedImages, response.data.image]);
-        setMessage('Images uploaded successfully!');
-        setError('');
+      const formData = new FormData();
+      Array.from(e.target.files).forEach((file, index) => {
+        formData.append('images', file);
+        formData.append('is_primary', uploadedImages.length === 0 && index === 0);
+      });
+      const response = await uploadProductImage(id, formData);
+      console.log("response", response)
+      console.log("response", uploadedImages)
+      setUploadedImages([...uploadedImages, response.data.image]);
+      setMessage('Images uploaded successfully!');
+      setError('');
     } catch (error) {
-        setError('Error uploading images.');
-        setMessage('');
-        console.error('Error uploading images:', error);
+      setError('Error uploading images.');
+      setMessage('');
+      console.error('Error uploading images:', error);
     } finally {
-        setLoading(false); // Set loading to false
+      setLoading(false); // Set loading to false
     }
     e.target.value = null; // Clear the input value to allow re-uploading the same file
-};
+  };
 
-const handleDeleteImage = async (imageId) => {
+  const handleDeleteImage = async (imageId) => {
     setLoading(true); // Set loading to true
     try {
-        await deleteProductImage(id, imageId);
-        setUploadedImages(uploadedImages.filter(image => image.id !== imageId));
-        setMessage('Image deleted successfully!');
-        setError('');
+      await deleteProductImage(id, imageId);
+      setUploadedImages(uploadedImages.filter(image => image.id !== imageId));
+      setMessage('Image deleted successfully!');
+      setError('');
     } catch (error) {
-        setError('Error deleting image.');
-        setMessage('');
-        console.error('Error deleting image:', error);
+      setError('Error deleting image.');
+      setMessage('');
+      console.error('Error deleting image:', error);
     } finally {
-        setLoading(false); // Set loading to false
+      setLoading(false); // Set loading to false
     }
-};
+  };
 
-const handlePrimaryImageChange = async (index) => {
+  const handlePrimaryImageChange = async (index) => {
     setLoading(true); // Set loading to true
     try {
-        const imageId = uploadedImages[index].id;
-        await setPrimaryImage(id, imageId);
-        setPrimaryImageIndex(index);
-        setMessage('Primary image updated successfully!');
-        setError('');
+      const imageId = uploadedImages[index].id;
+      await setPrimaryImage(id, imageId);
+      setPrimaryImageIndex(index);
+      setMessage('Primary image updated successfully!');
+      setError('');
     } catch (error) {
-        setError('Error updating primary image.');
-        setMessage('');
-        console.error('Error updating primary image:', error);
+      setError('Error updating primary image.');
+      setMessage('');
+      console.error('Error updating primary image:', error);
     } finally {
-        setLoading(false); // Set loading to false
+      setLoading(false); // Set loading to false
     }
-};
+  };
 
   const handleAddMoreImages = (e) => {
     setImages([...images, ...Array.from(e.target.files)]);
@@ -261,43 +261,99 @@ const handlePrimaryImageChange = async (index) => {
   const handleSaveTag = async () => {
     setLoading(true);
     try {
-        const newTag = { ...currentTag, product_id: product.id };
-        await addProductTag(newTag);
-        await getTags(product.id);
-        handleCloseTagModal();
+      const newTag = { ...currentTag, product_id: product.id };
+      await addProductTag(newTag);
+      await getTags(product.id);
+      handleCloseTagModal();
     } catch (error) {
-        console.error('Error saving tag:', error);
+      console.error('Error saving tag:', error);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
   const handleDeleteTag = async (id) => {
     setLoading(true);
     try {
-        await deleteProductTag(id);
-        await getTags(product.id);
+      await deleteProductTag(id);
+      await getTags(product.id);
     } catch (error) {
-        console.error('Error deleting tag:', error);
+      console.error('Error deleting tag:', error);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
   const getTags = async (productId) => {
     setLoading(true);
     try {
-        const response = await fetchProductTags(productId);
-        setTags(response.data?.data || []);
+      const response = await fetchProductTags(productId);
+      setTags(response.data?.data || []);
     } catch (error) {
-        console.error('Error fetching tags:', error);
+      console.error('Error fetching tags:', error);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
   const handleTagChange = (e) => {
     setCurrentTag({ ...currentTag, tag: e.target.value });
+  };
+
+
+  const addVariant = () => {
+    setVariants([...variants, { id: 0, name: '', sku: '', price: '', stock: '' }]);
+  };
+
+  const handleCloseVariantModal = () => {
+    setShowVariantModal(false);
+  };
+
+  const handleSaveVariant = async () => {
+    setLoading(true);
+    try {
+      await addProductVariant(product.id, variants);
+      await getVariants(product.id);
+      handleCloseVariantModal();
+    } catch (error) {
+      console.error('Error saving variant:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteVariant = async (index) => {
+    setLoading(true);
+    try {
+      // remove variant from array using index
+      const newVariants = [...variants];
+      newVariants.splice(index, 1);
+      setVariants(newVariants);
+      // await deleteProductVariant(id);
+      // await getVariants(product.id);
+    } catch (error) {
+      console.error('Error deleting variant:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getVariants = async (productId) => {
+    setLoading(true);
+    try {
+      const response = await fetchProductVariants(productId);
+      setVariants(response.data);
+    } catch (error) {
+      console.error('Error fetching variants:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVariantChange = (index, e) => {
+    variants[index][e.target.name] = e.target.value;
+    setVariants([...variants]);
+    // setCurrentVariant({ ...currentVariant, [e.target.name]: e.target.value });
   };
 
   const steps = [
@@ -417,6 +473,53 @@ const handlePrimaryImageChange = async (index) => {
             </ul>
             <Button variant="primary" onClick={handleShowTagModal}>Add Tag</Button>
           </div>
+
+
+          <div className="mb-3">
+            <label className="form-label">Variants</label>
+            {variants.map((variant, index) => (
+              <div className='row'>
+                <div className='col-2'>
+                  <div className="mb-3">
+                    <label htmlFor="formVariantName" className="form-label">Name</label>
+                    <input type="text" className="form-control" id="formVariantName" placeholder="Enter variant name" name="name" value={variant.name} onChange={(event) => { handleVariantChange(index, event) }} />
+                  </div>
+                </div>
+                <div className='col-2'>
+                  <div className="mb-3">
+                    <label htmlFor="formVariantSku" className="form-label">SKU</label>
+                    <input type="text" className="form-control" id="formVariantSku" placeholder="Enter variant SKU" name="sku" value={variant.sku} onChange={(event) => { handleVariantChange(index, event) }} />
+                  </div>
+                </div>
+                <div className='col-2'>
+
+                  <div className="mb-3">
+                    <label htmlFor="formVariantPrice" className="form-label">Price</label>
+                    <input type="number" className="form-control" id="formVariantPrice" placeholder="Enter variant price" name="price" value={variant.price} onChange={(event) => { handleVariantChange(index, event) }} />
+                  </div>
+                </div>
+                <div className='col-2'>
+
+                  <div className="mb-3">
+                    <label htmlFor="formVariantStock" className="form-label">Stock</label>
+                    <input type="number" className="form-control" id="formVariantStock" placeholder="Enter variant stock" name="stock" value={variant.stock} onChange={(event) => { handleVariantChange(index, event) }} />
+                  </div>
+                </div>
+                <div className='col-2'>
+
+                  <div className="mb-3">
+                    <Button variant="danger" size="sm" className="ms-2" onClick={() => handleDeleteVariant(index)}>Delete</Button>
+
+                  </div>
+                </div>
+              </div>
+            ))}  
+            <Button type="button" className="btn btn-primary" onClick={() => addVariant()}  >+</Button>
+
+            <Button variant="primary" onClick={handleSaveVariant}>Save Variant</Button>
+
+
+          </div> 
           <button type="button" className="btn btn-primary" onClick={handleSaveProduct} disabled={loading}>
             Update Product
           </button>
@@ -509,42 +612,42 @@ const handlePrimaryImageChange = async (index) => {
           <div className="mb-3">
             <label htmlFor="formProductImages" className="form-label">Product Images</label>
             <input
-                type="file"
-                className="form-control"
-                id="formProductImages"
-                multiple
-                onChange={handleImageChange}
+              type="file"
+              className="form-control"
+              id="formProductImages"
+              multiple
+              onChange={handleImageChange}
             />
-        </div>
-        {uploadedImages.length > 0 && (
+          </div>
+          {uploadedImages.length > 0 && (
             <div className="mb-3">
-                <label className="form-label">Select Primary Image</label>
-                <div className="d-flex flex-wrap">
-                    {uploadedImages.map((image, index) => (
-                        <div key={image.id} className="m-2 position-relative">
-                            <img src={config.imgBaseUrl+image.url} alt={`Product ${index}`} width="100" height="100" />
-                            <div className="form-check">
-                                <input
-                                    className="form-check-input"
-                                    type="radio"
-                                    name="primaryImage"
-                                    id={`primaryImage${index}`}
-                                    checked={primaryImageIndex === index}
-                                    onChange={() => handlePrimaryImageChange(index)}
-                                />
-                                <label className="form-check-label" htmlFor={`primaryImage${index}`}>
-                                    Primary
-                                </label>
-                            </div>
-                            <button type="button" className="btn btn-danger btn-sm position-absolute top-0 end-0" onClick={() => handleDeleteImage(image.id)}>Delete</button>
-                        </div>
-                    ))}
-                </div>
+              <label className="form-label">Select Primary Image</label>
+              <div className="d-flex flex-wrap">
+                {uploadedImages.map((image, index) => (
+                  <div key={image.id} className="m-2 position-relative">
+                    <img src={config.imgBaseUrl + image.url} alt={`Product ${index}`} width="100" height="100" />
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="radio"
+                        name="primaryImage"
+                        id={`primaryImage${index}`}
+                        checked={primaryImageIndex === index}
+                        onChange={() => handlePrimaryImageChange(index)}
+                      />
+                      <label className="form-check-label" htmlFor={`primaryImage${index}`}>
+                        Primary
+                      </label>
+                    </div>
+                    <button type="button" className="btn btn-danger btn-sm position-absolute top-0 end-0" onClick={() => handleDeleteImage(image.id)}>Delete</button>
+                  </div>
+                ))}
+              </div>
             </div>
-        )}
-        <button type="button" className="btn btn-primary" onClick={handleUploadImage} disabled={loading}>Next</button>
-        <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={loading}>Cancel</button>
-    </form>
+          )}
+          <button type="button" className="btn btn-primary" onClick={handleUploadImage} disabled={loading}>Next</button>
+          <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={loading}>Cancel</button>
+        </form>
       ) : (
         <div>
           <p>Product, metadata, and attributes updated successfully!</p>
@@ -553,30 +656,30 @@ const handlePrimaryImageChange = async (index) => {
       )}
       <Modal show={showTagModal} onHide={handleCloseTagModal}>
         <Modal.Header closeButton>
-            <Modal.Title>Add Tag</Modal.Title>
+          <Modal.Title>Add Tag</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-            <Form>
-                <Form.Group controlId="formTag">
-                    <Form.Label>Tag</Form.Label>
-                    <Form.Control
-                        type="text"
-                        placeholder="Enter tag"
-                        value={currentTag.tag}
-                        onChange={handleTagChange}
-                    />
-                </Form.Group>
-            </Form>
+          <Form>
+            <Form.Group controlId="formTag">
+              <Form.Label>Tag</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter tag"
+                value={currentTag.tag}
+                onChange={handleTagChange}
+              />
+            </Form.Group>
+          </Form>
         </Modal.Body>
         <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseTagModal}>
-                Close
-            </Button>
-            <Button variant="primary" onClick={handleSaveTag}>
-                Save Tag
-            </Button>
+          <Button variant="secondary" onClick={handleCloseTagModal}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleSaveTag}>
+            Save Tag
+          </Button>
         </Modal.Footer>
-    </Modal>
+      </Modal>
     </div>
   );
 };
