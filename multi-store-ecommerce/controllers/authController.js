@@ -72,6 +72,7 @@ exports.registerStoreOwner = async (req, res) => {
  * @param {Object} res - Response object.
  */
 exports.registerCustomer = async (req, res) => {
+  console.log("req.body",req.body)
   const { name, email, password } = req.body;
 
   try {
@@ -113,9 +114,11 @@ exports.login = async (req, res) => {
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
-    const token = jwt.generateRefreshToken({ id: user.id, role: user.role } , '1d' );
+    console.log("user", user.dataValues)
+    const token = jwt.generateRefreshToken(user.dataValues );
     res.status(200).json({ success: true, token });
   } catch (error) {
+    console.log('error', error)
     res.status(500).json({ success: false, message: error.message });
   }
 };

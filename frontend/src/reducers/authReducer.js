@@ -1,22 +1,50 @@
 const initialState = {
   isAuthenticated: false,
-  userRole: null,
-  // ...existing code...
+  user: null,
+  token: null,
+  loading: true,
+  error: null,
 };
 
-const authReducer = (state = initialState, action) => {
+export default function authReducer(state = initialState, action) {
   switch (action.type) {
     case 'LOGIN_SUCCESS':
       return {
         ...state,
         isAuthenticated: true,
-        userRole: action.payload.role,
-        // ...existing code...
+        user: action.payload.user,
+        token: action.payload.token,
+        loading: false,
+      };
+    case 'LOGIN_FAILURE':
+      return {
+        ...state,
+        isAuthenticated: false,
+        user: null,
+        token: null,
+        loading: false,
+        error: action.payload,
+      };
+    case 'LOGOUT':
+      return {
+        ...state,
+        isAuthenticated: false,
+        user: null,
+        token: null,
+        loading: false,
+      };
+    case 'DECRYPT_TOKEN_SUCCESS':
+      return {
+        ...state,
+        user: action.payload,
+      };
+    case 'DECRYPT_TOKEN_FAILURE':
+      return {
+        ...state,
+        error: action.payload,
       };
     // ...existing code...
     default:
       return state;
   }
-};
-
-export default authReducer;
+}

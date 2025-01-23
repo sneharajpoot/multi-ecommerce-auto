@@ -20,6 +20,7 @@ exports.verifyToken = (token) => {
 
 // Generate Refresh Token
 exports.generateRefreshToken = (payload, expiresIn = '7d') => {
+  console.log("payload", payload)
   return jwt.sign(payload, REFRESH_SECRET, { expiresIn });
 };
 

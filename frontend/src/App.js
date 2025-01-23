@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom";
 import { Provider, useSelector, useDispatch } from "react-redux";
 import store from "./store";
 import Navbar from "./components/Navbar";
@@ -23,15 +23,24 @@ import ReturnPolicy from './pages/ReturnPolicy'; // Import the ReturnPolicy page
 import Footer from './components/Footer'; // Import the Footer component
 import TopBar from './components/TopBar'; // Import the TopBar component
 import ProductPage from './components/ProductPage'; // Import the ProductPage component
+import CartPage from './components/CartPage'; // Import the CartPage component
+import {jwtDecode} from "jwt-decode"; // Correct the import for jwtDecode
 
 const App = () => {
   const dispatch = useDispatch();
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  const userRole = useSelector((state) => state.auth.userRole);
+  const auth = useSelector((state) => state.auth);
+  const isAuthenticated = auth.isAuthenticated;
+  const token = auth.token;
+  let userRole = auth.user?.role;
 
   useEffect(() => {
-    dispatch(loadUser()); // Load user on app mount
-  }, [dispatch]);
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      userRole = decodedToken.role;
+      localStorage.setItem('userRole', userRole);
+      localStorage.setItem('userId', decodedToken.id);
+    }
+  }, [token]);
 
   const showSuccessMessage = (message) => {
     toast.success(message);
@@ -41,37 +50,50 @@ const App = () => {
     toast.error(message);
   };
 
-  // Example usage:
-  // showSuccessMessage('This is a success message!');
-  // showErrorMessage('This is an error message!');
-
   return (
     <Provider store={store}>
       <Router>
         <Switch>
+          <Route path="/login" component={Login} />
+          <Route path="/signup" component={Signup} />
+          <ProtectedRoute
+            path="/dashboard"
+            component={Dashboard}
+            isAuthenticated={isAuthenticated}
+            userRole={userRole}
+            requiredRole={['admin', 'store_admin']}
+          />
           <Route path="/" exact>
             <TopBar /> {/* Use the TopBar component for customer routes */}
             <Home />
             <Footer /> {/* Use the Footer component */}
           </Route>
-          <Route path="/login" component={Login} />
-          <Route path="/admin" render={() => (
-            <ProtectedRoute isAuthenticated={isAuthenticated} userRole={userRole} requiredRole="admin">
-              <AdminPanel />
-            </ProtectedRoute>
-          )} />
           <Route path="/product/:productId">
             <TopBar /> {/* Use the TopBar component for customer routes */}
             <ProductPage />
             <Footer /> {/* Use the Footer component */}
           </Route>
-          <Route path="/admin-signup" component={Signup} /> {/* Update route for Signup */}
           <Route path="/store-signup" component={StoreSignup} /> {/* Add route for StoreSignup */}
-          <ProtectedRoute path="/dashboard" component={Dashboard} /> {/* Use ProtectedRoute for dashboard */}
           <Route path="/about-us" component={AboutUs} /> {/* Add route for AboutUs */}
           <Route path="/contact" component={Contact} /> {/* Add route for Contact */}
           <Route path="/privacy-policy" component={PrivacyPolicy} /> {/* Add route for PrivacyPolicy */}
           <Route path="/return-policy" component={ReturnPolicy} /> {/* Add route for ReturnPolicy */}
+          <Route path="/cart">
+            <TopBar /> {/* Use the TopBar component for customer routes */}
+            <CartPage />
+            <Footer /> {/* Use the Footer component */}
+          </Route>
+          <Route path="/redirect" render={() => {
+            if (isAuthenticated) {
+              if (userRole === 'admin' || userRole === 'store_admin') {
+                return <Redirect to="/dashboard" />;
+              } else {
+                return <Redirect to="/" />;
+              }
+            } else {
+              return <Redirect to="/login" />;
+            }
+          }} />
         </Switch>
       </Router>
     </Provider>

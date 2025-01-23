@@ -13,17 +13,18 @@ exports.getCartItems = async (req, res) => {
 
 // Add a new cart item
 exports.addAndUpdateCartItem = async (req, res) => {
-    const { customer_id, product_id, qty, variant_id } = req.body;
+    const { product_id, quantity, variant_id } = req.body;
+    const {customer_id} = req.params;
 
     try {
         //check if the product is already in the cart
         const cartItem = await Cart.findOne({ where: { customer_id, product_id, variant_id } });
         if (cartItem) {
-            cartItem.qty += qty;
+            cartItem.quantity += quantity;
             await cartItem.save();
             return res.status(200).json({ message: 'Cart item updated successfully', cartItem });
         }
-        const newCartItem = await Cart.create({ customer_id, product_id, qty, variant_id });
+        const newCartItem = await Cart.create({ customer_id, product_id, quantity, variant_id });
         res.status(201).json({ message: 'Cart item added successfully', cartItem: newCartItem });
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error', message: error.message });

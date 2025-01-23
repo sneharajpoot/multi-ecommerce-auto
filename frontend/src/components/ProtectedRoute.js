@@ -3,19 +3,23 @@ import { Route, Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 const ProtectedRoute = ({ component: Component, requiredRole, ...rest }) => {
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  const userRole = useSelector((state) => state.auth.userRole);
+  const auth = useSelector(state => state.auth);
+  const isAuthenticated = auth.isAuthenticated;
+  const userRole = auth.user?.role;
+
+  console.log("ProtectedRoute props:", { isAuthenticated, userRole, requiredRole, Component });
 
   return (
     <Route
       {...rest}
-      render={(props) =>
-        isAuthenticated && (!requiredRole || userRole === requiredRole) ? (
-          <Component {...props} />
-        ) : (
-          <Redirect to="/login" />
-        )
-      }
+      render={props => {
+        if (isAuthenticated && requiredRole?.includes(userRole)   ) {
+          return <Component {...props} />;
+        } else {
+          console.log(`Navigating to login page from ${Component.name}`);
+          return <Redirect to="/login" />;
+        }
+      }}
     />
   );
 };

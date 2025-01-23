@@ -1,5 +1,6 @@
 import React from 'react';
-import { Switch, Link, useRouteMatch } from 'react-router-dom';
+import { Switch, Link, useRouteMatch, useHistory } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import './Dashboard.css'; // Import the new CSS file
 import StoreList from './StoreList'; // Import the StoreList component
 import Orders from './Orders'; // Import the Orders component
@@ -15,9 +16,17 @@ import UpdateUser from './UpdateUser'; // Import the UpdateUser component
 import RoleList from './RoleList'; // Import the RoleList component
 import ModuleList from './ModuleList'; // Import the ModuleList component
 import ProductTags from './ProductTags'; // Import the ProductTags component
+import { logout } from '../actions/authActions'; // Import the logout action
 
 const Dashboard = () => {
   let { path, url } = useRouteMatch();
+  const dispatch = useDispatch();
+  const history = useHistory();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    history.push('/login');
+  };
 
   return (
     <div className="dashboard">
@@ -33,6 +42,7 @@ const Dashboard = () => {
           <li><Link to={`${url}/roles`}>Roles</Link></li> {/* Add the Roles tab */}
           <li><Link to={`${url}/modules`}>Modules</Link></li> {/* Add the Modules tab */}
           <li><Link to={`${url}/product-tags`}>Product Tags</Link></li> {/* Add link to Product Tags */}
+          <li><button onClick={handleLogout} className="btn btn-link">Logout</button></li> {/* Add logout button */}
         </ul>
       </div>
       <div className="main-content">
@@ -41,23 +51,19 @@ const Dashboard = () => {
         </div>
         <div className="content">
           <Switch>
-            <ProtectedRoute path={`${path}/stores`} component={StoreList} />
-            <ProtectedRoute path={`${path}/products`} exact component={ProductList} />
-            <ProtectedRoute path={`${path}/products/add`} component={AddProduct} />
-            <ProtectedRoute path={`${path}/products/update/:id`} component={UpdateProduct} />
-            <ProtectedRoute path={`${path}/orders`} component={Orders} />
-            <ProtectedRoute path={`${path}/settings`} component={Settings} />
-            {/* Add the route for Categories */}
-            <ProtectedRoute path={`${path}/categories`} component={CategoryList} />
-            {/* Add the routes for Users */}
-            <ProtectedRoute path={`${path}/users`} exact component={UserList} />
-            <ProtectedRoute path={`${path}/users/add`} component={AddUser} />
-            <ProtectedRoute path={`${path}/users/update/:id`} component={UpdateUser} />
-            {/* Add the routes for Roles */}
-            <ProtectedRoute path={`${path}/roles`} component={RoleList} />
-            {/* Add the routes for Modules */}
-            <ProtectedRoute path={`${path}/modules`} component={ModuleList} />
-            <ProtectedRoute path={`${path}/product-tags`} component={ProductTags} /> {/* Add route for ProductTags */}
+            <ProtectedRoute path={`${path}/stores`} component={StoreList} requiredRole={['admin', 'store_admin']} />
+            <ProtectedRoute path={`${path}/products`} exact component={ProductList} requiredRole={['admin', 'store_admin']} />
+            <ProtectedRoute path={`${path}/products/add`} component={AddProduct} requiredRole={['admin', 'store_admin']} />
+            <ProtectedRoute path={`${path}/products/update/:id`} component={UpdateProduct} requiredRole={['admin', 'store_admin']} />
+            <ProtectedRoute path={`${path}/orders`} component={Orders} requiredRole={['admin', 'store_admin']} />
+            <ProtectedRoute path={`${path}/settings`} component={Settings} requiredRole={['admin', 'store_admin']} />
+            <ProtectedRoute path={`${path}/categories`} component={CategoryList} requiredRole={['admin', 'store_admin']} /> {/* Add the route for Categories */}
+            <ProtectedRoute path={`${path}/users`} exact component={UserList} requiredRole={['admin', 'store_admin']} /> {/* Add the routes for Users */}
+            <ProtectedRoute path={`${path}/users/add`} component={AddUser} requiredRole={['admin', 'store_admin']} />
+            <ProtectedRoute path={`${path}/users/update/:id`} component={UpdateUser} requiredRole={['admin', 'store_admin']} />
+            <ProtectedRoute path={`${path}/roles`} component={RoleList} requiredRole={['admin', 'store_admin']} /> {/* Add the routes for Roles */}
+            <ProtectedRoute path={`${path}/modules`} component={ModuleList} requiredRole={['admin', 'store_admin']} /> {/* Add the routes for Modules */}
+            <ProtectedRoute path={`${path}/product-tags`} component={ProductTags} requiredRole={['admin', 'store_admin']} /> {/* Add route for ProductTags */}
           </Switch>
         </div>
       </div>
