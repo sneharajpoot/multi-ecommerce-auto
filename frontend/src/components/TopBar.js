@@ -1,8 +1,37 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Form, InputGroup, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchCartItems } from '../api/cartApi'; // Import the cart API functions
+import { logout } from '../actions/authActions'; // Import the logout action
 
 const TopBar = () => {
+  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+  const customerId = useSelector(state => state.auth.user?.id);
+  const [cartCount, setCartCount] = useState(0);
+  const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    window.location.href = '/login';
+  };
+
+  useEffect(() => {
+    const updateCartCount = async () => {
+      try {
+        const response = await fetchCartItems(customerId);
+        const cartItems = response.data || [];
+        setCartCount(cartItems.length);
+      } catch (error) {
+        console.error('Error fetching cart items:', error);
+      }
+    };
+
+    if (customerId) {
+      updateCartCount();
+    }
+  }, [customerId]);
+
   return (
     <header className="header-section">
       <Container>
@@ -25,14 +54,20 @@ const TopBar = () => {
             </InputGroup>
           </Col>
           <Col md={4} className="text-end">
-            <Link to="/login">
-              <Button variant="link">Login</Button>
-            </Link>
-            <Link to="/signup">
-              <Button variant="link">Signup</Button>
-            </Link>
+            {!isAuthenticated ? (
+              <>
+                <Link to="/login">
+                  <Button variant="link">Login</Button>
+                </Link>
+                <Link to="/signup">
+                  <Button variant="link">Signup</Button>
+                </Link>
+              </>
+            ) : (
+              <Button variant="link" onClick={handleLogout}>Logout</Button>
+            )}
             <Link to="/cart">
-              <Button variant="link">Cart (0)</Button>
+              <Button variant="link">Cart ({cartCount})</Button>
             </Link>
           </Col>
         </Row>

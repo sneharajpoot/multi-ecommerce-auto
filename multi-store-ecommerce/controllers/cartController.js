@@ -1,10 +1,43 @@
-const { Cart } = require('../models');
+const { Cart, Product, Product_Variants, sequelize } = require('../models');
 
-// Get all cart items
+// Get all cart items by customer_id
 exports.getCartItems = async (req, res) => {
     try {
         let { customer_id } = req.params;
-        const cartItems = await Cart.findAll();
+
+        const cartItems = await Cart.findAll({ where: { customer_id } });
+        res.status(200).json(cartItems);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+};
+
+exports.getCartItemsDetail = async (req, res) => {
+    try {
+        let { customer_id } = req.params;
+
+        const cartItems = await sequelize.query(
+            `SELECT 
+                Cart.id, 
+                Cart.customer_id, 
+                Cart.product_id, 
+                Cart.variant_id, 
+                Cart.quantity, 
+                Products.name AS product_name, 
+                Products.description AS product_description, 
+                Products.price AS product_price, 
+                Product_Variants.name, 
+                Product_Variants.price 
+            FROM Cart 
+            JOIN Products ON Cart.product_id = Products.id 
+            JOIN Product_Variants ON Cart.variant_id = Product_Variants.id
+            WHERE Cart.customer_id = :customer_id`,
+            {
+                replacements: { customer_id },
+                type: sequelize.QueryTypes.SELECT
+            }
+        );
+
         res.status(200).json(cartItems);
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error', message: error.message });

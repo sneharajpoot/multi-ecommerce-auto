@@ -18,6 +18,7 @@ const { authenticate } = require('../middlewares/authMiddleware');
  *         description: Internal server error
  */
 router.get('/:customer_id', authenticate, cartController.getCartItems);
+router.get('/:customer_id/detail', authenticate, cartController.getCartItemsDetail);
 
 /**
  * @swagger

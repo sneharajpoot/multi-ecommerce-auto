@@ -74,6 +74,12 @@ const ProductPage = () => {
             };
             await addCartItem(item, customerId);
             console.log('Product added to cart');
+
+            // Update cart count in local storage
+            const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+            cartItems.push(item);
+            localStorage.setItem('cartItems', JSON.stringify(cartItems));
+            window.dispatchEvent(new Event('storage')); // Trigger storage event to update cart count
         } catch (error) {
             console.error('Error adding product to cart:', error);
         }

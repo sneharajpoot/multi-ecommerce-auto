@@ -1,8 +1,6 @@
 // File: models/ShippingClass.js
 
-const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-
+const { Model, DataTypes } = require('sequelize'); 
 class ShippingClass extends Model {
   static init(sequelize) {
     return super.init({

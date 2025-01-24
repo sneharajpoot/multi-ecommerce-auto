@@ -55,7 +55,7 @@ const UpdateProduct = ({ onProductUpdated }) => {
         const primaryImageIndex = response.data.productImage.findIndex(image => image.is_primary === 1);
         setPrimaryImageIndex(primaryImageIndex);
         setTags(response.data?.productTag);
-        setVariants(response.data?.productVariant || []);
+        setVariants(response.data?.productVariants || []);
       } catch (error) {
         console.error('Error fetching product:', error);
       } finally {
@@ -95,7 +95,7 @@ const UpdateProduct = ({ onProductUpdated }) => {
   const handleSaveProduct = async () => {
     setLoading(true); // Set loading to true
     try {
-      await updateProduct(product.id, product);
+      await updateProduct(product.id, { ...product, variants });
       setMessage('Product updated successfully!');
       setError('');
       setStep(step + 1); // Move to the next step

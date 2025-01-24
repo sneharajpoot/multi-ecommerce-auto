@@ -25,6 +25,7 @@ import TopBar from './components/TopBar'; // Import the TopBar component
 import ProductPage from './components/ProductPage'; // Import the ProductPage component
 import CartPage from './components/CartPage'; // Import the CartPage component
 import {jwtDecode} from "jwt-decode"; // Correct the import for jwtDecode
+import CheckoutPage from './components/CheckoutPage'; // Import the CheckoutPage component
 
 const App = () => {
   const dispatch = useDispatch();
@@ -34,13 +35,15 @@ const App = () => {
   let userRole = auth.user?.role;
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
     if (token) {
       const decodedToken = jwtDecode(token);
       userRole = decodedToken.role;
       localStorage.setItem('userRole', userRole);
       localStorage.setItem('userId', decodedToken.id);
+      dispatch({ type: 'LOGIN_SUCCESS', payload: { user: decodedToken, token } });
     }
-  }, [token]);
+  }, [dispatch]);
 
   const showSuccessMessage = (message) => {
     toast.success(message);
@@ -83,6 +86,7 @@ const App = () => {
             <CartPage />
             <Footer /> {/* Use the Footer component */}
           </Route>
+          <Route path="/checkout" component={CheckoutPage} /> {/* Add route for CheckoutPage */}
           <Route path="/redirect" render={() => {
             if (isAuthenticated) {
               if (userRole === 'admin' || userRole === 'store_admin') {

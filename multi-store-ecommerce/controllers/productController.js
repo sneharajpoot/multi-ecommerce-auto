@@ -1,5 +1,5 @@
 const db = require('../models'); // Correct path to models
-const { Stores, Products, ProductMetadata, ProductAttribute, Category } = db;
+const { Stores, Products, ProductMetadata, ProductAttribute, Category, Product_Variants } = db;
 const { Op } = require('sequelize');
 
 exports.createProduct = async (req, res) => {
@@ -239,35 +239,32 @@ exports.getProductById = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
-    const { product_id } = req.params;
-    const updates = req.body;
+    const { id } = req.params;
+    const { product, productVariants } = req.body;
 
-    console.log(updates, product_id);
-    const product = await Products.findByPk(product_id);
-    if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
+    // Update product
+    const [updated] = await Products.update(product, { where: { id } });
+    if (!updated) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+    const updatedProduct = await Products.findByPk(id);
+
+    // Update product variants
+    if (productVariants && productVariants.length > 0) {
+      await Promise.all(
+        productVariants.map(async (variant) => {
+          const { id: variantId, ...variantData } = variant;
+          const [variantUpdated] = await Product_Variants.update(variantData, { where: { id: variantId, product_id: id } });
+          if (!variantUpdated) {
+            await Product_Variants.create({ ...variantData, product_id: id });
+          }
+        })
+      );
     }
 
-    // Ensure store_id is not updated
-    // if (updates.store_id && updates.store_id !== product.store_id) {
-    //   return res.status(400).json({ error: 'store_id cannot be updated' });
-    // }
-
-    // Check if SKU is unique within the store if it's being updated and is different from the current SKU
-    if (updates.sku && updates.sku !== product.sku) {
-      const existingProduct = await Products.findOne({ where: { store_id: product.store_id, sku: updates.sku } });
-      if (existingProduct) {
-        return res.status(400).json({ error: 'SKU must be unique within the store' });
-      }
-    }
-
-    Object.assign(product, updates);
-    await product.save();
-
-    res.status(200).json({ message: 'Product updated successfully', product });
+    res.status(200).json({ success: true, message: 'Product updated successfully', data: updatedProduct });
   } catch (error) {
-    console.error('Error updating product:', error.message);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

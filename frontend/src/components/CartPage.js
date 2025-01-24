@@ -15,7 +15,8 @@ const CartPage = () => {
     const getCartItems = async () => {
       try {
         const response = await fetchCartItems(customerId);
-        setCartItems(response.data.cartItems);
+        console.log('--->',response.data);
+        setCartItems(response.data);
       } catch (error) {
         console.error('Error fetching cart items:', error);
       }
@@ -35,8 +36,7 @@ const CartPage = () => {
 
   const handleCheckout = () => {
     if (isAuthenticated) {
-      // Implement checkout functionality
-      console.log('Proceed to checkout');
+      history.push('/checkout');
     } else {
       history.push('/login');
     }
@@ -52,8 +52,8 @@ const CartPage = () => {
     <Container className="mt-5">
       <h1>Shopping Cart</h1>
       <Row>
-        {cartItems.map(item => (
-          <Col md={4} key={item.id}>
+        {cartItems?.map(item => (
+          <Col key={item.id} md={4}>
             <Card className="mb-4">
               <Card.Img variant="top" src={item.image || "https://placehold.jp/300x200"} />
               <Card.Body>

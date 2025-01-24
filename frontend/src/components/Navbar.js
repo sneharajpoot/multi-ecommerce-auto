@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchCartItems, syncCartToServer } from '../api/cartApi'; // Import the cart API functions
+import { logout } from '../actions/authActions'; // Import the logout action
 import "./Navbar.css"; // Import the new CSS file
 import logo from '../assets/logo.png'; // Import the logo image
 import profileIcon from '../assets/profile-icon.png'; // Import the profile icon
@@ -8,10 +11,50 @@ import 'bootstrap/dist/js/bootstrap.bundle.min'; // Import Bootstrap JavaScript
 const Navbar = () => {
   const location = useLocation();
   const isDashboard = location.pathname.startsWith('/dashboard');
+  const [cartCount, setCartCount] = useState(0);
+  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+  const userRole = useSelector(state => state.auth.user?.role);
+  const customerId = useSelector(state => state.auth.user?.id);
+  const dispatch = useDispatch();
 
   const changeLanguage = (language) => {
     // Implement language change logic here
     console.log(`Language changed to: ${language}`);
+  };
+
+  useEffect(() => {
+    const updateCartCount = async () => {
+      try {
+        const response = await fetchCartItems(customerId);
+        const cartItems = response.data.cartItems || [];
+        setCartCount(cartItems.length);
+      } catch (error) {
+        console.error('Error fetching cart items:', error);
+      }
+    };
+
+    updateCartCount();
+    window.addEventListener('storage', updateCartCount);
+
+    return () => {
+      window.removeEventListener('storage', updateCartCount);
+    };
+  }, [customerId]);
+
+  useEffect(() => {
+    const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+    setCartCount(cartItems.length);
+  }, [location]);
+
+  const handleCartClick = async () => {
+    if (isAuthenticated && customerId) {
+      await syncCartToServer(customerId);
+    }
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    window.location.href = '/login';
   };
 
   return (
@@ -51,9 +94,20 @@ const Navbar = () => {
                 <li className="nav-item">
                   <Link className="nav-link" to="/store">Store</Link>
                 </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/login">Login</Link>
-                </li>
+                {!isAuthenticated ? (
+                  <>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/login">Login</Link>
+                    </li>
+                    <li className="nav-item">
+                      <Link className="nav-link" to="/signup">Sign Up</Link>
+                    </li>
+                  </>
+                ) : (
+                  <li className="nav-item">
+                    <button className="nav-link btn btn-link" onClick={handleLogout}>Logout</button>
+                  </li>
+                )}
                 <li className="nav-item">
                   <Link className="nav-link" to="/admin-signup">Admin Signup</Link>
                 </li>
@@ -82,6 +136,11 @@ const Navbar = () => {
               <li><Link className="dropdown-item" to="/logout">Logout</Link></li>
             </ul>
           </div>
+          <li className="nav-item">
+            <Link to="/cart" className="nav-link" onClick={handleCartClick}>
+              Cart <span className="badge badge-pill badge-primary">{cartCount}</span>
+            </Link>
+          </li>
         </div>
       </div>
     </nav>

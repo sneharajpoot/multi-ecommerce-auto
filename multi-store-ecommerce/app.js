@@ -27,9 +27,8 @@ const roleAssignmentRoutes = require('./routes/roleAssignmentRoutes'); // Import
 const productImageRoutes = require('./routes/productImageRoutes'); // Import product image routes
 const productVariantRoutes = require('./routes/productVariantRoutes');
 const cartRoutes = require('./routes/cartRoutes');
-
-
-
+const shippingAddressRoutes = require('./routes/shippingAddressRoutes'); // Import shipping address routes
+const shippingAddressHistoryRoutes = require('./routes/shippingAddressHistoryRoutes'); // Import shipping address history routes
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -111,6 +110,8 @@ app.use('/api/role-assignments', roleAssignmentRoutes); // Use role assignment r
 app.use('/api/product-images', productImageRoutes); // Use product image routes
 app.use('/api/product-variants', productVariantRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/shipping-addresses', shippingAddressRoutes); // Use shipping address routes
+app.use('/api/shipping-address-histories', shippingAddressHistoryRoutes); // Use shipping address history routes
 
 // Health Check Endpoint
 app.get('/', (req, res) => {

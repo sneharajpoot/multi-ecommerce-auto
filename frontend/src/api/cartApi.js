@@ -10,7 +10,16 @@ const getAuthHeaders = () => {
 };
 export const fetchCartItems = async (customerId) => {
   if (customerId) {
-    return await axios.get(`/cart/${customerId}`,getAuthHeaders());
+    return await axios.get(`${config.apiBaseUrl}/cart/${customerId}`,getAuthHeaders());
+  } else {
+    const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+    return { data: { cartItems } };
+  }
+};
+
+export const fetchCartItemsDetail = async (customerId) => {
+  if (customerId) {
+    return await axios.get(`${config.apiBaseUrl}/cart/${customerId}/detail`,getAuthHeaders());
   } else {
     const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
     return { data: { cartItems } };
