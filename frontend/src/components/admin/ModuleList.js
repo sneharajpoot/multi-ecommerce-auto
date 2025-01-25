@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchModules, addModule, updateModule, deleteModule } from '../api/moduleApi'; // Import the API functions
+import { fetchModules, addModule, updateModule, deleteModule } from '../../api/moduleApi'; // Import the API functions
 import { Modal, Button, Form } from 'react-bootstrap'; // Import Bootstrap components
 
 const ModuleList = () => {

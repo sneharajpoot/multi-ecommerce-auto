@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { addStore, updateStore } from '../actions/storeActions';
+import { addStore, updateStore } from '../../actions/storeActions';
 
 const StoreForm = ({ store, isEdit }) => {
   const [formData, setFormData] = useState(store || {});

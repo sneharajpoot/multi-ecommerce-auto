@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchPermissions, addPermission, updatePermission, deletePermission } from '../api/permissionApi'; // Import the API functions
+import { fetchPermissions, addPermission, updatePermission, deletePermission } from '../../api/permissionApi'; // Import the API functions
 import { Modal, Button, Form } from 'react-bootstrap'; // Import Bootstrap components
 
 const PermissionList = () => {

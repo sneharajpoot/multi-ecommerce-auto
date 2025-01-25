@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchCartItems, syncCartToServer } from '../api/cartApi'; // Import the cart API functions
-import { logout } from '../actions/authActions'; // Import the logout action
+import { fetchCartItems, syncCartToServer } from '../../api/cartApi'; // Fix the import path for cartApi
+import { logout } from '../../actions/authActions'; // Fix the import path for authActions
 import "./Navbar.css"; // Import the new CSS file
-import logo from '../assets/logo.png'; // Import the logo image
-import profileIcon from '../assets/profile-icon.png'; // Import the profile icon
+import logo from '../../assets/logo.png'; // Import the logo image
+import profileIcon from '../../assets/profile-icon.png'; // Import the profile icon
 import 'bootstrap/dist/js/bootstrap.bundle.min'; // Import Bootstrap JavaScript
 
 const Navbar = () => {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchCategories, addCategory, updateCategory, toggleCategoryStatus } from '../api/categoryApi'; // Import the API functions
+import { fetchCategories, addCategory, updateCategory, toggleCategoryStatus } from '../../api/categoryApi'; // Import the API functions
 import './CategoryList.css'; // Import the CSS file
 
 const CategoryList = () => {

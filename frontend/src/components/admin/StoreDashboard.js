@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addStore, fetchStores, updateStore } from '../actions/storeActions';
+import { addStore, fetchStores, updateStore } from '../../actions/storeActions';
 
 const StoreDashboard = () => {
   const dispatch = useDispatch();

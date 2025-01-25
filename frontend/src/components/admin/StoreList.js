@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchStores, addStore, updateStore, toggleStoreStatus } from '../api/storeApi'; // Import the API functions
+import { fetchStores, addStore, updateStore, toggleStoreStatus } from '../../api/storeApi'; // Import the API functions
 import './StoreList.css'; // Import the CSS file
 
 const StoreList = () => {

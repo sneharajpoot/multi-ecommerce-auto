@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Carousel, Container, Row, Col, Card, Button } from 'react-bootstrap'; // Import Bootstrap components
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
-import Footer from './Footer'; // Import the Footer component
+import Footer from './comman/Footer'; // Import the Footer component
 import { searchProducts } from '../api/productApi'; // Import the searchProducts API function
 import { useHistory } from 'react-router-dom'; // Import useHistory from react-router-dom
 import "./Home.css"; // Import the new CSS file

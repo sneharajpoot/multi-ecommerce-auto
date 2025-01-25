@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Form, InputGroup, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchCartItems } from '../api/cartApi'; // Import the cart API functions
-import { logout } from '../actions/authActions'; // Import the logout action
+import { fetchCartItems } from '../../api/cartApi'; // Import the cart API functions
+import { logout } from '../../actions/authActions'; // Import the logout action
 
 const TopBar = () => {
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);

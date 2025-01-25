@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchUsers, addUser, updateUser, deleteUser, updateUserStatus } from '../api/userApi'; // Import the API functions
+import { fetchUsers, addUser, updateUser, deleteUser, updateUserStatus } from '../../api/userApi'; // Import the API functions
 import { Modal, Button, Form } from 'react-bootstrap'; // Import Bootstrap components
 import { useHistory } from 'react-router-dom'; // Import useHistory for navigation
 

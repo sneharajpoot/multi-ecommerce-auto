@@ -2,33 +2,28 @@ import React, { useEffect } from "react";
 import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom";
 import { Provider, useSelector, useDispatch } from "react-redux";
 import store from "./store";
-import Navbar from "./components/Navbar";
 import Home from "./components/Home";
 import Login from "./components/Login";
-import AdminPanel from "./components/AdminPanel";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Signup from "./components/Signup"; // Import the renamed Signup component
 import StoreSignup from "./components/StoreSignup"; // Import the new StoreSignup component
-import Dashboard from "./components/Dashboard"; // Import the new component
+import Dashboard from "./components/admin/Dashboard"; // Import the new component
 import { toast } from 'react-toastify'; // Import react-toastify
-import axiosInstance from './axiosConfig'; // Import the configured axios instance
-import StoreList from './components/StoreList'; // Import the StoreList component
 import { loadUser } from './actions/authActions'; // Import the loadUser action
-import CategoryList from './components/CategoryList'; // Import the CategoryList component
-import ProductTags from './components/ProductTags'; // Import the ProductTags component
 import AboutUs from './pages/AboutUs'; // Import the AboutUs page
 import Contact from './pages/Contact'; // Import the Contact page
 import PrivacyPolicy from './pages/PrivacyPolicy'; // Import the PrivacyPolicy page
 import ReturnPolicy from './pages/ReturnPolicy'; // Import the ReturnPolicy page
-import Footer from './components/Footer'; // Import the Footer component
-import TopBar from './components/TopBar'; // Import the TopBar component
+import Footer from './components/comman/Footer'; // Fix the import path for Footer
+import TopBar from './components/comman/TopBar'; // Fix the import path for TopBar
 import ProductPage from './components/ProductPage'; // Import the ProductPage component
 import CartPage from './components/CartPage'; // Import the CartPage component
-import {jwtDecode} from "jwt-decode"; // Correct the import for jwtDecode
 import CheckoutPage from './components/CheckoutPage'; // Import the CheckoutPage component
 import OrderSuccess from './components/OrderSuccess'; // Import the OrderSuccess component
 import OrderList from './components/OrderList'; // Import the OrderList component
 import OrderDetail from './components/OrderDetail'; // Import the OrderDetail component
+import AdminOrderList from './components/admin/AdminOrderList'; // Import the AdminOrderList component
+import {jwtDecode} from "jwt-decode"; // Correct the import for jwtDecode
 
 const App = () => {
   const dispatch = useDispatch();
@@ -123,6 +118,9 @@ const App = () => {
             <TopBar /> {/* Use the TopBar component for customer routes */}
             <OrderDetail />
             <Footer /> {/* Use the Footer component */}
+          </Route>
+          <Route path="/admin/orders" exact>
+            <AdminOrderList /> {/* Use the AdminOrderList component for admin routes */}
           </Route>
           <Route path="/cart">
             <TopBar /> {/* Use the TopBar component for customer routes */}

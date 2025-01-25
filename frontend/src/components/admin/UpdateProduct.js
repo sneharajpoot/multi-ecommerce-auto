@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { fetchProductById, updateProduct } from '../api/productApi'; // Import the API functions
-import { addProductMetadata, updateProductMetadata } from '../api/productMetadataApi'; // Import the API functions for adding and updating product metadata
-import { addProductAttributes, updateProductAttributes } from '../api/productAttributesApi'; // Import the API functions for adding and updating product attributes
-import { fetchStores } from '../api/storeApi'; // Import the API function for fetching stores
-import { fetchCategories } from '../api/categoryApi'; // Import the API function for fetching categories
-import { uploadProductImage, deleteProductImage, setPrimaryImage, fetchProductImages } from '../api/productImageApi'; // Import the API functions for uploading and deleting product image
-import { addProductTag, deleteProductTag, fetchProductTags } from '../api/productTagApi'; // Import the API functions for managing product tags
-import { addProductVariant, updateProductVariant, deleteProductVariant, fetchProductVariants } from '../api/productVariantApi'; // Import the API functions for managing product variants
+import { fetchProductById, updateProduct } from '../../api/productApi'; // Import the API functions
+import { addProductMetadata, updateProductMetadata } from '../../api/productMetadataApi'; // Import the API functions for adding and updating product metadata
+import { addProductAttributes, updateProductAttributes } from '../../api/productAttributesApi'; // Import the API functions for adding and updating product attributes
+import { fetchStores } from '../../api/storeApi'; // Import the API function for fetching stores
+import { fetchCategories } from '../../api/categoryApi'; // Import the API function for fetching categories
+import { uploadProductImage, deleteProductImage, setPrimaryImage, fetchProductImages } from '../../api/productImageApi'; // Import the API functions for uploading and deleting product image
+import { addProductTag, deleteProductTag, fetchProductTags } from '../../api/productTagApi'; // Import the API functions for managing product tags
+import { addProductVariant, updateProductVariant, deleteProductVariant, fetchProductVariants } from '../../api/productVariantApi'; // Import the API functions for managing product variants
 import { useHistory, useParams } from 'react-router-dom'; // Import useHistory and useParams for navigation
 import { Modal, Button, Form } from 'react-bootstrap'; // Import Bootstrap components
-import config from '../config';
+import config from '../../config';
 
 const UpdateProduct = ({ onProductUpdated }) => {
   const { id } = useParams(); // Get the product ID from the URL

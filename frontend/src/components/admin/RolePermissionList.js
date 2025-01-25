@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { fetchRolePermissions, addRolePermission, updateRolePermission, deleteRolePermission } from '../api/rolePermissionApi'; // Import the API functions
-import { fetchRoles } from '../api/roleApi'; // Import the API function for fetching roles
-import { fetchPermissions } from '../api/permissionApi'; // Import the API function for fetching permissions
-import { fetchModules } from '../api/moduleApi'; // Import the API function for fetching modules
+import { fetchRolePermissions, addRolePermission, updateRolePermission, deleteRolePermission } from '../../api/rolePermissionApi'; // Import the API functions
+import { fetchRoles } from '../../api/roleApi'; // Import the API function for fetching roles
+import { fetchPermissions } from '../../api/permissionApi'; // Import the API function for fetching permissions
+import { fetchModules } from '../../api/moduleApi'; // Import the API function for fetching modules
 import { Modal, Button, Form } from 'react-bootstrap'; // Import Bootstrap components
 
 const RolePermissionList = () => {

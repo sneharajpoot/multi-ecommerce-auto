@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchProductTags, addProductTag, updateProductTag } from '../api/productTagApi'; // Import the API functions
+import { fetchProductTags, addProductTag, updateProductTag } from '../../api/productTagApi'; // Import the API functions
 import { Modal, Button, Form } from 'react-bootstrap'; // Import Bootstrap components
 
 const ProductTags = () => {
