@@ -1,21 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const orderController = require('../controllers/orderController');
-const { authenticate } = require('../middlewares/authMiddleware');
-
-/**
- * @swagger
- * /api/orders:
- *   get:
- *     summary: Get all orders
- *     tags: [Orders]
- *     responses:
- *       200:
- *         description: List of orders
- *       500:
- *         description: Internal server error
- */
-router.get('/', orderController.getOrders);
+const { authenticate, authorizeAdmin, authorize } = require('../middlewares/authMiddleware');
+  
+router.get('/lists', orderController.getOrders);
 
 /**
  * @swagger
@@ -41,6 +29,9 @@ router.get('/', orderController.getOrders);
 router.get('/list', authenticate, orderController.getCustomerOrderById);
 
 router.get('/detail/:order_id', authenticate, orderController.getOrderByOrderId);
+// only for admin
+
+router.get('/complete/detail/:order_id', authenticate, authorize('admin', 'store_admin'), orderController.getOrderByOrderIdAdmin);
 
 
 /**

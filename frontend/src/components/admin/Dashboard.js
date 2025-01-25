@@ -3,7 +3,7 @@ import { Switch, Link, useRouteMatch, useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import './Dashboard.css'; // Import the new CSS file
 import StoreList from './StoreList'; // Import the StoreList component
-import Orders from '../Orders'; // Import the Orders component
+import Orders from './Orders'; // Import the Orders component
 import Settings from './Settings'; // Import the Settings component
 import ProtectedRoute from '../ProtectedRoute'; // Import the ProtectedRoute component
 import CategoryList from './CategoryList'; // Import the CategoryList component
@@ -17,6 +17,7 @@ import RoleList from './RoleList'; // Import the RoleList component
 import ModuleList from './ModuleList'; // Import the ModuleList component
 import ProductTags from './ProductTags'; // Import the ProductTags component
 import { logout } from '../../actions/authActions'; // Import the logout action
+import AdminOrderList from './AdminOrderList'; // Import the AdminOrderList component
 
 const Dashboard = () => {
   let { path, url } = useRouteMatch();
@@ -55,7 +56,7 @@ const Dashboard = () => {
             <ProtectedRoute path={`${path}/products`} exact component={ProductList} requiredRole={['admin', 'store_admin']} />
             <ProtectedRoute path={`${path}/products/add`} component={AddProduct} requiredRole={['admin', 'store_admin']} />
             <ProtectedRoute path={`${path}/products/update/:id`} component={UpdateProduct} requiredRole={['admin', 'store_admin']} />
-            <ProtectedRoute path={`${path}/orders`} component={Orders} requiredRole={['admin', 'store_admin']} />
+            <ProtectedRoute path={`${path}/orders`} component={AdminOrderList} requiredRole={['admin', 'store_admin']} />
             <ProtectedRoute path={`${path}/settings`} component={Settings} requiredRole={['admin', 'store_admin']} />
             <ProtectedRoute path={`${path}/categories`} component={CategoryList} requiredRole={['admin', 'store_admin']} /> {/* Add the route for Categories */}
             <ProtectedRoute path={`${path}/users`} exact component={UserList} requiredRole={['admin', 'store_admin']} /> {/* Add the routes for Users */}

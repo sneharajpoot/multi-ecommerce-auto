@@ -22,7 +22,6 @@ import CheckoutPage from './components/CheckoutPage'; // Import the CheckoutPage
 import OrderSuccess from './components/OrderSuccess'; // Import the OrderSuccess component
 import OrderList from './components/OrderList'; // Import the OrderList component
 import OrderDetail from './components/OrderDetail'; // Import the OrderDetail component
-import AdminOrderList from './components/admin/AdminOrderList'; // Import the AdminOrderList component
 import {jwtDecode} from "jwt-decode"; // Correct the import for jwtDecode
 
 const App = () => {
@@ -118,10 +117,7 @@ const App = () => {
             <TopBar /> {/* Use the TopBar component for customer routes */}
             <OrderDetail />
             <Footer /> {/* Use the Footer component */}
-          </Route>
-          <Route path="/admin/orders" exact>
-            <AdminOrderList /> {/* Use the AdminOrderList component for admin routes */}
-          </Route>
+          </Route> 
           <Route path="/cart">
             <TopBar /> {/* Use the TopBar component for customer routes */}
             <CartPage />

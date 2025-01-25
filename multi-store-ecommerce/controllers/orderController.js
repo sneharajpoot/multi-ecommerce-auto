@@ -1,8 +1,11 @@
 const { Orders, OrderItems, ShippingAddressHistory, Cart, sequelize } = require('../models');
 
-// Get all orders
+// Get all orders with pagination
 exports.getOrders = async (req, res) => {
     try {
+        const { page = 1, limit = 10 } = req.query;
+        const offset = (page - 1) * limit;
+
         const orders = await sequelize.query(
             `SELECT 
         Orders.id, 
@@ -15,15 +18,17 @@ exports.getOrders = async (req, res) => {
         Orders.updatedAt, 
         Orders.shipping_address_history_id, 
         Orders.tracking_number, 
-        ShippingAddressHistory.addressLine1, 
-        ShippingAddressHistory.addressLine2, 
+        ShippingAddressHistory.address_line1, 
+        ShippingAddressHistory.address_line2, 
         ShippingAddressHistory.city, 
         ShippingAddressHistory.state, 
-        ShippingAddressHistory.postalCode, 
+        ShippingAddressHistory.postal_code, 
         ShippingAddressHistory.country 
       FROM Orders 
-      JOIN ShippingAddressHistory ON Orders.shipping_address_history_id = ShippingAddressHistory.id`,
+      JOIN ShippingAddressHistory ON Orders.shipping_address_history_id = ShippingAddressHistory.id
+      LIMIT :limit OFFSET :offset`,
             {
+                replacements: { limit: parseInt(limit), offset: parseInt(offset) },
                 type: sequelize.QueryTypes.SELECT
             }
         );
@@ -55,15 +60,16 @@ exports.getOrders = async (req, res) => {
 
         res.status(200).json({ success: true, data: ordersWithItems });
     } catch (error) {
+        console.log(error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
-
-
 exports.getOrderByOrderId = async (req, res) => {
     try {
+        console.log("req.user", req.user)
         let { order_id } = req.params;
+        //role == admin
         let customer_id = req.user.id;
 
         const orders = await sequelize.query(
@@ -93,6 +99,69 @@ exports.getOrderByOrderId = async (req, res) => {
             }
         );
 
+        if (orders.length === 0) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        const orderItems = await sequelize.query(
+            `SELECT 
+          OrderItems.id, 
+          OrderItems.order_id, 
+          OrderItems.product_id, 
+          OrderItems.variant_id, 
+          OrderItems.quantity, 
+          OrderItems.price, 
+          OrderItems.createdAt, 
+          OrderItems.updatedAt 
+        FROM OrderItems 
+        WHERE OrderItems.order_id = :order_id`,
+            {
+                replacements: { order_id },
+                type: sequelize.QueryTypes.SELECT
+            }
+        );
+
+        const order = orders[0];
+        order.items = orderItems;
+
+        res.status(200).json({ success: true, data: order });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+exports.getOrderByOrderIdAdmin = async (req, res) => {
+    try {
+        console.log("req.user", req.user)
+        let { order_id } = req.params; 
+
+        const orders = await sequelize.query(
+            `SELECT 
+          Orders.id, 
+          Orders.uuid, 
+          Orders.customer_id, 
+          Orders.store_id, 
+          Orders.total_amount, 
+          Orders.status, 
+          Orders.createdAt, 
+          Orders.updatedAt, 
+          Orders.shipping_address_history_id, 
+          Orders.tracking_number, 
+          ShippingAddressHistory.address_line1, 
+          ShippingAddressHistory.address_line2, 
+          ShippingAddressHistory.city, 
+          ShippingAddressHistory.state, 
+          ShippingAddressHistory.postal_code, 
+          ShippingAddressHistory.country 
+        FROM Orders 
+        left JOIN ShippingAddressHistory ON Orders.shipping_address_history_id = ShippingAddressHistory.id
+        WHERE Orders.id = :order_id  `,
+            {
+                replacements: { order_id },
+                type: sequelize.QueryTypes.SELECT
+            }
+        );
+
+        console.log("orders-----", orders)
         if (orders.length === 0) {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }

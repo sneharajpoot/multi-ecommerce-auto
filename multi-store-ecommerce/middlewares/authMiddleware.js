@@ -75,3 +75,10 @@ exports.isAdmin = (req, res, next) => {
  * @param {Object} res - Express response object
  * @param {Function} next - Express next middleware function
  */
+
+exports.authorizeAdmin = (req, res, next) => {
+    if (req.user && req.user.role === 'admin') {
+        return next();
+    }
+    return res.status(403).json({ success: false, message: 'Access denied' });
+};
