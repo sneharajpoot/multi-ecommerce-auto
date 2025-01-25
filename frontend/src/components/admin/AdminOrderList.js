@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Table, Button, Pagination, Collapse, Card, Form } from 'react-bootstrap';
+import { Container, Table, Button, Pagination, Collapse, Card, Form , ListGroup, Row, Col } from 'react-bootstrap';
 import { fetchCompleteOrderDetail, fetchCompleteOrders, updateOrdersStatus, getStatusList, getStatusHistory } from '../../api/orderApi'; // Import the order API functions
 import { Link } from 'react-router-dom'; // Import Link for navigation
 
@@ -121,17 +121,20 @@ const AdminOrderList = () => {
                                   {orderDetails[order.id].country}
                                 </Card.Text>
                                 <h5>Items</h5>
-                                {orderDetails[order.id].items.map(item => (
-                                  <Card key={item.id} className="mb-3">
-                                    <Card.Body>
-                                      <Card.Title>Product ID: {item.product_id}</Card.Title>
-                                      <Card.Text>
-                                        {item.quantity} x ${item.price}
-                                      </Card.Text>
-                                    </Card.Body>
-                                  </Card>
-                                ))}
-                                <Form.Group controlId="formOrderStatus">
+                                <ListGroup>
+                                  {orderDetails[order.id].items.map(item => (
+                                    <ListGroup.Item key={item.id}>
+                                      <Row>
+                                        <Col md={8}>
+                                          <strong>Product ID:</strong> {item.product_id}<br />
+                                          <strong>Quantity:</strong> {item.quantity}<br />
+                                          <strong>Price:</strong> ${item.price}
+                                        </Col>
+                                      </Row>
+                                    </ListGroup.Item>
+                                  ))}
+                                </ListGroup>
+                                <Form.Group controlId="formOrderStatus" className="mt-3">
                                   <Form.Label>Change Order Status</Form.Label>
                                   <Form.Control
                                     as="select"
@@ -148,16 +151,16 @@ const AdminOrderList = () => {
                                 <Button variant="success" onClick={() => handleStatusChange(order.id)} className="mt-3">
                                   Update Status
                                 </Button>
-                                <h5>Status History</h5>
+                                <h5 className="mt-4">Status History</h5>
                                 {statusHistory[order.id] ? (
-                                  <ul>
+                                  <ListGroup>
                                     {statusHistory[order.id].map((history, index) => (
-                                      <li key={index}>
-                                        <strong>{history.status_name}</strong> - {new Date(history.action_date).toLocaleString()}
-                                      </li>
-                                    ))
-                                    }
-                                  </ul>
+                                      <ListGroup.Item key={index}>
+                                        <strong>{history.status_name}</strong> - {new Date(history.created_at).toLocaleString()}<br />
+                                        <em>{history.description}</em>
+                                      </ListGroup.Item>
+                                    ))}
+                                  </ListGroup>
                                 ) : (
                                   <div>Loading status history...</div>
                                 )}
