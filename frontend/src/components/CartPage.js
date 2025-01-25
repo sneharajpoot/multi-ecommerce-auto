@@ -15,8 +15,12 @@ const CartPage = () => {
     const getCartItems = async () => {
       try {
         const response = await fetchCartItems(customerId);
-        console.log('--->',response.data);
-        setCartItems(response.data);
+        console.log('--->', response.data);
+        if (response.data?.cartItems?.length) {
+          setCartItems(response?.data?.cartItems);
+        } else {
+          console.log('ele---->', response.data)
+        }
       } catch (error) {
         console.error('Error fetching cart items:', error);
       }

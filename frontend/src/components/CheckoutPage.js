@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom'; // Import useHistory for navigation
 import { addShippingAddress, fetchShippingAddress, updateShippingAddress, deleteShippingAddress } from '../api/shippingApi'; // Import the shipping API functions
 import { fetchCartItemsDetail } from '../api/cartApi'; // Import the cart API functions
+import { placeOrder } from '../api/orderApi'; // Import the order API function
 
 const CheckoutPage = () => {
   const [formData, setFormData] = useState({
@@ -33,7 +34,12 @@ const CheckoutPage = () => {
   const fetchCart = async () => {
     try {
       const response = await fetchCartItemsDetail(customerId);
+      console.log("---response.data", response.data)
+      if(response.data?.length){
       setCartItems(response.data);
+    }  else {
+        console.log('ele---->', response.data)
+    }
     } catch (error) {
       console.error('Error fetching cart items:', error);
     }
@@ -108,6 +114,27 @@ const CheckoutPage = () => {
     return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
   };
 
+  const handlePlaceOrder = async () => {
+    try {
+      const orderData = {
+        // customer_id: customerId,
+        addressId: selectedAddress.id,
+        // items: cartItems.map(item => ({
+        //   product_id: item.product_id,
+        //   variant_id: item.variant_id,
+        //   quantity: item.quantity,
+        //   price: item.price
+        // })),
+        total: calculateTotal()
+      };
+      await placeOrder(orderData);
+      console.log('Order placed successfully');
+      history.push('/order-success'); // Redirect to order success page
+    } catch (error) {
+      console.error('Error placing order:', error);
+    }
+  };
+
   return (
     <Container className="mt-5">
       <h1>Checkout</h1>
@@ -153,6 +180,7 @@ const CheckoutPage = () => {
             </Card>
           ))}
           <h4>Total: ${calculateTotal()}</h4>
+           <Button variant="primary" onClick={handlePlaceOrder}>Place Order</Button>
         </Col>
       </Row>
 

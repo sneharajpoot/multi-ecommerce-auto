@@ -10,14 +10,23 @@ const Login = () => {
   const auth = useSelector(state => state.auth);
   const [credentials, setCredentials] = useState({ email: 'admin@example.com', password: 'Asd@1212' }); // Updated hardcoded credentials
   const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+  const [error, setError] = useState(null); // State to handle error message
 
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(login(credentials));
+    try {
+      await dispatch(login(credentials));
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(`Unauthorized: ${err.response.data.message}`);
+      } else {
+        setError('Login failed. Please check your credentials and try again.');
+      }
+    }
   };
 
   const togglePasswordVisibility = () => {
@@ -33,13 +42,16 @@ const Login = () => {
       } else {
         history.push('/');
       }
+    } else if (auth.error) {
+      setError(auth.error);
     }
-  }, [auth.isAuthenticated, auth.user, history]);
+  }, [auth.isAuthenticated, auth.user, auth.error, history]);
 
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">
       <div className="card p-4 shadow-sm" style={{ maxWidth: '400px', width: '100%' }}>
         <h2 className="mb-4">Login</h2>
+        {error && <div className="alert alert-danger">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label htmlFor="email" className="form-label">Email</label>

@@ -26,8 +26,9 @@ export const login = (credentials) => async dispatch => {
       } 
     }
   } catch (error) {
-    console.error(error.response?.data?.message || 'Login failed');
-    dispatch({ type: 'LOGIN_FAILURE', payload: error.message });
+    console.error( error.response?.data?.message || 'Login failed');
+    // dispatch({ type: 'LOGIN_FAILURE', payload: error.message });
+    dispatch({ type: 'LOGIN_FAILURE', payload: error.response?.data?.message || 'Login failed' });
   }
 };
 

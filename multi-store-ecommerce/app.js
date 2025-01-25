@@ -29,6 +29,8 @@ const productVariantRoutes = require('./routes/productVariantRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const shippingAddressRoutes = require('./routes/shippingAddressRoutes'); // Import shipping address routes
 const shippingAddressHistoryRoutes = require('./routes/shippingAddressHistoryRoutes'); // Import shipping address history routes
+const orderRoutes = require('./routes/orderRoutes'); // Import order routes
+const path = require('path');
 
 dotenv.config(); // Load environment variables from .env file
 
@@ -46,6 +48,10 @@ app.use((req, res, next) => {
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   next();
 });
+
+// Set view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 // Swagger setup
 const swaggerOptions = {
@@ -112,6 +118,7 @@ app.use('/api/product-variants', productVariantRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/shipping-addresses', shippingAddressRoutes); // Use shipping address routes
 app.use('/api/shipping-address-histories', shippingAddressHistoryRoutes); // Use shipping address history routes
+app.use('/api/orders', orderRoutes); // Use order routes
 
 // Health Check Endpoint
 app.get('/', (req, res) => {

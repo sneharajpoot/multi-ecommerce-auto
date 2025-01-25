@@ -26,6 +26,9 @@ import ProductPage from './components/ProductPage'; // Import the ProductPage co
 import CartPage from './components/CartPage'; // Import the CartPage component
 import {jwtDecode} from "jwt-decode"; // Correct the import for jwtDecode
 import CheckoutPage from './components/CheckoutPage'; // Import the CheckoutPage component
+import OrderSuccess from './components/OrderSuccess'; // Import the OrderSuccess component
+import OrderList from './components/OrderList'; // Import the OrderList component
+import OrderDetail from './components/OrderDetail'; // Import the OrderDetail component
 
 const App = () => {
   const dispatch = useDispatch();
@@ -76,17 +79,56 @@ const App = () => {
             <ProductPage />
             <Footer /> {/* Use the Footer component */}
           </Route>
-          <Route path="/store-signup" component={StoreSignup} /> {/* Add route for StoreSignup */}
-          <Route path="/about-us" component={AboutUs} /> {/* Add route for AboutUs */}
-          <Route path="/contact" component={Contact} /> {/* Add route for Contact */}
-          <Route path="/privacy-policy" component={PrivacyPolicy} /> {/* Add route for PrivacyPolicy */}
-          <Route path="/return-policy" component={ReturnPolicy} /> {/* Add route for ReturnPolicy */}
+          <Route path="/store-signup">
+            <TopBar /> {/* Use the TopBar component for customer routes */}
+            <StoreSignup />
+            <Footer /> {/* Use the Footer component */}
+          </Route>
+          <Route path="/about-us">
+            <TopBar /> {/* Use the TopBar component for customer routes */}
+            <AboutUs />
+            <Footer /> {/* Use the Footer component */}
+          </Route>
+          <Route path="/contact">
+            <TopBar /> {/* Use the TopBar component for customer routes */}
+            <Contact />
+            <Footer /> {/* Use the Footer component */}
+          </Route>
+          <Route path="/privacy-policy">
+            <TopBar /> {/* Use the TopBar component for customer routes */}
+            <PrivacyPolicy />
+            <Footer /> {/* Use the Footer component */}
+          </Route>
+          <Route path="/return-policy">
+            <TopBar /> {/* Use the TopBar component for customer routes */}
+            <ReturnPolicy />
+            <Footer /> {/* Use the Footer component */}
+          </Route>
+          <Route path="/checkout">
+            <TopBar /> {/* Use the TopBar component for customer routes */}
+            <CheckoutPage />
+            <Footer /> {/* Use the Footer component */}
+          </Route>
+          <Route path="/order-success">
+            <TopBar /> {/* Use the TopBar component for customer routes */}
+            <OrderSuccess />
+            <Footer /> {/* Use the Footer component */}
+          </Route>
+          <Route path="/orders" exact>
+            <TopBar /> {/* Use the TopBar component for customer routes */}
+            <OrderList />
+            <Footer /> {/* Use the Footer component */}
+          </Route>
+          <Route path="/orders/:orderId">
+            <TopBar /> {/* Use the TopBar component for customer routes */}
+            <OrderDetail />
+            <Footer /> {/* Use the Footer component */}
+          </Route>
           <Route path="/cart">
             <TopBar /> {/* Use the TopBar component for customer routes */}
             <CartPage />
             <Footer /> {/* Use the Footer component */}
           </Route>
-          <Route path="/checkout" component={CheckoutPage} /> {/* Add route for CheckoutPage */}
           <Route path="/redirect" render={() => {
             if (isAuthenticated) {
               if (userRole === 'admin' || userRole === 'store_admin') {

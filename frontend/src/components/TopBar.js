@@ -64,7 +64,12 @@ const TopBar = () => {
                 </Link>
               </>
             ) : (
-              <Button variant="link" onClick={handleLogout}>Logout</Button>
+              <>
+                <Button variant="link" onClick={handleLogout}>Logout</Button>
+                <Link to="/orders">
+                  <Button variant="link">Orders</Button> {/* Add this line */}
+                </Link>
+              </>
             )}
             <Link to="/cart">
               <Button variant="link">Cart ({cartCount})</Button>
