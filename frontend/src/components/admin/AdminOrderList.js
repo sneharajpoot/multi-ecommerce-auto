@@ -109,18 +109,55 @@ const AdminOrderList = () => {
                           {orderDetails[order.id] ? (
                             <Card>
                               <Card.Body>
-                                <Card.Title>Order #{orderDetails[order.id].id} Details</Card.Title>
-                                <Card.Text>
-                                  <strong>Date:</strong> {new Date(orderDetails[order.id].createdAt).toLocaleDateString()}<br />
-                                  <strong>Total:</strong> ${orderDetails[order.id].total_amount}<br />
-                                  <strong>Status:</strong> {orderDetails[order.id].status}<br />
-                                  <strong>Shipping Address:</strong><br />
-                                  {orderDetails[order.id].address_line1}<br />
-                                  {orderDetails[order.id].address_line2 && <>{orderDetails[order.id].address_line2}<br /></>}
-                                  {orderDetails[order.id].city}, {orderDetails[order.id].state} {orderDetails[order.id].postal_code}<br />
-                                  {orderDetails[order.id].country}
-                                </Card.Text>
-                                <h5>Items</h5>
+                                <Card.Title>
+                                  Order #{orderDetails[order.id].id} Details
+                                  <Form.Group controlId="formOrderStatus" className="d-inline-block ms-3">
+                                    <Form.Control
+                                      as="select"
+                                      value={status}
+                                      onChange={(e) => setStatus(e.target.value)}
+                                    >
+                                      {statusList.map((statusOption) => (
+                                        <option key={statusOption.id} value={statusOption.id}>
+                                          {statusOption.status_name}
+                                        </option>
+                                      ))}
+                                    </Form.Control>
+                                  </Form.Group>
+                                  <Button variant="success" onClick={() => handleStatusChange(order.id)} className="ms-2">
+                                    Update Status
+                                  </Button>
+                                </Card.Title>
+                                <Row>
+                                  <Col md={6}>
+                                    <Card.Text>
+                                      <strong>Date:</strong> {new Date(orderDetails[order.id].createdAt).toLocaleDateString()}<br />
+                                      <strong>Total:</strong> ${orderDetails[order.id].total_amount}<br />
+                                      <strong>Status:</strong> {orderDetails[order.id].status}<br />
+                                      <strong>Shipping Address:</strong><br />
+                                      {orderDetails[order.id].address_line1}<br />
+                                      {orderDetails[order.id].address_line2 && <>{orderDetails[order.id].address_line2}<br /></>}
+                                      {orderDetails[order.id].city}, {orderDetails[order.id].state} {orderDetails[order.id].postal_code}<br />
+                                      {orderDetails[order.id].country}
+                                    </Card.Text>
+                                  </Col>
+                                  <Col md={6}>
+                                    <h5>Status History</h5>
+                                    {statusHistory[order.id] ? (
+                                      <ListGroup>
+                                        {statusHistory[order.id].map((history, index) => (
+                                          <ListGroup.Item key={index}>
+                                            <strong>{history.status_name}</strong> - {new Date(history.created_at).toLocaleString()}<br />
+                                            <em>{history.description}</em>
+                                          </ListGroup.Item>
+                                        ))}
+                                      </ListGroup>
+                                    ) : (
+                                      <div>Loading status history...</div>
+                                    )}
+                                  </Col>
+                                </Row>
+                                <h5 className="mt-4">Items</h5>
                                 <ListGroup>
                                   {orderDetails[order.id].items.map(item => (
                                     <ListGroup.Item key={item.id}>
@@ -134,36 +171,6 @@ const AdminOrderList = () => {
                                     </ListGroup.Item>
                                   ))}
                                 </ListGroup>
-                                <Form.Group controlId="formOrderStatus" className="mt-3">
-                                  <Form.Label>Change Order Status</Form.Label>
-                                  <Form.Control
-                                    as="select"
-                                    value={status}
-                                    onChange={(e) => setStatus(e.target.value)}
-                                  >
-                                    {statusList.map((statusOption) => (
-                                      <option key={statusOption.id} value={statusOption.id}>
-                                        {statusOption.status_name}
-                                      </option>
-                                    ))}
-                                  </Form.Control>
-                                </Form.Group>
-                                <Button variant="success" onClick={() => handleStatusChange(order.id)} className="mt-3">
-                                  Update Status
-                                </Button>
-                                <h5 className="mt-4">Status History</h5>
-                                {statusHistory[order.id] ? (
-                                  <ListGroup>
-                                    {statusHistory[order.id].map((history, index) => (
-                                      <ListGroup.Item key={index}>
-                                        <strong>{history.status_name}</strong> - {new Date(history.created_at).toLocaleString()}<br />
-                                        <em>{history.description}</em>
-                                      </ListGroup.Item>
-                                    ))}
-                                  </ListGroup>
-                                ) : (
-                                  <div>Loading status history...</div>
-                                )}
                               </Card.Body>
                             </Card>
                           ) : (
