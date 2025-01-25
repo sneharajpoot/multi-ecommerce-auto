@@ -30,6 +30,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const shippingAddressRoutes = require('./routes/shippingAddressRoutes'); // Import shipping address routes
 const shippingAddressHistoryRoutes = require('./routes/shippingAddressHistoryRoutes'); // Import shipping address history routes
 const orderRoutes = require('./routes/orderRoutes'); // Import order routes
+const orderStatusRoutes = require('./routes/OrderStatusRoutes'); // Import order routes
 const path = require('path');
 
 dotenv.config(); // Load environment variables from .env file
@@ -119,6 +120,8 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/shipping-addresses', shippingAddressRoutes); // Use shipping address routes
 app.use('/api/shipping-address-histories', shippingAddressHistoryRoutes); // Use shipping address history routes
 app.use('/api/orders', orderRoutes); // Use order routes
+app.use('/api/orders-status', orderStatusRoutes); // Use order routes
+
 
 // Health Check Endpoint
 app.get('/', (req, res) => {

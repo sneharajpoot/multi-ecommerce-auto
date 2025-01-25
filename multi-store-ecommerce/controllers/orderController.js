@@ -1,4 +1,5 @@
 const { Orders, OrderItems, ShippingAddressHistory, Cart, sequelize } = require('../models');
+const orderStatusHistoryController = require('./OrderStatusHistoryController');
 
 // Get all orders with pagination
 exports.getOrders = async (req, res) => {
@@ -129,10 +130,11 @@ exports.getOrderByOrderId = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
 exports.getOrderByOrderIdAdmin = async (req, res) => {
     try {
         console.log("req.user", req.user)
-        let { order_id } = req.params; 
+        let { order_id } = req.params;
 
         const orders = await sequelize.query(
             `SELECT 
@@ -254,8 +256,6 @@ exports.getCustomerOrderById = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
-
-// Get a single order by ID
 
 // Add a new order
 exports.addOrder = async (req, res) => {
@@ -449,3 +449,34 @@ exports.deleteOrder = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+ 
+exports.getStatusList = async (req, res) => {
+    try {
+        let result = await orderStatusHistoryController.getStatusList();
+        res.status(200).json({ success: true, data: result, message: 'Order status list retrieved successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+ 
+// New controller function for getting list of order statuses
+exports.getOrderStatuses = async (req, res) => {
+    try {
+        const orderStatuses = await sequelize.query(
+            `SELECT 
+            id, 
+            status_name, 
+            description, 
+            created_at 
+            FROM OrderStatuses`,
+            {
+                type: sequelize.QueryTypes.SELECT
+            }
+        );
+
+        res.status(200).json({ success: true, data: orderStatuses });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+

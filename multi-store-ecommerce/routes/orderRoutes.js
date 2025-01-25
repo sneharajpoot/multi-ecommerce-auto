@@ -4,6 +4,7 @@ const orderController = require('../controllers/orderController');
 const { authenticate, authorizeAdmin, authorize } = require('../middlewares/authMiddleware');
   
 router.get('/lists', orderController.getOrders);
+router.get('/status/lists', orderController.getStatusList);
 
 /**
  * @swagger
@@ -33,6 +34,14 @@ router.get('/detail/:order_id', authenticate, orderController.getOrderByOrderId)
 
 router.get('/complete/detail/:order_id', authenticate, authorize('admin', 'store_admin'), orderController.getOrderByOrderIdAdmin);
 
+// New route for updating order status by admin
+// router.patch('/status/:order_id', authenticate, authorize('admin', 'store_admin'), authorizeAdmin, orderController.updateOrderStatus);
+
+// New route for getting order history by order ID
+// router.get('/history/:order_id', authenticate, authorize('admin', 'store_admin'), orderController.getOrderHistoryByOrderId);
+
+// New route for getting list of order statuses
+// router.get('/statuses', authenticate, authorize('admin', 'store_admin'), orderController.getOrderStatuses);
 
 /**
  * @swagger
@@ -132,15 +141,15 @@ router.post('/', authenticate, orderController.addOrder);
  *                     type: string
  *                   city:
  *                     type: string
- *                   state:
+ *                     state:
  *                     type: string
- *                   postalCode:
+ *                     postalCode:
  *                     type: string
- *                   country:
+ *                     country:
  *                     type: string
- *                   latitude:
+ *                     latitude:
  *                     type: number
- *                   longitude:
+ *                     longitude:
  *                     type: number
  *               orderItems:
  *                 type: array

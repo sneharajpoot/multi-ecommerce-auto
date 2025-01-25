@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Table, Button, Pagination, Collapse, Card } from 'react-bootstrap';
-import { fetchCompleteOrderDetail, fetchCompleteOrders } from '../../api/orderApi'; // Import the order API functions
+import { Container, Table, Button, Pagination, Collapse, Card, Form } from 'react-bootstrap';
+import { fetchCompleteOrderDetail, fetchCompleteOrders, updateOrdersStatus, getStatusList, getStatusHistory } from '../../api/orderApi'; // Import the order API functions
 import { Link } from 'react-router-dom'; // Import Link for navigation
 
 const AdminOrderList = () => {
@@ -9,6 +9,9 @@ const AdminOrderList = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [expandedOrderId, setExpandedOrderId] = useState(null);
   const [orderDetails, setOrderDetails] = useState({});
+  const [status, setStatus] = useState('');
+  const [statusList, setStatusList] = useState([]);
+  const [statusHistory, setStatusHistory] = useState({});
 
   useEffect(() => {
     const fetchOrderData = async () => {
@@ -21,7 +24,17 @@ const AdminOrderList = () => {
       }
     };
 
+    const fetchStatusList = async () => {
+      try {
+        const response = await getStatusList();
+        setStatusList(response?.data?.data || []);
+      } catch (error) {
+        console.error('Error fetching status list:', error);
+      }
+    };
+
     fetchOrderData();
+    fetchStatusList();
   }, [currentPage]);
 
   const handlePageChange = (page) => {
@@ -37,10 +50,24 @@ const AdminOrderList = () => {
         try {
           const response = await fetchCompleteOrderDetail(orderId);
           setOrderDetails({ ...orderDetails, [orderId]: response.data.data });
+          setStatus(response.data.data.status);
+          const statusHistoryResponse = await getStatusHistory(orderId);
+          setStatusHistory({ ...statusHistory, [orderId]: statusHistoryResponse.data.data });
         } catch (error) {
           console.error('Error fetching order details:', error);
         }
       }
+    }
+  };
+
+  const handleStatusChange = async (orderId) => {
+    try {
+      await updateOrdersStatus(orderId, { status });
+      setOrderDetails({ ...orderDetails, [orderId]: { ...orderDetails[orderId], status } });
+      alert('Order status updated successfully');
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      alert('Error updating order status');
     }
   };
 
@@ -104,6 +131,36 @@ const AdminOrderList = () => {
                                     </Card.Body>
                                   </Card>
                                 ))}
+                                <Form.Group controlId="formOrderStatus">
+                                  <Form.Label>Change Order Status</Form.Label>
+                                  <Form.Control
+                                    as="select"
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value)}
+                                  >
+                                    {statusList.map((statusOption) => (
+                                      <option key={statusOption.id} value={statusOption.id}>
+                                        {statusOption.status_name}
+                                      </option>
+                                    ))}
+                                  </Form.Control>
+                                </Form.Group>
+                                <Button variant="success" onClick={() => handleStatusChange(order.id)} className="mt-3">
+                                  Update Status
+                                </Button>
+                                <h5>Status History</h5>
+                                {statusHistory[order.id] ? (
+                                  <ul>
+                                    {statusHistory[order.id].map((history, index) => (
+                                      <li key={index}>
+                                        <strong>{history.status_name}</strong> - {new Date(history.action_date).toLocaleString()}
+                                      </li>
+                                    ))
+                                    }
+                                  </ul>
+                                ) : (
+                                  <div>Loading status history...</div>
+                                )}
                               </Card.Body>
                             </Card>
                           ) : (
