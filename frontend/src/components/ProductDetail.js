@@ -8,13 +8,12 @@ import { showErrorMessage, showSuccessMessage } from '../utils/toastUtils'; // I
 import './ProductDetail.css'; // Import the CSS file for styling
 import config from '../config';
 
-import ReviewList from './ReviewList'; // Import the ReviewList component
-import CommentList from './CommentList'; // Import the CommentList component
 const ProductDetail = () => {
     const { productId } = useParams();
     const [product, setProduct] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [selectedVariant, setSelectedVariant] = useState(null);
     const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
     const customerId = useSelector((state) => state.auth.user?.id);
 
@@ -37,6 +36,8 @@ const ProductDetail = () => {
                     tags: productTags,
                     variants: productVariants,
                 });
+
+                setSelectedVariant(response.data.productVariants[0] || {});
 
                 // Set the primary image as the selected image
                 const primaryImage = productImages.find(img => img.is_primary) || productImages[0];
@@ -70,10 +71,10 @@ const ProductDetail = () => {
         try {
             const item = {
                 product_id: product[0].id,
-                variant_id: product.variants[0]?.id, // Save the variant ID if available
+                variant_id: selectedVariant?.id || product.variants[0]?.id, // Save the selected variant ID if available
                 quantity: 1,
                 name: product[0].name,
-                price: product[0].price,
+                price: selectedVariant?.price || product[0].price,
                 image: selectedImage
             };
             await addCartItem(item, customerId);
@@ -89,6 +90,11 @@ const ProductDetail = () => {
             showErrorMessage('Error adding product to cart');
             console.error('Error adding product to cart:', error);
         }
+    };
+
+    const handleVariantSelect = (variant) => {
+        setSelectedVariant(variant);
+        console.log('Selected variant:', variant);
     };
 
     return (
@@ -114,7 +120,7 @@ const ProductDetail = () => {
                 <Col md={6}>
                     <h1>{product.name}</h1>
                     <p>{product.description}</p>
-                    <h3>${product.price}</h3>
+                    <h3>${selectedVariant?.price || product.price}</h3>
                     <Button variant="primary" onClick={handleAddToCart}>Add to Cart</Button> {/* Add to Cart button */}
                     <h4>Attributes:</h4>
                     <ul>
@@ -135,19 +141,28 @@ const ProductDetail = () => {
                         ))}
                     </ul>
                     <h4>Variants:</h4>
-                    <ul>
+                    {/* {selectedVariant} */}
+                    <Row>
                         {product.variants.map(variant => (
-                            <li key={variant.id}>{variant.name} - ${variant.price} (Stock: {variant.stock})</li>
+                            <Col key={variant.id} md={4} className="mb-3">
+                                <Card
+                                    className={`variant-card ${selectedVariant?.id === variant.id ? 'selected' : ''}`}
+                                    onClick={() => handleVariantSelect(variant)}
+                                >
+                                    <Card.Body className="d-flex flex-column align-items-center">
+                                        {/* {variant} */}
+                                        <div className="variant-image" style={{ backgroundImage: `url(${variant.image || "https://placehold.jp/100x100"})` }}></div>
+                                        <Card.Text className="text-center mt-2">
+                                            {variant.name} - ${variant.price} <br />
+                                            (Stock: {variant.stock})
+                                        </Card.Text>
+                                    </Card.Body>
+                                </Card>
+                            </Col>
                         ))}
-                    </ul>
+                    </Row>
                 </Col>
             </Row>
-
-
-            <Container className="mt-5">
-                {/* Product details code here */}
-                <ReviewList productId={productId} />
-            </Container>
 
             {/* Modal for zoomed image */}
             <Modal show={showModal} onHide={handleCloseModal} centered>

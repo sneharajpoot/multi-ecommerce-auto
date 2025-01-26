@@ -20,8 +20,8 @@ const TopBar = () => {
     const updateCartCount = async () => {
       try {
         const response = await fetchCartItems(customerId);
-        const cartItems = response.data || [];
-        setCartCount(cartItems.length);
+        const cartItems = response.data.cartItems || [];
+        setCartCount(cartItems.reduce((count, item) => count + item.quantity, 0));
       } catch (error) {
         console.error('Error fetching cart items:', error);
       }
@@ -29,7 +29,21 @@ const TopBar = () => {
 
     if (customerId) {
       updateCartCount();
+    } else {
+      const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+      setCartCount(cartItems.reduce((count, item) => count + item.quantity, 0));
     }
+
+    const handleStorageChange = () => {
+      const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+      setCartCount(cartItems.reduce((count, item) => count + item.quantity, 0));
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, [customerId]);
 
   return (
@@ -67,7 +81,7 @@ const TopBar = () => {
               <>
                 <Button variant="link" onClick={handleLogout}>Logout</Button>
                 <Link to="/orders">
-                  <Button variant="link">Orders</Button> {/* Add this line */}
+                  <Button variant="link">Orders</Button>
                 </Link>
               </>
             )}

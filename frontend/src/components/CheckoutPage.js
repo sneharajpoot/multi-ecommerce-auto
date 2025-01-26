@@ -77,8 +77,7 @@ const CheckoutPage = () => {
     }
   };
 
-  const handleAddressSelect = (address) => {
-    setSelectedAddress(address);
+  const handleAddressSelect = (address) => { 
     setFormData({
       address_line1: address.address_line1,
       address_line2: address.address_line2,
@@ -88,6 +87,10 @@ const CheckoutPage = () => {
       country: address.country
     });
     setShowModal(true);
+  };
+
+  const selectAddress = (address) => {
+    setSelectedAddress(address); 
   };
 
   const handleDeleteAddress = async (addressId) => {
@@ -156,7 +159,7 @@ const CheckoutPage = () => {
                   name="address"
                   id={`address-${index}`}
                   label={`${address.address_line1}, ${address.address_line2}, ${address.city}, ${address.state}, ${address.postal_code}, ${address.country}`}
-                  onChange={() => handleAddressSelect(address)}
+                  onChange={() => selectAddress(address)}
                   checked={selectedAddress?.id === address.id}
                 />
                 <Button variant="link" onClick={() => handleAddressSelect(address)}>Edit</Button>

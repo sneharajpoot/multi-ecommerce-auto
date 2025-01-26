@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Button, Card, Form } from 'react-bootstrap';
 import { fetchCartItems, removeCartItem, updateCartItemQuantity, syncCartToServer } from '../api/cartApi'; // Import the cart API functions
 import { useSelector } from 'react-redux'; // Import useSelector to get authentication state
-import { useHistory } from 'react-router-dom'; // Import useHistory for navigation
+import { useHistory, Link } from 'react-router-dom'; // Import useHistory and Link for navigation
 import { showErrorMessage } from '../utils/toastUtils'; // Import toast functions
 import { FaTrash } from 'react-icons/fa'; // Import delete icon
 import './CartPage.css'; // Import the CSS file for styling
@@ -78,7 +78,11 @@ const CartPage = () => {
                     <Card.Img variant="top" src={item.image || "https://placehold.jp/50x50.png"} />
                   </Col>
                   <Col md={10}>
-                    <Card.Title>#{item.product_id} {item.product_name}</Card.Title>
+                    <Card.Title>
+                      <Link to={`/product/${item.product_id}`}>
+                        #{item.product_id} {item.product_name}
+                      </Link>
+                    </Card.Title>
                     <Card.Text>
                       {item.quantity} x ${item.variant_price || item.product_price}
                     </Card.Text>

@@ -1,9 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { subscribeNewsletter } from '../../api/newsletterApi'; // Import the newsletter API function
+import { showErrorMessage, showSuccessMessage } from '../../utils/toastUtils'; // Import toast functions
 import './Footer.css'; // Import the CSS file for Footer
 
 const Footer = () => {
+  const [email, setEmail] = useState('');
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    try {
+      await subscribeNewsletter(email);
+      showSuccessMessage('Subscribed to newsletter successfully');
+      setEmail('');
+    } catch (error) {
+      showErrorMessage('Error subscribing to newsletter');
+      console.error('Error subscribing to newsletter:', error);
+    }
+  };
+
   return (
     <footer className="footer mt-5">
       <Container>
@@ -27,13 +43,19 @@ const Footer = () => {
           </Col>
           <Col md={4}>
             <h5>Newsletter</h5>
-            <Form>
+            <Form onSubmit={handleSubscribe}>
               <Form.Group controlId="formNewsletter">
-                <Form.Control type="email" placeholder="Enter your email" />
+                <Form.Control
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
               </Form.Group>
               <Button variant="primary" type="submit" className="mt-2">
                 Subscribe
-              </Button> 
+              </Button>
             </Form>
           </Col>
         </Row>
