@@ -122,6 +122,9 @@ app.use('/api/shipping-address-histories', shippingAddressHistoryRoutes); // Use
 app.use('/api/orders', orderRoutes); // Use order routes
 app.use('/api/orders-status', orderStatusRoutes); // Use order routes
 
+app.use('/api/reviews', require('./routes/reviewRoutes'));
+app.use('/api/comments', require('./routes/commentRoutes'));
+
 
 // Health Check Endpoint
 app.get('/', (req, res) => {

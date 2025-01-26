@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom'; // Import useParams to get URL parameters
-import { Card, Form, ListGroup, Row, Col, Button } from 'react-bootstrap';
+import { useParams, Link } from 'react-router-dom'; // Import useParams and Link
+import { Container, Card, Form, ListGroup, Row, Col, Button } from 'react-bootstrap';
 import { fetchOrderDetail, cancelOrdersStatus, getStatusList, getStatusHistory, addOrUpdateStatusHistory } from '../api/orderApi'; // Import the order API functions
 import { showErrorMessage, showSuccessMessage } from '../utils/toastUtils'; // Import toast functions
+import ReviewList from './ReviewList'; // Import the ReviewList component
+import { useSelector } from 'react-redux';
 
 const OrderDetail = () => {
   const { orderId } = useParams(); // Get the orderId from the URL parameters
@@ -10,12 +12,15 @@ const OrderDetail = () => {
   const [statusList, setStatusList] = useState([]);
   const [statusHistory, setStatusHistory] = useState([]);
   const [status, setStatus] = useState('');
+  const [productId, setProductId] = useState(0);
+    const customerId = useSelector((state) => state.auth.user?.id);
 
   useEffect(() => {
     const fetchOrderData = async () => {
       try {
         const response = await fetchOrderDetail(orderId);
         setOrderDetails(response.data.data);
+        setProductId(response.data.data.id);
         const statusHistoryResponse = await getStatusHistory(orderId);
         setStatusHistory(statusHistoryResponse.data.data);
       } catch (error) {
@@ -97,14 +102,23 @@ const OrderDetail = () => {
             <ListGroup.Item key={item.id}>
               <Row>
                 <Col md={8}>
-                  <strong>Product ID:</strong> {item.product_id}<br />
+                  <h4>
+                    <Link to={`/product/${item.product_id}`}>
+                      #{item.product_id} {item.product_name}
+                    </Link>
+                  </h4>
                   <strong>Quantity:</strong> {item.quantity}<br />
                   <strong>Price:</strong> ${item.price}
+                </Col>
+                <Col md={4}>
+                  <ReviewList productId={item.product_id} customerId={customerId} showCommect={false} />
                 </Col>
               </Row>
             </ListGroup.Item>
           ))}
         </ListGroup>
+        <hr />
+
       </Card.Body>
     </Card>
   );

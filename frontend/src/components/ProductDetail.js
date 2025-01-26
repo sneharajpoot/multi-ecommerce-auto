@@ -8,6 +8,8 @@ import { showErrorMessage, showSuccessMessage } from '../utils/toastUtils'; // I
 import './ProductDetail.css'; // Import the CSS file for styling
 import config from '../config';
 
+import ReviewList from './ReviewList'; // Import the ReviewList component
+import CommentList from './CommentList'; // Import the CommentList component
 const ProductDetail = () => {
     const { productId } = useParams();
     const [product, setProduct] = useState(null);
@@ -140,6 +142,12 @@ const ProductDetail = () => {
                     </ul>
                 </Col>
             </Row>
+
+
+            <Container className="mt-5">
+                {/* Product details code here */}
+                <ReviewList productId={productId} />
+            </Container>
 
             {/* Modal for zoomed image */}
             <Modal show={showModal} onHide={handleCloseModal} centered>

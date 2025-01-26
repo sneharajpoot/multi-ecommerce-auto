@@ -5,16 +5,16 @@ const orderStatusHistoryController = require('./OrderStatusHistoryController');
 // Get orders with optional store_id filter
 exports.getOrders = async (req, res) => {
     const { storeId, limit = 10, page = 1 } = req.query;
-  
+
     try {
         const replacements = {
-          store_id: parseInt(storeId),
-          limit: parseInt(limit),
-          offset: (parseInt(page) - 1) * parseInt(limit)
+            store_id: parseInt(storeId),
+            limit: parseInt(limit),
+            offset: (parseInt(page) - 1) * parseInt(limit)
         };
-      console.log('storeId', replacements)
-  
-      let sqlQuery = `
+        console.log('storeId', replacements)
+
+        let sqlQuery = `
         SELECT 
           Orders.id, 
           Orders.uuid, 
@@ -35,28 +35,29 @@ exports.getOrders = async (req, res) => {
         JOIN ShippingAddressHistory ON Orders.shipping_address_history_id = ShippingAddressHistory.id
         JOIN OrderItems ON Orders.id = OrderItems.order_id
       `;
-  
-      if (storeId && storeId !== 0) { 
-        sqlQuery += `WHERE OrderItems.store_id = :store_id `;
-      }
-  
-      sqlQuery += ` GROUP BY Orders.id LIMIT :limit OFFSET :offset`;
-       
-      const orders = await sequelize.query(sqlQuery, {
-        replacements,
-        type: sequelize.QueryTypes.SELECT
-      });
-  
-      res.status(200).json({
-        success:true, 
-        data: orders, 
-        page: page, 
-        limit: parseInt(limit)});
+
+        if (storeId && storeId !== 0) {
+            sqlQuery += `WHERE OrderItems.store_id = :store_id `;
+        }
+
+        sqlQuery += ` GROUP BY Orders.id LIMIT :limit OFFSET :offset`;
+
+        const orders = await sequelize.query(sqlQuery, {
+            replacements,
+            type: sequelize.QueryTypes.SELECT
+        });
+
+        res.status(200).json({
+            success: true,
+            data: orders,
+            page: page,
+            limit: parseInt(limit)
+        });
     } catch (error) {
         console.log('error', error)
-      res.status(500).json({ error: 'Internal Server Error', message: error.message });
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
     }
-  };
+};
 
 exports.getOrderByOrderId = async (req, res) => {
     try {
@@ -104,8 +105,12 @@ exports.getOrderByOrderId = async (req, res) => {
           OrderItems.quantity, 
           OrderItems.price, 
           OrderItems.createdAt, 
-          OrderItems.updatedAt 
+          OrderItems.updatedAt ,
+            Products.name AS product_name,
+            Products.description AS product_description
+            
         FROM OrderItems 
+        JOIN Products ON OrderItems.product_id = Products.id
         WHERE OrderItems.order_id = :order_id`,
             {
                 replacements: { order_id },
@@ -334,7 +339,7 @@ exports.addOrder = async (req, res) => {
             `INSERT INTO Orders (uuid, customer_id,  total_amount, shipping_address_history_id, tracking_number, status)
        VALUES (UUID(), :customerId,  :totalAmount, :shippingAddressHistoryId, NULL, 'pending')`,
             {
-                replacements: { 
+                replacements: {
                     customerId: userId,
                     totalAmount,
                     shippingAddressHistoryId: newShippingAddressHistory
@@ -440,7 +445,7 @@ exports.deleteOrder = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
- 
+
 exports.getStatusList = async (req, res) => {
     try {
         let result = await orderStatusHistoryController.getStatusList();
@@ -449,7 +454,7 @@ exports.getStatusList = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
- 
+
 // New controller function for getting list of order statuses
 exports.getOrderStatuses = async (req, res) => {
     try {
