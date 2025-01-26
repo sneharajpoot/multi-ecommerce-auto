@@ -3,6 +3,7 @@ import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { fetchOrders } from '../api/orderApi'; // Import the order API function
 import { useSelector } from 'react-redux'; // Import useSelector to get authentication state
 import { Link } from 'react-router-dom'; // Import Link for navigation
+import { showErrorMessage } from '../utils/toastUtils'; // Import toast functions
 
 const OrderList = () => {
   const [orders, setOrders] = useState([]);
@@ -16,6 +17,7 @@ const OrderList = () => {
         console.log('.....', response.data)
         setOrders(response?.data?.data || []);
       } catch (error) {
+        showErrorMessage('Error fetching orders');
         console.error('Error fetching orders:', error);
       }
     };

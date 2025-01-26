@@ -10,7 +10,8 @@ const getAuthHeaders = () => {
 };
 export const fetchCartItems = async (customerId) => {
   if (customerId) {
-    return await axios.get(`${config.apiBaseUrl}/cart/${customerId}`,getAuthHeaders());
+    const cartItems = await axios.get(`${config.apiBaseUrl}/cart/${customerId}`,getAuthHeaders());
+    return { data: { cartItems: cartItems.data } };
   } else {
     const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
     return { data: { cartItems } };

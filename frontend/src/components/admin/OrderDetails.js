@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Form, ListGroup, Row, Col, Button } from 'react-bootstrap';
 import { fetchCompleteOrderDetail, updateOrdersStatus, getStatusList, getStatusHistory, addOrUpdateStatusHistory } from '../../api/orderApi'; // Import the order API functions
+import { showErrorMessage, showSuccessMessage } from '../../utils/toastUtils'; // Import toast functions
 
 const OrderDetails = ({ orderId, isOpen }) => {
   const [orderDetails, setOrderDetails] = useState(null);
@@ -19,6 +20,7 @@ const OrderDetails = ({ orderId, isOpen }) => {
           const statusHistoryResponse = await getStatusHistory(orderId);
           setStatusHistory(statusHistoryResponse.data.data);
         } catch (error) {
+          showErrorMessage('Error fetching order details');
           console.error('Error fetching order details:', error);
         }
       };
@@ -28,6 +30,7 @@ const OrderDetails = ({ orderId, isOpen }) => {
           const response = await getStatusList();
           setStatusList(response.data.data);
         } catch (error) {
+          showErrorMessage('Error fetching status list');
           console.error('Error fetching status list:', error);
         }
       };
@@ -43,10 +46,10 @@ const OrderDetails = ({ orderId, isOpen }) => {
       const statusHistoryResponse = await getStatusHistory(orderId);
       setStatusHistory(statusHistoryResponse.data.data);
       setStatus('');
-      alert('Order status updated successfully');
+      showSuccessMessage('Order status updated successfully');
     } catch (error) {
-      console.error('Error updating order status:', error);
-      alert('Error updating order status');
+      showErrorMessage('Error update order status');
+      console.error('Error update order status:', error);
     }
   };
 
@@ -85,10 +88,10 @@ const OrderDetails = ({ orderId, isOpen }) => {
       setStatusHistory(statusHistoryResponse.data.data);
       setStatusUpdates([]);
       setEditing(false);
-      alert('Order statuses updated successfully');
+      showSuccessMessage('Order statuses updated successfully');
     } catch (error) {
-      console.error('Error updating order statuses:', error);
-      alert('Error updating order statuses');
+      showErrorMessage('Error order order statuses');
+      console.error('Error order order statuses:', error);
     }
   };
 

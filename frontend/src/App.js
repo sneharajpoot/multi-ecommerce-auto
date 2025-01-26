@@ -16,13 +16,14 @@ import PrivacyPolicy from './pages/PrivacyPolicy'; // Import the PrivacyPolicy p
 import ReturnPolicy from './pages/ReturnPolicy'; // Import the ReturnPolicy page
 import Footer from './components/comman/Footer'; // Fix the import path for Footer
 import TopBar from './components/comman/TopBar'; // Fix the import path for TopBar
-import ProductPage from './components/ProductPage'; // Import the ProductPage component
+import ProductDetail from './components/ProductDetail'; // Import the ProductPage component
 import CartPage from './components/CartPage'; // Import the CartPage component
 import CheckoutPage from './components/CheckoutPage'; // Import the CheckoutPage component
 import OrderSuccess from './components/OrderSuccess'; // Import the OrderSuccess component
 import OrderList from './components/OrderList'; // Import the OrderList component
 import OrderDetail from './components/OrderDetail'; // Import the OrderDetail component
 import {jwtDecode} from "jwt-decode"; // Correct the import for jwtDecode
+import { showErrorMessage, showSuccessMessage } from './utils/toastUtils'; // Import toast functions
 
 const App = () => {
   const dispatch = useDispatch();
@@ -41,14 +42,6 @@ const App = () => {
       dispatch({ type: 'LOGIN_SUCCESS', payload: { user: decodedToken, token } });
     }
   }, [dispatch]);
-
-  const showSuccessMessage = (message) => {
-    toast.success(message);
-  };
-
-  const showErrorMessage = (message) => {
-    toast.error(message);
-  };
 
   return (
     <Provider store={store}>
@@ -70,7 +63,7 @@ const App = () => {
           </Route>
           <Route path="/product/:productId">
             <TopBar /> {/* Use the TopBar component for customer routes */}
-            <ProductPage />
+            <ProductDetail />
             <Footer /> {/* Use the Footer component */}
           </Route>
           <Route path="/store-signup">

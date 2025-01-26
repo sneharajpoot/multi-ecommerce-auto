@@ -4,6 +4,7 @@ const orderController = require('../controllers/orderController');
 const { authenticate, authorizeAdmin, authorize } = require('../middlewares/authMiddleware');
   
 router.get('/lists', orderController.getOrders);
+
 router.get('/status/lists', orderController.getStatusList);
 
 /**

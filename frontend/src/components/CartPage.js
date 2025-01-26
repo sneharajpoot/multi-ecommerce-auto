@@ -3,6 +3,7 @@ import { Container, Row, Col, Button, Card } from 'react-bootstrap';
 import { fetchCartItems, removeCartItem, syncCartToServer } from '../api/cartApi'; // Import the cart API functions
 import { useSelector } from 'react-redux'; // Import useSelector to get authentication state
 import { useHistory } from 'react-router-dom'; // Import useHistory for navigation
+import { showErrorMessage } from '../utils/toastUtils'; // Import toast functions
 import './CartPage.css'; // Import the CSS file for styling
 
 const CartPage = () => {
@@ -22,6 +23,7 @@ const CartPage = () => {
           console.log('ele---->', response.data)
         }
       } catch (error) {
+        showErrorMessage('Error fetching cart items');
         console.error('Error fetching cart items:', error);
       }
     };
@@ -34,6 +36,7 @@ const CartPage = () => {
       await removeCartItem(itemId, customerId);
       setCartItems(cartItems.filter(item => item.id !== itemId));
     } catch (error) {
+      showErrorMessage('Error removing item from cart');
       console.error('Error removing item from cart:', error);
     }
   };

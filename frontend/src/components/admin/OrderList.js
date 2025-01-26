@@ -3,6 +3,7 @@ import { Container, Table, Button, Pagination, Collapse, Form } from 'react-boot
 import { fetchCompleteOrders } from '../../api/orderApi'; // Import the order and store API functions
 import OrderDetails from './OrderDetails'; // Import the OrderDetails component
 import { fetchStores } from '../../api/storeApi'; // Import the order and store API functions
+import { showErrorMessage, showSuccessMessage } from '../../utils/toastUtils'; // Import toast functions
 
 const AdminOrderList = () => {
   const [orders, setOrders] = useState([]);
@@ -19,6 +20,7 @@ const AdminOrderList = () => {
         setOrders(response?.data?.data || []);
         setTotalPages(response?.data?.totalPages || 1);
       } catch (error) {
+        showErrorMessage('Error fetching orders');
         console.error('Error fetching orders:', error);
       }
     };
@@ -28,6 +30,7 @@ const AdminOrderList = () => {
         const response = await fetchStores();
         setStoreList(response);
       } catch (error) {
+        showErrorMessage('Error fetching store list');
         console.error('Error fetching store list:', error);
       }
     };

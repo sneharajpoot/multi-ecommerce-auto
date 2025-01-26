@@ -4,10 +4,11 @@ import { Container, Row, Col, Card, Image, Modal, Button } from 'react-bootstrap
 import { fetchProductById } from '../api/productApi'; // Correct the import for fetchProductById
 import { addCartItem } from '../api/cartApi'; // Import the addCartItem function
 import { useSelector } from 'react-redux'; // Import useSelector to get authentication state
-import './ProductPage.css'; // Import the CSS file for styling
+import { showErrorMessage, showSuccessMessage } from '../utils/toastUtils'; // Import toast functions
+import './ProductDetail.css'; // Import the CSS file for styling
 import config from '../config';
 
-const ProductPage = () => {
+const ProductDetail = () => {
     const { productId } = useParams();
     const [product, setProduct] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
@@ -39,6 +40,7 @@ const ProductPage = () => {
                 const primaryImage = productImages.find(img => img.is_primary) || productImages[0];
                 setSelectedImage(primaryImage?.url || "https://placehold.jp/600x400");
             } catch (error) {
+                showErrorMessage('Error fetching product');
                 console.error('Error fetching product:', error);
             }
         };
@@ -73,6 +75,7 @@ const ProductPage = () => {
                 image: selectedImage
             };
             await addCartItem(item, customerId);
+            showSuccessMessage('Product added to cart successfully');
             console.log('Product added to cart');
 
             // Update cart count in local storage
@@ -81,6 +84,7 @@ const ProductPage = () => {
             localStorage.setItem('cartItems', JSON.stringify(cartItems));
             window.dispatchEvent(new Event('storage')); // Trigger storage event to update cart count
         } catch (error) {
+            showErrorMessage('Error adding product to cart');
             console.error('Error adding product to cart:', error);
         }
     };
@@ -147,4 +151,4 @@ const ProductPage = () => {
     );
 };
 
-export default ProductPage;
+export default ProductDetail;

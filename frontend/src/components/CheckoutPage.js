@@ -5,6 +5,7 @@ import { useHistory } from 'react-router-dom'; // Import useHistory for navigati
 import { addShippingAddress, fetchShippingAddress, updateShippingAddress, deleteShippingAddress } from '../api/shippingApi'; // Import the shipping API functions
 import { fetchCartItemsDetail } from '../api/cartApi'; // Import the cart API functions
 import { placeOrder } from '../api/orderApi'; // Import the order API function
+import { toast } from 'react-toastify'; // Import toast for error messages
 
 const CheckoutPage = () => {
   const [formData, setFormData] = useState({
@@ -28,6 +29,7 @@ const CheckoutPage = () => {
       setAddress(response.data.data);
     } catch (error) {
       console.error('Error fetching address:', error);
+      toast.error('Error fetching address');
     }
   };
 
@@ -42,6 +44,7 @@ const CheckoutPage = () => {
     }
     } catch (error) {
       console.error('Error fetching cart items:', error);
+      toast.error('Error fetching cart items');
     }
   };
 
@@ -70,6 +73,7 @@ const CheckoutPage = () => {
       setShowModal(false);
     } catch (error) {
       console.error('Error adding/updating shipping address:', error);
+      toast.error('Error adding/updating shipping address');
     }
   };
 
@@ -93,6 +97,7 @@ const CheckoutPage = () => {
       await fetchAddress();
     } catch (error) {
       console.error('Error deleting shipping address:', error);
+      toast.error('Error deleting shipping address');
     }
   };
 
@@ -132,6 +137,7 @@ const CheckoutPage = () => {
       history.push('/order-success'); // Redirect to order success page
     } catch (error) {
       console.error('Error placing order:', error);
+      toast.error('Error placing order');
     }
   };
 

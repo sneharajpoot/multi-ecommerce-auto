@@ -4,6 +4,7 @@ const orderStatusHistoryController = require('../controllers/OrderStatusHistoryC
 const { authenticate, authorizeAdmin, authorize } = require('../middlewares/authMiddleware');
 
 router.patch('/status/:order_id', authenticate, authorize('admin', 'store_admin'), authorizeAdmin, orderStatusHistoryController.updateOrderStatus);
+router.patch('/cancel/:order_id', authenticate,   authorizeAdmin, orderStatusHistoryController.cancelOrder);
 
 // New route for getting order history by order ID
 router.get('/history/:order_id', authenticate, authorize('admin', 'store_admin'), orderStatusHistoryController.getOrderHistoryByOrderId);

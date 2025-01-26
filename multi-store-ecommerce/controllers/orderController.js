@@ -261,6 +261,7 @@ exports.addOrder = async (req, res) => {
         Cart.product_id, 
         Cart.variant_id, 
         Cart.quantity,   
+        Products.store_id,
         Products.price AS product_price, 
         Product_Variants.price AS variant_price
 

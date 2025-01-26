@@ -64,6 +64,17 @@ export const updateOrdersStatus = async (order_id, body) => {
   }
 };
 
+export const cancelOrdersStatus = async (order_id) => {
+  try {
+    const response = await axios.patch(`${config.apiBaseUrl}/orders-status/cancel/${order_id}`,{}, getAuthHeaders());
+    return response;
+  } catch (error) {
+    console.error('Error cancel orders:', error.response.data);
+    throw error.response.data;
+  }
+};
+
+
 export const getStatusList = async ( ) => {
   try {
     const response = await axios.get(`${config.apiBaseUrl}/orders-status/statuses`, getAuthHeaders());
