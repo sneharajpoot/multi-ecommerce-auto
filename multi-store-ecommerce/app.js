@@ -31,6 +31,7 @@ const shippingAddressRoutes = require('./routes/shippingAddressRoutes'); // Impo
 const shippingAddressHistoryRoutes = require('./routes/shippingAddressHistoryRoutes'); // Import shipping address history routes
 const orderRoutes = require('./routes/orderRoutes'); // Import order routes
 const orderStatusRoutes = require('./routes/OrderStatusRoutes'); // Import order routes
+const newsletterRoutes = require('./routes/newsletterRoutes');
 const path = require('path');
 
 dotenv.config(); // Load environment variables from .env file
@@ -124,7 +125,7 @@ app.use('/api/orders-status', orderStatusRoutes); // Use order routes
 
 app.use('/api/reviews', require('./routes/reviewRoutes'));
 app.use('/api/comments', require('./routes/commentRoutes'));
-
+app.use('/api/newsletter', newsletterRoutes);
 
 // Health Check Endpoint
 app.get('/', (req, res) => {

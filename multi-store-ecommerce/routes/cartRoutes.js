@@ -50,6 +50,7 @@ router.get('/:customer_id/detail', authenticate, cartController.getCartItemsDeta
  *         description: Internal server error
  */
 router.put('/:customer_id', authenticate, cartController.addAndUpdateCartItem);
+router.put('/:customer_id/:cart_id', authenticate, cartController.updateCartItemCount);
 
 /**
  * @swagger

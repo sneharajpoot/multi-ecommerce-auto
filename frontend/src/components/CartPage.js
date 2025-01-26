@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Button, Card } from 'react-bootstrap';
-import { fetchCartItems, removeCartItem, syncCartToServer } from '../api/cartApi'; // Import the cart API functions
+import { Container, Row, Col, Button, Card, Form } from 'react-bootstrap';
+import { fetchCartItems, removeCartItem, updateCartItemQuantity, syncCartToServer } from '../api/cartApi'; // Import the cart API functions
 import { useSelector } from 'react-redux'; // Import useSelector to get authentication state
 import { useHistory } from 'react-router-dom'; // Import useHistory for navigation
 import { showErrorMessage } from '../utils/toastUtils'; // Import toast functions
+import { FaTrash } from 'react-icons/fa'; // Import delete icon
 import './CartPage.css'; // Import the CSS file for styling
 
 const CartPage = () => {
@@ -16,11 +17,9 @@ const CartPage = () => {
     const getCartItems = async () => {
       try {
         const response = await fetchCartItems(customerId);
-        console.log('--->', response.data);
         if (response.data?.cartItems?.length) {
           setCartItems(response?.data?.cartItems);
         } else {
-          console.log('ele---->', response.data)
         }
       } catch (error) {
         showErrorMessage('Error fetching cart items');
@@ -38,6 +37,17 @@ const CartPage = () => {
     } catch (error) {
       showErrorMessage('Error removing item from cart');
       console.error('Error removing item from cart:', error);
+    }
+  };
+
+  const handleQuantityChange = async (itemId, quantity) => {
+    if (quantity < 1) return;
+    try {
+      await updateCartItemQuantity(itemId, customerId, quantity);
+      setCartItems(cartItems.map(item => item.id === itemId ? { ...item, quantity } : item));
+    } catch (error) {
+      showErrorMessage('Error updating item quantity');
+      console.error('Error updating item quantity:', error);
     }
   };
 
@@ -60,15 +70,35 @@ const CartPage = () => {
       <h1>Shopping Cart</h1>
       <Row>
         {cartItems?.map(item => (
-          <Col key={item.id} md={4}>
-            <Card className="mb-4">
-              <Card.Img variant="top" src={item.image || "https://placehold.jp/300x200"} />
+          <Col md={12} key={item.id}>
+            <Card className="mb-3">
               <Card.Body>
-                <Card.Title>{item.name}</Card.Title>
-                <Card.Text>
-                  ${item.price} x {item.quantity}
-                </Card.Text>
-                <Button variant="danger" onClick={() => handleRemoveFromCart(item.id)}>Remove</Button>
+                <Row>
+                  <Col md={2}>
+                    <Card.Img variant="top" src={item.image || "https://placehold.jp/50x50.png"} />
+                  </Col>
+                  <Col md={10}>
+                    <Card.Title>#{item.product_id} {item.product_name}</Card.Title>
+                    <Card.Text>
+                      {item.quantity} x ${item.variant_price || item.product_price}
+                    </Card.Text>
+                    <div className="d-flex align-items-center">
+                      <Button variant="outline-secondary" onClick={() => handleQuantityChange(item.id, item.quantity - 1)}>-</Button>
+                      <Form.Control
+                        type="number"
+                        value={item.quantity}
+                        onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value))}
+                        min="1"
+                        className="mx-2"
+                        style={{ width: '60px' }}
+                      />
+                      <Button variant="outline-secondary" onClick={() => handleQuantityChange(item.id, item.quantity + 1)}>+</Button>
+                    </div>
+                    <Button variant="danger" onClick={() => handleRemoveFromCart(item.id)} className="mt-2">
+                      <FaTrash /> Remove
+                    </Button>
+                  </Col>
+                </Row>
               </Card.Body>
             </Card>
           </Col>

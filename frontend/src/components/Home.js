@@ -101,8 +101,7 @@ const Home = () => {
           </Col>
         </Row>
       </Container>
-
-      <Footer /> {/* Use the Footer component */}
+ 
     </>
   );
 };

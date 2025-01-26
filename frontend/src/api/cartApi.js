@@ -65,3 +65,19 @@ export const syncCartToServer = async (customerId) => {
 export const syncCart = (cart) => {
   return axios.post(`${config.apiBaseUrl}/cart/sync`, cart, getAuthHeaders());
 };
+
+export const updateCartItemQuantity = async (cartId, customerId, quantity) => {
+  if (customerId) {
+    return await axios.put(`${config.apiBaseUrl}/cart/${customerId}/${cartId}`, { quantity }, getAuthHeaders());
+  } else {
+    let cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+    const itemIndex = cartItems.findIndex(item => item.id === cartId);
+    if (itemIndex !== -1) {
+      cartItems[itemIndex].quantity = quantity;
+      localStorage.setItem('cartItems', JSON.stringify(cartItems));
+      return { data: { cartItems } };
+    } else {
+      throw new Error('Item not found in cart');
+    }
+  }
+};
