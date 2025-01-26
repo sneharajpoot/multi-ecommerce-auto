@@ -17,10 +17,6 @@ class Orders extends Model {
         type: DataTypes.INTEGER,
         allowNull: false
       },
-      store_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false
-      },
       total_amount: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false

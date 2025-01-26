@@ -11,8 +11,7 @@ exports.getOrders = async (req, res) => {
             `SELECT 
         Orders.id, 
         Orders.uuid, 
-        Orders.customer_id, 
-        Orders.store_id, 
+        Orders.customer_id,  
         Orders.total_amount, 
         Orders.status, 
         Orders.createdAt, 
@@ -77,8 +76,7 @@ exports.getOrderByOrderId = async (req, res) => {
             `SELECT 
           Orders.id, 
           Orders.uuid, 
-          Orders.customer_id, 
-          Orders.store_id, 
+          Orders.customer_id,  
           Orders.total_amount, 
           Orders.status, 
           Orders.createdAt, 
@@ -140,8 +138,7 @@ exports.getOrderByOrderIdAdmin = async (req, res) => {
             `SELECT 
           Orders.id, 
           Orders.uuid, 
-          Orders.customer_id, 
-          Orders.store_id, 
+          Orders.customer_id,  
           Orders.total_amount, 
           Orders.status, 
           Orders.createdAt, 
@@ -203,8 +200,7 @@ exports.getCustomerOrderById = async (req, res) => {
             `SELECT 
           Orders.id, 
           Orders.uuid, 
-          Orders.customer_id, 
-          Orders.store_id, 
+          Orders.customer_id,  
           Orders.total_amount, 
           Orders.status, 
           Orders.createdAt, 
@@ -271,9 +267,10 @@ exports.addOrder = async (req, res) => {
         Cart.id, 
         Cart.product_id, 
         Cart.variant_id, 
-        Cart.quantity, 
+        Cart.quantity,   
         Products.price AS product_price, 
-        Product_Variants.price AS variant_price 
+        Product_Variants.price AS variant_price
+
       FROM Cart 
       JOIN Products ON Cart.product_id = Products.id 
       LEFT JOIN Product_Variants ON Cart.variant_id = Product_Variants.id 
@@ -340,11 +337,10 @@ exports.addOrder = async (req, res) => {
 
         // Create order
         const [newOrder] = await sequelize.query(
-            `INSERT INTO Orders (uuid, customer_id, store_id, total_amount, shipping_address_history_id, tracking_number, status)
-       VALUES (UUID(), :customerId, :store_id, :totalAmount, :shippingAddressHistoryId, NULL, 'pending')`,
+            `INSERT INTO Orders (uuid, customer_id,  total_amount, shipping_address_history_id, tracking_number, status)
+       VALUES (UUID(), :customerId,  :totalAmount, :shippingAddressHistoryId, NULL, 'pending')`,
             {
-                replacements: {
-                    store_id: 0,
+                replacements: { 
                     customerId: userId,
                     totalAmount,
                     shippingAddressHistoryId: newShippingAddressHistory
@@ -360,10 +356,11 @@ exports.addOrder = async (req, res) => {
             cartItems.map(async (item) => {
                 const price = item.variant_price || item.product_price;
                 await sequelize.query(
-                    `INSERT INTO OrderItems (order_id, product_id, variant_id, quantity, price, createdAt, updatedAt)
-           VALUES (:orderId, :productId, :variantId, :quantity, :price, NOW(), NOW())`,
+                    `INSERT INTO OrderItems (store_id, order_id, product_id, variant_id, quantity, price, createdAt, updatedAt)
+           VALUES (:storeId, :orderId, :productId, :variantId, :quantity, :price, NOW(), NOW())`,
                     {
                         replacements: {
+                            storeId: item.store_id,
                             orderId: newOrder,
                             productId: item.product_id,
                             variantId: item.variant_id,

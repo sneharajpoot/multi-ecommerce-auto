@@ -12,6 +12,10 @@ class OrderItems extends Model {
         type: DataTypes.INTEGER,
         allowNull: false
       },
+      store_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
       product_id: {
         type: DataTypes.INTEGER,
         allowNull: false
@@ -29,12 +33,12 @@ class OrderItems extends Model {
         allowNull: false
       }
     }, {
-      timestamps: true
-    }, {
       sequelize,
       modelName: 'OrderItems',
       tableName: 'OrderItems',
       timestamps: true,
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt'
     });
   }
 }
