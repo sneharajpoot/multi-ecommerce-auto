@@ -375,13 +375,13 @@ exports.addOrder = async (req, res) => {
         console.log('Order items created for order ID:', newOrder);
 
         // Clear cart
-        await sequelize.query(
-            `DELETE FROM Cart WHERE customer_id = :userId`,
-            {
-                replacements: { userId },
-                type: sequelize.QueryTypes.DELETE
-            }
-        );
+        // await sequelize.query(
+        //     `DELETE FROM Cart WHERE customer_id = :userId`,
+        //     {
+        //         replacements: { userId },
+        //         type: sequelize.QueryTypes.DELETE
+        //     }
+        // );
 
         console.log('Cart cleared for user:', userId);
 

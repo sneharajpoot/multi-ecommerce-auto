@@ -6,6 +6,7 @@ import { addShippingAddress, fetchShippingAddress, updateShippingAddress, delete
 import { fetchCartItemsDetail } from '../api/cartApi'; // Import the cart API functions
 import { placeOrder } from '../api/orderApi'; // Import the order API function
 import { toast } from 'react-toastify'; // Import toast for error messages
+import PaymentPage from './PaymentPage'; // Import PaymentPage
 
 const CheckoutPage = () => {
   const [formData, setFormData] = useState({
@@ -20,9 +21,11 @@ const CheckoutPage = () => {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [cartItems, setCartItems] = useState([]);
+  const [showPaymentPage, setShowPaymentPage] = useState(false);
   const customerId = useSelector((state) => state.auth.user?.id);
   const history = useHistory(); // Initialize useHistory
-
+  const [orderId, setOrderId] = useState(0);
+  
   const fetchAddress = async () => {
     try {
       const response = await fetchShippingAddress(customerId);
@@ -124,6 +127,10 @@ const CheckoutPage = () => {
 
   const handlePlaceOrder = async () => {
     try {
+      if(!selectedAddress){
+        toast.error('Please select an address');
+        return;
+      }
       const orderData = {
         // customer_id: customerId,
         addressId: selectedAddress.id,
@@ -135,14 +142,20 @@ const CheckoutPage = () => {
         // })),
         total: calculateTotal()
       };
-      await placeOrder(orderData);
-      console.log('Order placed successfully');
-      history.push('/order-success'); // Redirect to order success page
+      console.log('Order data:', orderData);
+       let response = await placeOrder(orderData);
+      console.log('Order placed successfully', response);
+      setOrderId(response.data.orderId);
+      setShowPaymentPage(true); // Show payment page
     } catch (error) {
       console.error('Error placing order:', error);
       toast.error('Error placing order');
     }
   };
+
+  if (showPaymentPage) {
+    return <PaymentPage orderId ={orderId} amount={calculateTotal()} />;
+  }
 
   return (
     <Container className="mt-5">

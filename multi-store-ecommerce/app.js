@@ -32,6 +32,8 @@ const shippingAddressHistoryRoutes = require('./routes/shippingAddressHistoryRou
 const orderRoutes = require('./routes/orderRoutes'); // Import order routes
 const orderStatusRoutes = require('./routes/OrderStatusRoutes'); // Import order routes
 const newsletterRoutes = require('./routes/newsletterRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+
 const path = require('path');
 
 dotenv.config(); // Load environment variables from .env file
@@ -127,6 +129,7 @@ app.use('/api/reviews', require('./routes/reviewRoutes'));
 app.use('/api/comments', require('./routes/commentRoutes'));
 app.use('/api/newsletter', newsletterRoutes);
 
+app.use('/api/payment', paymentRoutes);
 // Health Check Endpoint
 app.get('/', (req, res) => {
   res.status(200).send('Multi-Store E-commerce Backend is Running');

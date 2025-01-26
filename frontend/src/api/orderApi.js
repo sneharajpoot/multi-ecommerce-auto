@@ -11,7 +11,8 @@ const getAuthHeaders = () => {
 };
 
 export const placeOrder = async (orderData) => {
-  return await axios.post(`${config.apiBaseUrl}/orders`, orderData, getAuthHeaders());
+  let response = await axios.post(`${config.apiBaseUrl}/orders`, orderData, getAuthHeaders());
+  return response.data;
 };
 
 export const fetchOrders = async (page = 1) => {
