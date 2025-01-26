@@ -14,8 +14,6 @@ export const placeOrder = async (orderData) => {
   return await axios.post(`${config.apiBaseUrl}/orders`, orderData, getAuthHeaders());
 };
 
-
-
 export const fetchOrders = async (page = 1) => {
   try {
     const response = await axios.get(`${config.apiBaseUrl}/orders/list?page=${page}`, getAuthHeaders());
@@ -37,54 +35,61 @@ export const fetchOrderDetail = async (orderId) => {
 };
 
 export const fetchCompleteOrderDetail = async (orderId) => {
-    try {
-      const response = await axios.get(`${config.apiBaseUrl}/orders/complete/detail/${orderId}`, getAuthHeaders());
-      return response;
-    } catch (error) {
-      console.error('Error fetching order details:', error);
-      throw error;
-    }
-  };
-  
+  try {
+    const response = await axios.get(`${config.apiBaseUrl}/orders/complete/detail/${orderId}`, getAuthHeaders());
+    return response;
+  } catch (error) {
+    console.error('Error fetching order details:', error);
+    throw error;
+  }
+};
 
-  export const fetchCompleteOrders = async (page = 1) => {
-    try {
-      const response = await axios.get(`${config.apiBaseUrl}/orders/lists?page=${page}`, getAuthHeaders());
-      return response;
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      throw error;
-    }
-  };
+export const fetchCompleteOrders = async (page = 1) => {
+  try {
+    const response = await axios.get(`${config.apiBaseUrl}/orders/lists?page=${page}`, getAuthHeaders());
+    return response;
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    throw error;
+  }
+};
 
-  export const updateOrdersStatus = async (order_id, body) => {
-    try {
-      const response = await axios.patch(`${config.apiBaseUrl}/orders-status/status/${order_id}`,body, getAuthHeaders());
-      return response;
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      throw error;
-    }
-  };
+export const updateOrdersStatus = async (order_id, body) => {
+  try {
+    const response = await axios.patch(`${config.apiBaseUrl}/orders-status/status/${order_id}`,body, getAuthHeaders());
+    return response;
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    throw error;
+  }
+};
 
-  
-  export const getStatusList = async ( ) => {
-    try {
-      const response = await axios.get(`${config.apiBaseUrl}/orders-status/statuses`, getAuthHeaders());
-      return response;
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      throw error;
-    }
-  };
+export const getStatusList = async ( ) => {
+  try {
+    const response = await axios.get(`${config.apiBaseUrl}/orders-status/statuses`, getAuthHeaders());
+    return response;
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    throw error;
+  }
+};
 
-  
-  export const getStatusHistory = async ( order_id) => {
-    try {
-      const response = await axios.get(`${config.apiBaseUrl}/orders-status/history/${order_id}`, getAuthHeaders());
-      return response;
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      throw error;
-    }
-  };
+export const getStatusHistory = async ( order_id) => {
+  try {
+    const response = await axios.get(`${config.apiBaseUrl}/orders-status/history/${order_id}`, getAuthHeaders());
+    return response;
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    throw error;
+  }
+};
+
+export const addOrUpdateStatusHistory = async (order_id, body) => {
+  try {
+    const response = await axios.post(`${config.apiBaseUrl}/orders-status/history/${order_id}`, body, getAuthHeaders());
+    return response;
+  } catch (error) {
+    console.error('Error adding/updating status history:', error);
+    throw error;
+  }
+};

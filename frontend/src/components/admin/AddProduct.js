@@ -587,10 +587,6 @@ const AddProduct = ({ onProductAdded }) => {
                             <form>
                                 <Button variant="primary" onClick={handleSaveVariant}>Save Variant</Button>
                             </form>
-
-
-
-
                         </div>
                     </div>
                     <button type="button" className="btn btn-primary" onClick={product.id ? handleUpdateProduct : handleAddProduct} disabled={loading}>
