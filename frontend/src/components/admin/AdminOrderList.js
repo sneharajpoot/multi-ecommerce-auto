@@ -70,7 +70,7 @@ const AdminOrderList = () => {
                     <td colSpan="5">
                       <Collapse in={expandedOrderId === order.id}>
                         <div>
-                          <OrderDetails orderId={order.id} />
+                          <OrderDetails orderId={order.id}isOpen={expandedOrderId === order.id} />
                         </div>
                       </Collapse>
                     </td>

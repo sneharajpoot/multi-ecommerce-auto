@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Form, ListGroup, Row, Col, Button } from 'react-bootstrap';
 import { fetchCompleteOrderDetail, updateOrdersStatus, getStatusList, getStatusHistory, addOrUpdateStatusHistory } from '../../api/orderApi'; // Import the order API functions
 
-const OrderDetails = ({ orderId }) => {
+const OrderDetails = ({ orderId, isOpen }) => {
   const [orderDetails, setOrderDetails] = useState(null);
   const [statusList, setStatusList] = useState([]);
   const [statusHistory, setStatusHistory] = useState([]);
@@ -11,29 +11,31 @@ const OrderDetails = ({ orderId }) => {
   const [status, setStatus] = useState('');
 
   useEffect(() => {
-    const fetchOrderData = async () => {
-      try {
-        const response = await fetchCompleteOrderDetail(orderId);
-        setOrderDetails(response.data.data);
-        const statusHistoryResponse = await getStatusHistory(orderId);
-        setStatusHistory(statusHistoryResponse.data.data);
-      } catch (error) {
-        console.error('Error fetching order details:', error);
-      }
-    };
+    if (isOpen) {
+      const fetchOrderData = async () => {
+        try {
+          const response = await fetchCompleteOrderDetail(orderId);
+          setOrderDetails(response.data.data);
+          const statusHistoryResponse = await getStatusHistory(orderId);
+          setStatusHistory(statusHistoryResponse.data.data);
+        } catch (error) {
+          console.error('Error fetching order details:', error);
+        }
+      };
 
-    const fetchStatusList = async () => {
-      try {
-        const response = await getStatusList();
-        setStatusList(response.data.data);
-      } catch (error) {
-        console.error('Error fetching status list:', error);
-      }
-    };
+      const fetchStatusList = async () => {
+        try {
+          const response = await getStatusList();
+          setStatusList(response.data.data);
+        } catch (error) {
+          console.error('Error fetching status list:', error);
+        }
+      };
 
-    fetchOrderData();
-    fetchStatusList();
-  }, [orderId]);
+      fetchOrderData();
+      fetchStatusList();
+    }
+  }, [orderId, isOpen]);
 
   const handleStatusChange = async () => {
     try {
@@ -179,7 +181,7 @@ const OrderDetails = ({ orderId }) => {
                     <Form.Label>Action Date</Form.Label>
                     <Form.Control
                       type="datetime-local"
-                      value={update.action_date? new Date(update.action_date).toISOString().slice(0, 16): null}
+                      value={update.action_date ? new Date(update.action_date).toISOString().slice(0, 16) : ''}
                       onChange={(e) => handleStatusUpdateChange(index, 'action_date', e.target.value)}
                     />
                   </Form.Group>
