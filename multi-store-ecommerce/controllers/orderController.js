@@ -1,69 +1,62 @@
 const { Orders, OrderItems, ShippingAddressHistory, Cart, sequelize } = require('../models');
 const orderStatusHistoryController = require('./OrderStatusHistoryController');
 
-// Get all orders with pagination
+
+// Get orders with optional store_id filter
 exports.getOrders = async (req, res) => {
+    const { storeId, limit = 10, page = 1 } = req.query;
+  
     try {
-        const { page = 1, limit = 10 } = req.query;
-        const offset = (page - 1) * limit;
-
-        const orders = await sequelize.query(
-            `SELECT 
-        Orders.id, 
-        Orders.uuid, 
-        Orders.customer_id,  
-        Orders.total_amount, 
-        Orders.status, 
-        Orders.createdAt, 
-        Orders.updatedAt, 
-        Orders.shipping_address_history_id, 
-        Orders.tracking_number, 
-        ShippingAddressHistory.address_line1, 
-        ShippingAddressHistory.address_line2, 
-        ShippingAddressHistory.city, 
-        ShippingAddressHistory.state, 
-        ShippingAddressHistory.postal_code, 
-        ShippingAddressHistory.country 
-      FROM Orders 
-      JOIN ShippingAddressHistory ON Orders.shipping_address_history_id = ShippingAddressHistory.id
-      LIMIT :limit OFFSET :offset`,
-            {
-                replacements: { limit: parseInt(limit), offset: parseInt(offset) },
-                type: sequelize.QueryTypes.SELECT
-            }
-        );
-
-        const orderIds = orders.map(order => order.id);
-
-        const orderItems = await sequelize.query(
-            `SELECT 
-        OrderItems.id, 
-        OrderItems.order_id, 
-        OrderItems.product_id, 
-        OrderItems.variant_id, 
-        OrderItems.quantity, 
-        OrderItems.price, 
-        OrderItems.createdAt, 
-        OrderItems.updatedAt 
-      FROM OrderItems 
-      WHERE OrderItems.order_id IN (:orderIds)`,
-            {
-                replacements: { orderIds },
-                type: sequelize.QueryTypes.SELECT
-            }
-        );
-
-        const ordersWithItems = orders.map(order => {
-            order.items = orderItems.filter(item => item.order_id === order.id);
-            return order;
-        });
-
-        res.status(200).json({ success: true, data: ordersWithItems });
+        const replacements = {
+          store_id: parseInt(storeId),
+          limit: parseInt(limit),
+          offset: (parseInt(page) - 1) * parseInt(limit)
+        };
+      console.log('storeId', replacements)
+  
+      let sqlQuery = `
+        SELECT 
+          Orders.id, 
+          Orders.uuid, 
+          Orders.customer_id,  
+          Orders.total_amount, 
+          Orders.status, 
+          Orders.createdAt, 
+          Orders.updatedAt, 
+          Orders.shipping_address_history_id, 
+          Orders.tracking_number, 
+          ShippingAddressHistory.address_line1, 
+          ShippingAddressHistory.address_line2, 
+          ShippingAddressHistory.city, 
+          ShippingAddressHistory.state, 
+          ShippingAddressHistory.postal_code, 
+          ShippingAddressHistory.country 
+        FROM Orders 
+        JOIN ShippingAddressHistory ON Orders.shipping_address_history_id = ShippingAddressHistory.id
+        JOIN OrderItems ON Orders.id = OrderItems.order_id
+      `;
+  
+      if (storeId && storeId !== 0) { 
+        sqlQuery += `WHERE OrderItems.store_id = :store_id `;
+      }
+  
+      sqlQuery += ` GROUP BY Orders.id LIMIT :limit OFFSET :offset`;
+       
+      const orders = await sequelize.query(sqlQuery, {
+        replacements,
+        type: sequelize.QueryTypes.SELECT
+      });
+  
+      res.status(200).json({
+        success:true, 
+        data: orders, 
+        page: page, 
+        limit: parseInt(limit)});
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ success: false, message: error.message });
+        console.log('error', error)
+      res.status(500).json({ error: 'Internal Server Error', message: error.message });
     }
-};
+  };
 
 exports.getOrderByOrderId = async (req, res) => {
     try {

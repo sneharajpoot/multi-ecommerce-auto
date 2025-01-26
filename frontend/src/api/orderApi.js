@@ -44,9 +44,9 @@ export const fetchCompleteOrderDetail = async (orderId) => {
   }
 };
 
-export const fetchCompleteOrders = async (page = 1) => {
+export const fetchCompleteOrders = async (page = 1, storeId = 0) => {
   try {
-    const response = await axios.get(`${config.apiBaseUrl}/orders/lists?page=${page}`, getAuthHeaders());
+    const response = await axios.get(`${config.apiBaseUrl}/orders/lists?page=${page}&storeId=${storeId}`, getAuthHeaders());
     return response;
   } catch (error) {
     console.error('Error fetching orders:', error);
