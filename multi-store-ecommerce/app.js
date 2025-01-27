@@ -129,7 +129,7 @@ app.use('/api/reviews', require('./routes/reviewRoutes'));
 app.use('/api/comments', require('./routes/commentRoutes'));
 app.use('/api/newsletter', newsletterRoutes);
 
-app.use('/api/payment', paymentRoutes);
+app.use('/api/payment', paymentRoutes); 
 // Health Check Endpoint
 app.get('/', (req, res) => {
   res.status(200).send('Multi-Store E-commerce Backend is Running');

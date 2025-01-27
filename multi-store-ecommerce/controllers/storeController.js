@@ -1,11 +1,20 @@
 // controllers/storeController.js
 
-// const Store = require('../models/Store'); // Correct path to models
-const db = require('../models'); // Correct path to models
-const { Stores, Products } = db;
+const db = require('../models');
+const { Stores, Users } = db;
+
 const registerStore = async (req, res, next) => {
   try {
     const store = await Stores.create(req.body);
+    const user = await Users.findByPk(req.user.id);
+
+    if (user) {
+      const storeIds = user.store_ids ? user.store_ids.split(',') : [];
+      storeIds.push(store.id);
+      user.store_ids = storeIds.join(',');
+      await user.save();
+    }
+
     res.status(201).json(store);
   } catch (error) {
     next(error);
@@ -52,7 +61,17 @@ const deleteStore = async (req, res, next) => {
     if (!store) {
       return res.status(404).json({ error: 'Store not found' });
     }
+
     await store.destroy();
+
+    const user = await Users.findByPk(req.user.id);
+    if (user) {
+      const storeIds = user.store_ids ? user.store_ids.split(',') : [];
+      const updatedStoreIds = storeIds.filter(id => id !== store.id.toString());
+      user.store_ids = updatedStoreIds.join(',');
+      await user.save();
+    }
+
     res.status(200).json({ message: 'Store deleted successfully' });
   } catch (error) {
     next(error);

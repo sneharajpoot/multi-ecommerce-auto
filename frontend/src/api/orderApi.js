@@ -15,13 +15,14 @@ export const placeOrder = async (orderData) => {
   return response.data;
 };
 
-export const fetchOrders = async (page = 1) => {
+export const  fetchOrders = async (page = 1) => {
   try {
     const response = await axios.get(`${config.apiBaseUrl}/orders/list?page=${page}`, getAuthHeaders());
     return response;
   } catch (error) {
-    console.error('Error fetching orders:', error);
-    throw error;
+    console.error('Error fetching orders:', error?.response?.data?.message || error);
+    // console.error('Error fetching orders:', error);
+    throw error?.response?.data || error;
   }
 };
 
@@ -48,10 +49,10 @@ export const fetchCompleteOrderDetail = async (orderId) => {
 export const fetchCompleteOrders = async (page = 1, storeId = 0) => {
   try {
     const response = await axios.get(`${config.apiBaseUrl}/orders/lists?page=${page}&storeId=${storeId}`, getAuthHeaders());
-    return response;
+    return response.data;
   } catch (error) {
-    console.error('Error fetching orders:', error);
-    throw error;
+    console.error('Error fetching orders:', error?.response?.data || error);
+    throw error.response.data;
   }
 };
 

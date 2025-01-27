@@ -29,6 +29,10 @@ class Users extends Model {
         type: DataTypes.ENUM('active', 'inactive', 'pending'),
         defaultValue: 'customer',
       },
+      store_ids: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       is_deleted: {
         type: DataTypes.INTEGER, 
         defaultValue: 0,

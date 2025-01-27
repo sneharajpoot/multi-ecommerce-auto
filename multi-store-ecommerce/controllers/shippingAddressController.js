@@ -1,9 +1,10 @@
 const { ShippingAddress } = require('../models');
 
-// Get all shipping addresses
+// Get all shipping addresses for the authenticated user
 exports.getShippingAddresses = async (req, res) => {
   try {
-    const addresses = await ShippingAddress.findAll();
+    const userId = req.user.id;
+    const addresses = await ShippingAddress.findAll({ where: { customer_id: userId } });
     res.status(200).json({ success: true, data: addresses });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

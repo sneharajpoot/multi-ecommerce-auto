@@ -1,18 +1,21 @@
 import axios from 'axios';
-import config from '../config'; // Import the config file
+import config from '../config';
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token'); // Assuming the token is stored in localStorage
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+};
+ 
 
 const API_URL = config.apiBaseUrl + '/payment';
 
-const getAuthHeaders = () => {
-    const token = localStorage.getItem('token'); // Assuming the token is stored in localStorage
-    return {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    };
-};
+ 
 export const getPaymentGateways = async () => {
-    return axios.get(`${API_URL}/gateways`);
+    return axios.get(`${API_URL}/gateways`,getAuthHeaders());
 };
 
 export const createPayment = async (data) => {

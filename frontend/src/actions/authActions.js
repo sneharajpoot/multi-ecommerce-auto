@@ -10,7 +10,10 @@ export const login = (credentials) => async dispatch => {
     // Decrypt the token to get user data
     const decryptedTokenResponse = await decryptTokenApi(token);
     const userData = decryptedTokenResponse.data;
+    console.log('User userData:', userData);
     const datau = { ...response.data, user: userData, token };
+
+    console.log('User data:', datau);
 
     dispatch({ type: 'LOGIN_SUCCESS', payload: datau });
 

@@ -23,6 +23,7 @@ const CheckoutPage = () => {
   const [cartItems, setCartItems] = useState([]);
   const [showPaymentPage, setShowPaymentPage] = useState(false);
   const customerId = useSelector((state) => state.auth.user?.id);
+  const user = useSelector((state) => state.auth.user?.id);
   const history = useHistory(); // Initialize useHistory
   const [orderId, setOrderId] = useState(0);
   
@@ -52,6 +53,7 @@ const CheckoutPage = () => {
   };
 
   useEffect(() => {
+    console.log('user---:', user);
     if (customerId) {
       fetchAddress();
       fetchCart();
@@ -163,7 +165,12 @@ const CheckoutPage = () => {
       <Button variant="secondary" onClick={() => history.goBack()}>Back</Button> {/* Add back button */}
       <Row>
         <Col md={6}>
+
+        <Row>
+          <Col md={12} >
+          
           <h3>Address History</h3>
+          <Button variant="secondary" onClick={handleShowModal}>Add New Address</Button>
           <ul>
             {address?.map((address, index) => (
               <li key={index}>
@@ -180,7 +187,13 @@ const CheckoutPage = () => {
               </li>
             ))}
           </ul>
-          <Button variant="secondary" onClick={handleShowModal}>Add New Address</Button>
+          </Col>
+          <Col md={12} >
+          
+          <h4>Total: ${calculateTotal()}</h4>
+           <Button variant="primary" onClick={handlePlaceOrder}>Place Order</Button>
+           </Col>
+        </Row>
         </Col>
         <Col md={6}>
           <h3>Order Summary</h3>
@@ -201,8 +214,6 @@ const CheckoutPage = () => {
               </Card.Body>
             </Card>
           ))}
-          <h4>Total: ${calculateTotal()}</h4>
-           <Button variant="primary" onClick={handlePlaceOrder}>Place Order</Button>
         </Col>
       </Row>
 

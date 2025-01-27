@@ -8,7 +8,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const auth = useSelector(state => state.auth);
-  const [credentials, setCredentials] = useState({ email: 'admin@example.com', password: 'Asd@1212' }); // Updated hardcoded credentials
+  const [credentials, setCredentials] = useState({ email: 'storeadmin@example.com ', password: 'Asd@1212' }); // Updated hardcoded credentials
   const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
   const [error, setError] = useState(null); // State to handle error message
 

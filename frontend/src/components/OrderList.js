@@ -17,7 +17,7 @@ const OrderList = () => {
         console.log('.....', response.data)
         setOrders(response?.data?.data || []);
       } catch (error) {
-        showErrorMessage('Error fetching orders');
+        showErrorMessage( error.message || 'Error fetching orders');
         console.error('Error fetching orders:', error);
       }
     };

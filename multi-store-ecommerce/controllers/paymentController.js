@@ -1,6 +1,7 @@
 const { PaymentGateways, Payments, Refunds } = require('../models'); // Adjust paths to your Sequelize models
 const Razorpay = require('razorpay'); // Include Razorpay for example integration
 const dotenv = require('dotenv');
+const crypto = require('crypto');
 dotenv.config();
 
 const razorpay = new Razorpay({
@@ -59,19 +60,37 @@ exports.createPayment = async (req, res) => {
 };
 
 // Verify Payment
+
 exports.verifyPayment = async (req, res) => {
   try {
-    const { gatewayId, gatewayTransactionId, status } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
-    const payment = await Payments.findOne({ where: { gateway_transaction_id: gatewayTransactionId } });
+    // Find the payment record by order_id
+    const payment = await Payments.findOne({ where: { gateway_transaction_id: razorpay_order_id } });
     if (!payment) {
       return res.status(404).json({ success: false, message: 'Payment not found' });
     }
 
-    payment.status = status === 'success' ? 'success' : 'failed';
+    // Generate the expected signature using Razorpay's secret key
+    const secret = process.env.RAZORPAY_KEY_SECRET; // Load Razorpay secret from environment variables
+    const hmac = crypto.createHmac('sha256', secret);
+    hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+    const expectedSignature = hmac.digest('hex');
+
+    // Compare the expected signature with the Razorpay-provided signature
+    if (expectedSignature !== razorpay_signature) {
+      payment.status = 'failed';
+      await payment.save();
+      return res.status(400).json({ success: false, message: 'Invalid payment signature', payment });
+    }
+
+    // Update the payment record to success
+    payment.status = 'success';
+    payment.razorpay_payment_id = razorpay_payment_id;
+    payment.razorpay_signature = razorpay_signature;
     await payment.save();
 
-    res.status(200).json({ success: true, message: 'Payment status updated', payment });
+    res.status(200).json({ success: true, message: 'Payment verified successfully', payment });
   } catch (error) {
     console.error('Error verifying payment:', error);
     res.status(500).json({ success: false, message: 'Internal Server Error' });

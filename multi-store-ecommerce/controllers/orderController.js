@@ -38,7 +38,7 @@ exports.getOrders = async (req, res) => {
 
         if (storeId && storeId !== 0) {
             sqlQuery += `WHERE OrderItems.store_id = :store_id `;
-        }
+        }  
 
         sqlQuery += ` GROUP BY Orders.id LIMIT :limit OFFSET :offset`;
 
@@ -219,9 +219,13 @@ exports.getCustomerOrderById = async (req, res) => {
                 type: sequelize.QueryTypes.SELECT
             }
         );
+        if(orders.length === 0){
+
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
 
         const orderIds = orders.map(order => order.id);
-
+ 
         const orderItems = await sequelize.query(
             `SELECT 
           OrderItems.id, 
@@ -247,6 +251,7 @@ exports.getCustomerOrderById = async (req, res) => {
 
         res.status(200).json({ success: true, data: ordersWithItems });
     } catch (error) {
+        console.error('error', error)
         res.status(500).json({ success: false, message: error.message });
     }
 };

@@ -111,11 +111,20 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await Users.findOne({ where: { email } });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+
+    console.log('password DB-->', user.password)
+    console.log('password DB-->', user)
+    let userData = user.dataValues;
+    if (!user || !(await bcrypt.compare(password, userData.password))) {
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
-    console.log("user", user.dataValues)
-    const token = jwt.generateRefreshToken(user.dataValues );
+    console.log("user-->", userData )
+    console.log("user", userData)
+    let store_ids = []
+    if(userData.role == 'store_admin'){
+       store_ids  = userData.store_ids.split(',') ;
+    }
+    const token = jwt.generateRefreshToken({...userData, store_ids} );
     res.status(200).json({ success: true, token });
   } catch (error) {
     console.log('error', error)
