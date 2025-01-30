@@ -7,4 +7,5 @@ serve -s build
 ----- run in build
 npm run build
 npm install -g serve
-pm2 start serve --name "react-app" -- -s build -p 3000
+
+ serve -s build or  pm2 start serve --name "react-app" -- -s build -p 3000
