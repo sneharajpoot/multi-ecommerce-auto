@@ -33,6 +33,8 @@ const orderRoutes = require('./routes/orderRoutes'); // Import order routes
 const orderStatusRoutes = require('./routes/OrderStatusRoutes'); // Import order routes
 const newsletterRoutes = require('./routes/newsletterRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+// const bannerRoutes = require('./routes/bannerRoutes');
+const bannersRoutes = require('./routes/bannersRoutes');
 
 const path = require('path');
 
@@ -123,13 +125,15 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/shipping-addresses', shippingAddressRoutes); // Use shipping address routes
 app.use('/api/shipping-address-histories', shippingAddressHistoryRoutes); // Use shipping address history routes
 app.use('/api/orders', orderRoutes); // Use order routes
-app.use('/api/orders-status', orderStatusRoutes); // Use order routes
+app.use('/api/orders-status', orderStatusRoutes); // Use order routes 
 
 app.use('/api/reviews', require('./routes/reviewRoutes'));
 app.use('/api/comments', require('./routes/commentRoutes'));
 app.use('/api/newsletter', newsletterRoutes);
 
 app.use('/api/payment', paymentRoutes); 
+app.use('/api/banners', bannersRoutes); 
+
 // Health Check Endpoint
 app.get('/', (req, res) => {
   res.status(200).send('Multi-Store E-commerce Backend is Running');

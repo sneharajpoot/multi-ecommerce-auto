@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Form, InputGroup, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCartItems } from '../../api/cartApi'; // Import the cart API functions
 import { logout } from '../../actions/authActions'; // Import the logout action
@@ -9,11 +9,18 @@ const TopBar = () => {
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
   const customerId = useSelector(state => state.auth.user?.id);
   const [cartCount, setCartCount] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const handleLogout = () => {
     dispatch(logout());
     window.location.href = '/login';
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    history.push(`/search?query=${searchTerm}`);
   };
 
   useEffect(() => {
@@ -56,16 +63,16 @@ const TopBar = () => {
             </Link>
           </Col>
           <Col md={4}>
-            <InputGroup>
+            <Form inline onSubmit={handleSearch}>
               <Form.Control
-                placeholder="Search for products"
-                aria-label="Search for products"
-                aria-describedby="basic-addon2"
+                type="text"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="mr-sm-2"
               />
-              <Button variant="outline-secondary" id="button-addon2">
-                Search
-              </Button>
-            </InputGroup>
+              <Button type="submit" variant="outline-light">Search</Button>
+            </Form>
           </Col>
           <Col md={4} className="text-end">
             {!isAuthenticated ? (

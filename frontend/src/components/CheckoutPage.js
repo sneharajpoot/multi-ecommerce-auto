@@ -22,6 +22,7 @@ const CheckoutPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [showPaymentPage, setShowPaymentPage] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('online');
   const customerId = useSelector((state) => state.auth.user?.id);
   const user = useSelector((state) => state.auth.user?.id);
   const history = useHistory(); // Initialize useHistory
@@ -142,13 +143,18 @@ const CheckoutPage = () => {
         //   quantity: item.quantity,
         //   price: item.price
         // })),
-        total: calculateTotal()
+        total: calculateTotal(),
+        paymentMethod
       };
       console.log('Order data:', orderData);
        let response = await placeOrder(orderData);
       console.log('Order placed successfully', response);
       setOrderId(response.data.orderId);
-      setShowPaymentPage(true); // Show payment page
+      if (paymentMethod === 'online') {
+        setShowPaymentPage(true); // Show payment page
+      } else {
+        history.push('/order-success');
+      }
     } catch (error) {
       console.error('Error placing order:', error);
       toast.error('Error placing order');
@@ -191,6 +197,27 @@ const CheckoutPage = () => {
           <Col md={12} >
           
           <h4>Total: ${calculateTotal()}</h4>
+           <Form.Group controlId="formPaymentMethod">
+             <Form.Label>Payment Method</Form.Label>
+             <Form.Check
+               type="radio"
+               label="Online Payment"
+               name="paymentMethod"
+               id="online"
+               value="online"
+               checked={paymentMethod === 'online'}
+               onChange={(e) => setPaymentMethod(e.target.value)}
+             />
+             <Form.Check
+               type="radio"
+               label="Cash on Delivery (COD)"
+               name="paymentMethod"
+               id="cod"
+               value="cod"
+               checked={paymentMethod === 'cod'}
+               onChange={(e) => setPaymentMethod(e.target.value)}
+             />
+           </Form.Group>
            <Button variant="primary" onClick={handlePlaceOrder}>Place Order</Button>
            </Col>
         </Row>

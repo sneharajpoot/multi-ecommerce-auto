@@ -34,44 +34,60 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-exports.searchProducts = async (req, res) => {
+exports.searchProductsOld = async (req, res) => {
   try {
-    const { page = 1, limit = 10, store_id, name, quantity,query } = req.body;
+    const { page = 1, limit = 10, store_id, query, category, minPrice, maxPrice, sort } = req.body;
     const offset = (page - 1) * limit;
 
-    let sqlq = ''; 
-
-    // const replacements = { name: `%${name}%`, limit: parseInt(limit), offset: parseInt(offset) };
-    let replacements = {  limit: parseInt(limit), offset: parseInt(offset) };
+    let replacements = { limit: parseInt(limit), offset: parseInt(offset) };
     if (store_id) {
       replacements.store_id = store_id;
     } else {
       replacements.store_id = null;
     }
-    
-    if(query) {
+
+    let conditions = [];
+    if (query) {
+      conditions.push("(p.name LIKE :query OR p.description LIKE :query)");
       replacements.query = `%${query}%`;
-    
-      sqlq = `WHERE (p.name LIKE :query OR p.description LIKE :query) `;
     }
-    if(store_id) 
-      replacements.store_id = store_id || null;
+    if (category) {
+      conditions.push("p.category_id = :category");
+      replacements.category = category;
+    }
+    if (minPrice) {
+      conditions.push("p.price >= :minPrice");
+      replacements.minPrice = minPrice;
+    }
+    if (maxPrice) {
+      conditions.push("p.price <= :maxPrice");
+      replacements.maxPrice = maxPrice;
+    }
+    let whereClause = conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
+    let orderBy = "";
+    if (sort === "price_asc") {
+      orderBy = "ORDER BY p.price ASC";
+    } else if (sort === "price_desc") {
+      orderBy = "ORDER BY p.price DESC";
+    }
 
+    let sql = `
+      SELECT 
+        p.*,
+        c.name as category_name,
+        s.name as store_name,
+        pi.id as image_id,
+        pi.url as image_url,
+        pi.is_primary as is_primary_image
+      FROM Products p
+      LEFT JOIN Categories c ON p.category_id = c.id
+      LEFT JOIN Stores s ON p.store_id = s.id
+      LEFT JOIN Product_Images pi ON p.id = pi.product_id
+      ${whereClause}
+      ${orderBy}
+      LIMIT :limit OFFSET :offset
+    `;
 
-    //   replacements = { 
-    //   limit: parseInt(limit, 10),
-    //   offset: parseInt(offset, 10)
-    // };
-
-    let sql =
-    `SELECT p.*, c.name as category_name, s.name as store_name
-     FROM Products p
-     LEFT JOIN Categories c ON p.category_id = c.id
-     LEFT JOIN Stores s ON p.store_id = s.id
-       ${sqlq} LIMIT :limit OFFSET :offset `;
-       //
-    //  
-     console.log(sql);
     const products = await db.sequelize.query(sql,
       {
         replacements,
@@ -84,7 +100,7 @@ exports.searchProducts = async (req, res) => {
        FROM Products p
        LEFT JOIN Categories c ON p.category_id = c.id
        LEFT JOIN Stores s ON p.store_id = s.id
-          ${sqlq} `,
+       ${whereClause}`,
       {
         replacements,
         type: db.sequelize.QueryTypes.SELECT,
@@ -102,6 +118,119 @@ exports.searchProducts = async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+exports.searchProducts = async (req, res) => {
+  try {
+    // Destructure and set default values for pagination and filters
+    const {
+      page = 1,
+      limit = 10,
+      store_id,
+      query,
+      category,
+      minPrice,
+      maxPrice,
+      sort,
+    } = req.body;
+    const offset = (page - 1) * limit;
+
+    // Initialize replacements and conditions for query filters
+    const replacements = { limit: parseInt(limit), offset: parseInt(offset) };
+    const conditions = [];
+
+    // Filter by store_id (optional)
+    replacements.store_id = store_id || null;
+
+    // Filter by search query (name or description)
+    if (query) {
+      conditions.push("(p.name LIKE :query OR p.description LIKE :query)");
+      replacements.query = `%${query}%`;
+    }
+
+    // Filter by category
+    if (category) {
+      conditions.push("p.category_id = :category");
+      replacements.category = category;
+    }
+
+    // Filter by price range
+    if (minPrice) {
+      conditions.push("p.price >= :minPrice");
+      replacements.minPrice = parseFloat(minPrice);
+    }
+    if (maxPrice) {
+      conditions.push("p.price <= :maxPrice");
+      replacements.maxPrice = parseFloat(maxPrice);
+    }
+
+    // Build where clause
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+    // Sorting logic
+    const orderBy = sort === "price_asc"
+      ? "ORDER BY p.price ASC"
+      : sort === "price_desc"
+      ? "ORDER BY p.price DESC"
+      : "";
+
+    // Main query for fetching products
+    const sql = `
+      SELECT 
+        p.*,
+        c.name AS category_name,
+        s.name AS store_name,
+        pi.id AS image_id,
+        pi.url AS image_url,
+        pi.is_primary AS is_primary_image
+      FROM Products p
+      LEFT JOIN Categories c ON p.category_id = c.id
+      LEFT JOIN Stores s ON p.store_id = s.id
+      LEFT JOIN Product_Images pi ON p.id = pi.product_id
+      ${whereClause}
+      ${orderBy}
+      LIMIT :limit OFFSET :offset
+    `;
+
+    // Execute the main query
+    const products = await db.sequelize.query(sql, {
+      replacements,
+      type: db.sequelize.QueryTypes.SELECT,
+    });
+
+    // Query to get the total count of products
+    const countQuery = `
+      SELECT COUNT(*) AS count
+      FROM Products p
+      LEFT JOIN Categories c ON p.category_id = c.id
+      LEFT JOIN Stores s ON p.store_id = s.id
+      ${whereClause}
+    `;
+    const countResult = await db.sequelize.query(countQuery, {
+      replacements,
+      type: db.sequelize.QueryTypes.SELECT,
+    });
+
+    // Extract the total count from the result
+    const totalItems = countResult[0]?.count || 0;
+
+    // Respond with paginated products
+    res.status(200).json({
+      success: true,
+      totalItems,
+      totalPages: Math.ceil(totalItems / limit),
+      currentPage: parseInt(page),
+      products,
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({
+      success: false,
+      error: "Internal Server Error",
+      message: error.message,
+    });
+  }
+};
+
+
 exports.listProducts = async (req, res) => {
   try {
     const { page = 1, limit = 10, store_id, name, quantity } = req.query;

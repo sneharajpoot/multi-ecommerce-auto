@@ -109,15 +109,26 @@ exports.setprimary = async (req, res) => {
 // View Uploaded Image
 exports.viewUploadedImage = (req, res) => {
   const { imageName } = req.params;
+  const imageType =  req.query.imageType; 
+  console.log("imageType", imageType)
+  console.log("imageName", imageName)
 
+    
   try {
-    const localPath = path.join(__dirname, '../uploads', imageName);
+    let localPath = path.join(__dirname, '../uploads', imageName);
+  if(imageType == 'banner')
+  {
+    localPath = path.join(__dirname, '../uploads/banner', imageName);
+  }
+
+  console.log("localPath", localPath)
     if (fs.existsSync(localPath)) {
       res.sendFile(localPath);
     } else {
       res.status(404).json({ error: 'Image not found' });
     }
   } catch (error) {
+    console.log("error", error)
     res.status(500).json({ error: 'Internal Server Error', message: error.message });
   }
 };

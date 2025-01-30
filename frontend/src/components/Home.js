@@ -1,68 +1,72 @@
 import React, { useEffect, useState } from "react";
-import { Carousel, Container, Row, Col, Card, Button } from 'react-bootstrap'; // Import Bootstrap components
+import { Carousel, Container, Row, Col, Card, Button, Pagination } from 'react-bootstrap'; // Import Bootstrap components
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import Footer from './comman/Footer'; // Import the Footer component
 import { searchProducts } from '../api/productApi'; // Import the searchProducts API function
+import { fetchBanners } from '../api/bannerApi'; // Import the fetchBanners API function
 import { useHistory } from 'react-router-dom'; // Import useHistory from react-router-dom
 import "./Home.css"; // Import the new CSS file
+import config from '../config';
 
 const Home = () => {
   const [products, setProducts] = useState([]);
+  const [banners, setBanners] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [limit, setLimit] = useState(8);
   const history = useHistory(); // Initialize useHistory
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await searchProducts({page :1, limit:8});
-        setProducts(response.data.products);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-      }
-    };
+  const fetchProducts = async (page = 1) => {
+    try {
+      const response = await searchProducts({ page, limit });
+      setProducts(response.data.products);
+      setTotalPages(response.data.totalPages);
+      setCurrentPage(response.data.currentPage);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
 
+  const fetchBannerData = async () => {
+    try {
+      const response = await fetchBanners();
+      setBanners(response.data);
+    } catch (error) {
+      console.error('Error fetching banners:', error);
+    }
+  };
+
+  useEffect(() => {
     fetchProducts();
+    fetchBannerData();
   }, []);
 
   const handleViewProduct = (productId) => {
     history.push(`/product/${productId}`); // Navigate to the product page
   };
 
+  const handlePageChange = (page) => {
+    fetchProducts(page);
+  };
+
   return (
     <>
-      {/* Remove the TopBar component */}
-
       {/* Carousel Section */}
       <Carousel className="hero-section">
-        <Carousel.Item>
-          <img
-            src="https://placehold.jp/1920x400"
-            alt="First slide"
-          />
-          <Carousel.Caption>
-            <h3>First slide label</h3>
-            <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item>
-          <img
-            src="https://placehold.jp/1920x600"
-            alt="Second slide"
-          />
-          <Carousel.Caption>
-            <h3>Second slide label</h3>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-          </Carousel.Caption>
-        </Carousel.Item>
-        <Carousel.Item>
-          <img
-            src="https://placehold.jp/1920x600"
-            alt="Third slide"
-          />
-          <Carousel.Caption>
-            <h3>Third slide label</h3>
-            <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
-          </Carousel.Caption>
-        </Carousel.Item>
+        {banners.map(banner => (
+          <Carousel.Item key={banner.id}>
+            <img
+              src={config.imgBaseUrl + banner.image_url + '?imageType=banner' }
+              alt={banner.title}
+              className="d-block mx-auto"
+              style={{ maxHeight: '400px', objectFit: 'cover' }}
+            />
+            <Carousel.Caption>
+              <h3>{banner.title}</h3>
+              <p>{banner.description}</p>
+            </Carousel.Caption>
+          </Carousel.Item>
+        ))}
       </Carousel>
 
       {/* Main Content Section */}
@@ -75,7 +79,7 @@ const Home = () => {
           {products.map(product => (
             <Col md={3} key={product.id}>
               <Card>
-                <Card.Img variant="top" src={product.image || "https://placehold.jp/300x200"} />
+                <Card.Img variant="top" src={(config.imgBaseUrl + product.image_url  )|| "https://placehold.jp/300x200"} />
                 <Card.Body>
                   <Card.Title>{product.name}</Card.Title>
                   <Card.Text>
@@ -87,6 +91,19 @@ const Home = () => {
             </Col>
           ))}
         </Row>
+
+        {/* Pagination */}
+        <Pagination className="mt-4">
+          {[...Array(totalPages).keys()].map(page => (
+            <Pagination.Item
+              key={page + 1}
+              active={page + 1 === currentPage}
+              onClick={() => handlePageChange(page + 1)}
+            >
+              {page + 1}
+            </Pagination.Item>
+          ))}
+        </Pagination>
 
         {/* Testimonials and Featured Brands */}
         <Row className="mt-4">

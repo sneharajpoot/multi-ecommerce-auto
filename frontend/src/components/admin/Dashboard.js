@@ -17,6 +17,9 @@ import ModuleList from './ModuleList'; // Import the ModuleList component
 import ProductTags from './ProductTags'; // Import the ProductTags component
 import { logout } from '../../actions/authActions'; // Import the logout action
 import AdminOrderList from './OrderList'; // Import the AdminOrderList component
+import BannerPage from './BannerPage'; // Import the BannerPage component
+
+import { Container, Row, Col, Card, Button } from 'react-bootstrap'; // Import react-bootstrap components
 
 const Dashboard = () => {
   let { path, url } = useRouteMatch();
@@ -42,6 +45,7 @@ const Dashboard = () => {
           <li><Link to={`${url}/roles`}>Roles</Link></li> {/* Add the Roles tab */}
           <li><Link to={`${url}/modules`}>Modules</Link></li> {/* Add the Modules tab */}
           <li><Link to={`${url}/product-tags`}>Product Tags</Link></li> {/* Add link to Product Tags */}
+          <li><Link to={`${url}/banners`}>Banners</Link></li> {/* Add link to Banners */}
           <li><button onClick={handleLogout} className="btn btn-link">Logout</button></li> {/* Add logout button */}
         </ul>
       </div>
@@ -64,6 +68,7 @@ const Dashboard = () => {
             <ProtectedRoute path={`${path}/roles`} component={RoleList} requiredRole={['admin', 'store_admin']} /> {/* Add the routes for Roles */}
             <ProtectedRoute path={`${path}/modules`} component={ModuleList} requiredRole={['admin', 'store_admin']} /> {/* Add the routes for Modules */}
             <ProtectedRoute path={`${path}/product-tags`} component={ProductTags} requiredRole={['admin', 'store_admin']} /> {/* Add route for ProductTags */}
+            <ProtectedRoute path={`${path}/banners`} component={BannerPage} requiredRole={['admin', 'store_admin']} /> {/* Add route for ProductTags */}
           </Switch>
         </div>
       </div>

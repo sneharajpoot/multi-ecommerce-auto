@@ -42,6 +42,8 @@ exports.getOrders = async (req, res) => {
 
         sqlQuery += ` GROUP BY Orders.id LIMIT :limit OFFSET :offset`;
 
+
+        console.log('sqlQuery', sqlQuery, replacements)
         const orders = await sequelize.query(sqlQuery, {
             replacements,
             type: sequelize.QueryTypes.SELECT
@@ -192,7 +194,9 @@ exports.getOrderByOrderIdAdmin = async (req, res) => {
 
 exports.getCustomerOrderById = async (req, res) => {
     try {
-        let customer_id = req.user.id;
+        const { limit = 10, page = 1 } = req.query;
+        const customer_id = req.user.id;
+        const offset = (page - 1) * limit;
 
         const orders = await sequelize.query(
             `SELECT 
@@ -213,19 +217,20 @@ exports.getCustomerOrderById = async (req, res) => {
           ShippingAddressHistory.country 
         FROM Orders 
         JOIN ShippingAddressHistory ON Orders.shipping_address_history_id = ShippingAddressHistory.id
-        WHERE Orders.customer_id = :customer_id`,
+        WHERE Orders.customer_id = :customer_id
+        LIMIT :limit OFFSET :offset`,
             {
-                replacements: { customer_id },
+                replacements: { customer_id, limit: parseInt(limit), offset: parseInt(offset) },
                 type: sequelize.QueryTypes.SELECT
             }
         );
-        if(orders.length === 0){
 
+        if (orders.length === 0) {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
         const orderIds = orders.map(order => order.id);
- 
+
         const orderItems = await sequelize.query(
             `SELECT 
           OrderItems.id, 
@@ -249,16 +254,16 @@ exports.getCustomerOrderById = async (req, res) => {
             return order;
         });
 
-        res.status(200).json({ success: true, data: ordersWithItems });
+        res.status(200).json({ success: true, data: ordersWithItems, page: parseInt(page), limit: parseInt(limit) });
     } catch (error) {
-        console.error('error', error)
+        console.error('error', error);
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
 // Add a new order
 exports.addOrder = async (req, res) => {
-    const { addressId } = req.body;
+    const { addressId, paymentMethod, total } = req.body;
     const userId = req.user.id;
 
     try {
@@ -341,10 +346,11 @@ exports.addOrder = async (req, res) => {
 
         // Create order
         const [newOrder] = await sequelize.query(
-            `INSERT INTO Orders (uuid, customer_id,  total_amount, shipping_address_history_id, tracking_number, status)
-       VALUES (UUID(), :customerId,  :totalAmount, :shippingAddressHistoryId, NULL, 'pending')`,
+            `INSERT INTO Orders (uuid, customer_id,  total_amount, shipping_address_history_id, tracking_number, status, cash_on_delivery)
+       VALUES (UUID(), :customerId,  :totalAmount, :shippingAddressHistoryId, NULL, 'pending', :cash_on_delivery)`,
             {
                 replacements: {
+                    cash_on_delivery: paymentMethod === 'cash_on_delivery',
                     customerId: userId,
                     totalAmount,
                     shippingAddressHistoryId: newShippingAddressHistory
@@ -380,13 +386,13 @@ exports.addOrder = async (req, res) => {
         console.log('Order items created for order ID:', newOrder);
 
         // Clear cart
-        // await sequelize.query(
-        //     `DELETE FROM Cart WHERE customer_id = :userId`,
-        //     {
-        //         replacements: { userId },
-        //         type: sequelize.QueryTypes.DELETE
-        //     }
-        // );
+        await sequelize.query(
+            `DELETE FROM Cart WHERE customer_id = :userId`,
+            {
+                replacements: { userId },
+                type: sequelize.QueryTypes.DELETE
+            }
+        );
 
         console.log('Cart cleared for user:', userId);
 

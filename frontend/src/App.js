@@ -24,6 +24,9 @@ import OrderList from './components/OrderList'; // Import the OrderList componen
 import OrderDetail from './components/OrderDetail'; // Import the OrderDetail component
 import {jwtDecode} from "jwt-decode"; // Correct the import for jwtDecode
 import { showErrorMessage, showSuccessMessage } from './utils/toastUtils'; // Import toast functions
+import SearchPage from './components/SearchPage'; // Import the SearchPage component
+import PaymentPage from './components/PaymentPage'; // Import the PaymentPage component
+import BannerPage from './components/admin/BannerPage'; // Import the BannerPage component from the admin directory
 
 const App = () => {
   const dispatch = useDispatch();
@@ -52,6 +55,13 @@ const App = () => {
           <ProtectedRoute
             path="/dashboard"
             component={Dashboard}
+            isAuthenticated={isAuthenticated}
+            userRole={userRole}
+            requiredRole={['admin', 'store_admin']}
+          />
+          <ProtectedRoute
+            path="/banners"
+            component={BannerPage}
             isAuthenticated={isAuthenticated}
             userRole={userRole}
             requiredRole={['admin', 'store_admin']}
@@ -114,6 +124,16 @@ const App = () => {
           <Route path="/cart">
             <TopBar /> {/* Use the TopBar component for customer routes */}
             <CartPage />
+            <Footer /> {/* Use the Footer component */}
+          </Route>
+          <Route path="/search">
+            <TopBar /> {/* Use the TopBar component for customer routes */}
+            <SearchPage />
+            <Footer /> {/* Use the Footer component */}
+          </Route>
+          <Route path="/payment">
+            <TopBar /> {/* Use the TopBar component for customer routes */}
+            <PaymentPage />
             <Footer /> {/* Use the Footer component */}
           </Route>
           <Route path="/redirect" render={() => {

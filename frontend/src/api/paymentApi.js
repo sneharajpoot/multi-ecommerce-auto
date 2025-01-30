@@ -9,17 +9,21 @@ const getAuthHeaders = () => {
     }
   };
 };
- 
 
 const API_URL = config.apiBaseUrl + '/payment';
 
- 
 export const getPaymentGateways = async () => {
     return axios.get(`${API_URL}/gateways`,getAuthHeaders());
 };
 
-export const createPayment = async (data) => {
-    return axios.post(`${API_URL}/create-payment`, data, getAuthHeaders());
+export const createPayment = async (paymentData) => {
+  try {
+    const response = await axios.post(`${config.apiBaseUrl}/payments`, paymentData, getAuthHeaders());
+    return response.data;
+  } catch (error) {
+    console.error('Error creating payment:', error);
+    throw error;
+  }
 };
 
 export const verifyPayment = async (data) => {

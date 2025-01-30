@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom'; // Import useParams and Link
+import { useParams, Link, useHistory } from 'react-router-dom'; // Import useParams, Link, and useHistory
 import { Container, Card, Form, ListGroup, Row, Col, Button } from 'react-bootstrap';
 import { fetchOrderDetail, cancelOrdersStatus, getStatusList, getStatusHistory, addOrUpdateStatusHistory } from '../api/orderApi'; // Import the order API functions
 import { showErrorMessage, showSuccessMessage } from '../utils/toastUtils'; // Import toast functions
@@ -13,7 +13,8 @@ const OrderDetail = () => {
   const [statusHistory, setStatusHistory] = useState([]);
   const [status, setStatus] = useState('');
   const [productId, setProductId] = useState(0);
-    const customerId = useSelector((state) => state.auth.user?.id);
+  const customerId = useSelector((state) => state.auth.user?.id);
+  const history = useHistory();
 
   useEffect(() => {
     const fetchOrderData = async () => {
@@ -29,10 +30,7 @@ const OrderDetail = () => {
       }
     };
 
-
-
     fetchOrderData();
-
   }, [orderId]);
 
   const cancelorder = async () => {
@@ -48,6 +46,9 @@ const OrderDetail = () => {
     }
   };
 
+  const handlePayment = (orderId, amount) => {
+    history.push(`/payment?orderId=${orderId}&amount=${amount}`);
+  };
 
   if (!orderDetails) {
     return <div>Loading...</div>;
@@ -65,26 +66,24 @@ const OrderDetail = () => {
               <strong>Date:</strong> {new Date(orderDetails.createdAt).toLocaleDateString()}<br />
               <strong>Total:</strong> ${orderDetails.total_amount}<br />
               <strong>Status:</strong> {orderDetails.status}<br />
+              <strong>Payment Status:</strong> {orderDetails.payment_status || 'Pending'}<br />
               <strong>Shipping Address:</strong><br />
               {orderDetails.address_line1}<br />
               {orderDetails.address_line2 && <>{orderDetails.address_line2}<br /></>}
               {orderDetails.city}, {orderDetails.state} {orderDetails.postal_code}<br />
               {orderDetails.country}
             </Card.Text>
+            {orderDetails.payment_status !== 'Paid' && (
+              <Button variant="success" onClick={() => handlePayment(orderDetails.id, orderDetails.total_amount)} className="ml-2">Pay Now</Button>
+            )}
           </Col>
           <Col md={6}>
-
-
-            {
-              ['Pending', 'Payment Confirmed', 'Order Confirmed', 'Processing'].includes(orderDetails.status) ?
-                (
-                  <Button variant="success" onClick={cancelorder} className="ms-2">
-                    Cancel order
-                  </Button>)
-                :
-                (null)
-            }
-            <h5 className="mt-4">Status History  </h5>
+            {['Pending', 'Payment Confirmed', 'Order Confirmed', 'Processing'].includes(orderDetails.status) ? (
+              <Button variant="success" onClick={cancelorder} className="ms-2">
+                Cancel order
+              </Button>
+            ) : null}
+            <h5 className="mt-4">Status History</h5>
             <ListGroup>
               {statusHistory.map((history, index) => (
                 <ListGroup.Item key={index}>
@@ -118,7 +117,6 @@ const OrderDetail = () => {
           ))}
         </ListGroup>
         <hr />
-
       </Card.Body>
     </Card>
   );

@@ -15,9 +15,9 @@ export const placeOrder = async (orderData) => {
   return response.data;
 };
 
-export const  fetchOrders = async (page = 1) => {
+export const fetchOrders = async (page = 1, limit = 10) => {
   try {
-    const response = await axios.get(`${config.apiBaseUrl}/orders/list?page=${page}`, getAuthHeaders());
+    const response = await axios.get(`${config.apiBaseUrl}/orders/list?page=${page}&limit=${limit}`, getAuthHeaders());
     return response;
   } catch (error) {
     console.error('Error fetching orders:', error?.response?.data?.message || error);
