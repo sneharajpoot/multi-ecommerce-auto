@@ -1,9 +1,7 @@
 # Node modules
 frontend/node_modules/
 multi-store-ecommerce/node_modules/
-
-# Environment variables
-.env
+ 
 
 # Logs
 logs/
