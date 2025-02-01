@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Carousel, Container, Row, Col, Card, Button, Pagination } from 'react-bootstrap'; // Import Bootstrap components
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import Footer from './comman/Footer'; // Import the Footer component
-import { searchProducts } from '../api/productApi'; // Import the searchProducts API function
+import { searchProducts, brandList } from '../api/productApi'; // Import the searchProducts API function
 import { fetchBanners } from '../api/bannerApi'; // Import the fetchBanners API function
 import { useHistory } from 'react-router-dom'; // Import useHistory from react-router-dom
 import "./Home.css"; // Import the new CSS file
@@ -10,6 +10,8 @@ import config from '../config';
 
 const Home = () => {
   const [products, setProducts] = useState([]);
+  // const [brands, setBrands] = useState([{brand: 'Brand 1'}, {brand: 'Brand 2'}, {brand: 'Brand 3'}]);
+  const [brands, setBrands] = useState([  ]);
   const [banners, setBanners] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,9 +38,20 @@ const Home = () => {
     }
   };
 
+  const fetchBrandList = async () => {
+    try {
+      const response = await brandList();
+      console.log('response.data', response?.data?.brands);
+      setBrands(response?.data?.brands || []);
+    } catch (error) {
+      console.error('Error fetching banners:', error);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
     fetchBannerData();
+    fetchBrandList();
   }, []);
 
   const handleViewProduct = (productId) => {
@@ -56,7 +69,7 @@ const Home = () => {
         {banners.map(banner => (
           <Carousel.Item key={banner.id}>
             <img
-              src={config.imgBaseUrl + banner.image_url + '?imageType=banner' }
+              src={config.imgBaseUrl  + banner.image_url + '?imageType=banner'}
               alt={banner.title}
               className="d-block mx-auto"
               style={{ maxHeight: '400px', objectFit: 'cover' }}
@@ -79,7 +92,7 @@ const Home = () => {
           {products.map(product => (
             <Col md={3} key={product.id}>
               <Card>
-                <Card.Img variant="top" src={(config.imgBaseUrl + product.image_url  )|| "https://placehold.jp/300x200"} />
+                <Card.Img variant="top" src={(config.imgBaseUrl + product.image_url) || "https://placehold.jp/300x200"} />
                 <Card.Body>
                   <Card.Title>{product.name}</Card.Title>
                   <Card.Text>
@@ -113,12 +126,12 @@ const Home = () => {
             <p>"I love shopping here, always find what I need." - John Smith</p>
           </Col>
           <Col md={6}>
-            <h2>Featured Brands</h2>
-            <p>Brand 1, Brand 2, Brand 3</p>
+            <h2>Featured Brands</h2>  
+            <p> {brands.map((data,index) =>  <span> {data.brand}  {index == brands.length-1? '':', '}</span> )}  </p>
           </Col>
         </Row>
       </Container>
- 
+
     </>
   );
 };

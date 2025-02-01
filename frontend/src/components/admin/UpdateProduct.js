@@ -13,7 +13,7 @@ import config from '../../config';
 
 const UpdateProduct = ({ onProductUpdated }) => {
   const { id } = useParams(); // Get the product ID from the URL
-  const [product, setProduct] = useState({ name: '', description: '', price: '', sku: '', category_id: '', store_id: '' });
+  const [product, setProduct] = useState({ name: '', description: '', price: '', sku: '', category_id: '', store_id: '' ,brand:'', quantity:''});
   const [metadata, setMetadata] = useState([{ key: '', value: '' }]);
   const [attributes, setAttributes] = useState([{ attributeName: '', attributeValue: '' }]);
   const [tags, setTags] = useState([]); // Add tags state
@@ -47,7 +47,9 @@ const UpdateProduct = ({ onProductUpdated }) => {
           price: productData.price,
           sku: productData.sku,
           category_id: productData.category_id,
-          store_id: productData.store_id
+          store_id: productData.store_id,
+          brand: productData.brand,
+          quantity: productData.quantity,
         });
         setMetadata(response.data.productMetadata);
         setAttributes(response.data.productAttributes);
@@ -398,6 +400,28 @@ const UpdateProduct = ({ onProductUpdated }) => {
               placeholder="Enter product name"
               value={product.name}
               onChange={(e) => setProduct({ ...product, name: e.target.value })}
+            />
+          </div> 
+          <div className="mb-3">
+            <label htmlFor="formQuantity" className="form-label">Quantity</label>
+            <input
+              type="number"
+              className="form-control"
+              id="formQuantity"
+              placeholder="Enter Quantity"
+              value={product.quantity}
+              onChange={(e) => setProduct({ ...product, quantity: e.target.value })}
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="formBrand" className="form-label">Brand</label>
+            <input
+              type="text"
+              className="form-control"
+              id="formBrand"
+              placeholder="Enter Brand"
+              value={product.brand}
+              onChange={(e) => setProduct({ ...product, brand: e.target.value })}
             />
           </div>
           <div className="mb-3">

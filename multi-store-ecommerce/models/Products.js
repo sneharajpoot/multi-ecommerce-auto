@@ -8,7 +8,19 @@ class Products extends Model {
         primaryKey: true,
         autoIncrement: true,
       },
+      brand: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      quantity: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
       store_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      category_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },

@@ -83,6 +83,8 @@ router.post('/', authenticate, authorize('admin', 'store_admin'), productControl
 
 router.post('/search', productController.searchProducts);
 
+router.get('/brand/list', productController.branList);
+
 /**
  * @swagger
  * /api/products:

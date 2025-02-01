@@ -25,6 +25,11 @@ export const searchProducts = (params) => {
 };
 
 
+export const brandList = ( ) => { 
+  return axios.get(`${config.apiBaseUrl}/products/brand/list`,  { ...getAuthHeaders() });
+};
+
+
 export const fetchProductById = (id) => {
   console.log('fetchProductById', id);
   return axios.get(`${config.apiBaseUrl}/products/${id}`, getAuthHeaders());

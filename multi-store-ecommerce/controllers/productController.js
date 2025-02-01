@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 
 exports.createProduct = async (req, res) => {
   try {
-    const { store_id, name, description, price, sku, status } = req.body;
+    const { store_id, name, description, price, sku, status, brand, quantity } = req.body;
 
     // Verify store_id
     const store = await Stores.findByPk(store_id);
@@ -25,6 +25,8 @@ exports.createProduct = async (req, res) => {
       price,
       sku,
       status,
+      brand, 
+      quantity
     });
 
     res.status(201).json({ message: 'Product created successfully', product: newProduct });
@@ -169,8 +171,8 @@ exports.searchProducts = async (req, res) => {
     const orderBy = sort === "price_asc"
       ? "ORDER BY p.price ASC"
       : sort === "price_desc"
-      ? "ORDER BY p.price DESC"
-      : "";
+        ? "ORDER BY p.price DESC"
+        : "";
 
     // Main query for fetching products
     const sql = `
@@ -230,6 +232,27 @@ exports.searchProducts = async (req, res) => {
   }
 };
 
+exports.branList = async (req, res) => {
+  try {   
+
+    // distince brand list
+
+
+
+    const brands = await db.sequelize.query(
+      `SELECT DISTINCT p.brand FROM Products p `,
+      { 
+        type: db.sequelize.QueryTypes.SELECT,
+      }
+    );
+ 
+    res.status(200).json({ brands });
+  } catch (error) {
+    console.error('Error fetching brands:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 
 exports.listProducts = async (req, res) => {
   try {
@@ -237,7 +260,7 @@ exports.listProducts = async (req, res) => {
     const offset = (page - 1) * limit;
 
     const where = {};
-    
+
     // if (name) {
     //   where.name = { [Op.like]: `%{name}%` };
     // }
@@ -246,7 +269,7 @@ exports.listProducts = async (req, res) => {
     // }
 
     // const replacements = { name: `%${name}%`, limit: parseInt(limit), offset: parseInt(offset) };
-    const replacements = {  limit: parseInt(limit), offset: parseInt(offset) };
+    const replacements = { limit: parseInt(limit), offset: parseInt(offset) };
     if (store_id) {
       replacements.store_id = store_id;
     } else {
@@ -306,16 +329,16 @@ exports.getProductById = async (req, res) => {
       }
     );
 
-    
+
     const productAttributes = await db.sequelize.query(
-      `SELECT  pa.*  FROM ProductAttributes pa WHERE pa.product_id = :product_id`, 
+      `SELECT  pa.*  FROM ProductAttributes pa WHERE pa.product_id = :product_id`,
       {
         replacements: { product_id },
         type: db.sequelize.QueryTypes.SELECT,
       }
     );
 
-    
+
     const productMetadata = await db.sequelize.query(
       `SELECT  pm.*  FROM ProductMetadata pm WHERE pm.product_id = :product_id`,
       {
@@ -334,32 +357,32 @@ exports.getProductById = async (req, res) => {
       }
     )
 
-      // product image 
-      const productTag = await db.sequelize.query(
-        `SELECT id , product_id, tag, createdAt, updatedAt FROM Product_Tags   WHERE  product_id = :product_id `,
-        {
-          replacements: { product_id },
-          type: db.sequelize.QueryTypes.SELECT,
-  
-        }
-      )
+    // product image 
+    const productTag = await db.sequelize.query(
+      `SELECT id , product_id, tag, createdAt, updatedAt FROM Product_Tags   WHERE  product_id = :product_id `,
+      {
+        replacements: { product_id },
+        type: db.sequelize.QueryTypes.SELECT,
 
-        // product image 
-        const productVariants = await db.sequelize.query(
-          `SELECT id, product_id, name, sku, price, stock, created_at, updated_at FROM Product_Variants   WHERE  product_id = :product_id `,
-          {
-            replacements: { product_id },
-            type: db.sequelize.QueryTypes.SELECT,
-    
-          }
-        )
+      }
+    )
 
-      
+    // product image 
+    const productVariants = await db.sequelize.query(
+      `SELECT id, product_id, name, sku, price, stock, created_at, updated_at FROM Product_Variants   WHERE  product_id = :product_id `,
+      {
+        replacements: { product_id },
+        type: db.sequelize.QueryTypes.SELECT,
+
+      }
+    )
+
+
     if (!product.length) {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    res.status(200).json({product, productAttributes, productMetadata, productImage, productTag, productVariants});
+    res.status(200).json({ product, productAttributes, productMetadata, productImage, productTag, productVariants });
   } catch (error) {
     console.error('Error fetching product:', error.message);
     res.status(500).json({ error: error.message });
@@ -368,24 +391,36 @@ exports.getProductById = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { product_id } = req.params;
     const { product, productVariants } = req.body;
-
+    let body = {
+      name: req.body.name,
+      quantity: req.body.quantity,
+      description: req.body.description,
+      price: req.body.price,
+      sku: req.body.sku, 
+      category_id: Number(req.body.category_id),
+      brand: req.body.brand, 
+    }
+    console.log('product',  body, product_id);
     // Update product
-    const [updated] = await Products.update(product, { where: { id } });
+    const updatedtd = await Products.update(body, { where: { id:product_id } });
+    console.log('updatedtd', updatedtd);
+    const [updated] = updatedtd
+    console.log('updated', product_id, product, productVariants, updated);
     if (!updated) {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
-    const updatedProduct = await Products.findByPk(id);
+    const updatedProduct = await Products.findByPk(product_id);
 
     // Update product variants
     if (productVariants && productVariants.length > 0) {
       await Promise.all(
         productVariants.map(async (variant) => {
           const { id: variantId, ...variantData } = variant;
-          const [variantUpdated] = await Product_Variants.update(variantData, { where: { id: variantId, product_id: id } });
+          const [variantUpdated] = await Product_Variants.update(variantData, { where: { id: variantId, product_id: product_id } });
           if (!variantUpdated) {
-            await Product_Variants.create({ ...variantData, product_id: id });
+            await Product_Variants.create({ ...variantData, product_id: product_id });
           }
         })
       );
@@ -393,6 +428,7 @@ exports.updateProduct = async (req, res) => {
 
     res.status(200).json({ success: true, message: 'Product updated successfully', data: updatedProduct });
   } catch (error) {
+    console.error('Error updating product:', error.message);
     res.status(500).json({ success: false, message: error.message });
   }
 };
