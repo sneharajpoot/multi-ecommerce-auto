@@ -63,7 +63,7 @@ const TopBar = () => {
             </Link>
           </Col>
           <Col md={4}>
-            <Form inline onSubmit={handleSearch}>
+             <Form inline onSubmit={handleSearch} className="d-flex">
               <Form.Control
                 type="text"
                 placeholder="Search..."

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Carousel, Container, Row, Col, Card, Button, Pagination } from 'react-bootstrap'; // Import Bootstrap components
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import Footer from './comman/Footer'; // Import the Footer component
+import Menu from './comman/Menu'; // Import the Menu component
 import { searchProducts, brandList } from '../api/productApi'; // Import the searchProducts API function
 import { fetchBanners } from '../api/bannerApi'; // Import the fetchBanners API function
 import { useHistory } from 'react-router-dom'; // Import useHistory from react-router-dom
@@ -10,8 +11,7 @@ import config from '../config';
 
 const Home = () => {
   const [products, setProducts] = useState([]);
-  // const [brands, setBrands] = useState([{brand: 'Brand 1'}, {brand: 'Brand 2'}, {brand: 'Brand 3'}]);
-  const [brands, setBrands] = useState([  ]);
+  const [brands, setBrands] = useState([]);
   const [banners, setBanners] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
@@ -41,10 +41,9 @@ const Home = () => {
   const fetchBrandList = async () => {
     try {
       const response = await brandList();
-      console.log('response.data', response?.data?.brands);
       setBrands(response?.data?.brands || []);
     } catch (error) {
-      console.error('Error fetching banners:', error);
+      console.error('Error fetching brands:', error);
     }
   };
 
@@ -63,13 +62,14 @@ const Home = () => {
   };
 
   return (
-    <>
+    <> 
+      
       {/* Carousel Section */}
       <Carousel className="hero-section">
         {banners.map(banner => (
           <Carousel.Item key={banner.id}>
             <img
-              src={config.imgBaseUrl  + banner.image_url + '?imageType=banner'}
+              src={config.imgBaseUrl + banner.image_url + '?imageType=banner'}
               alt={banner.title}
               className="d-block mx-auto"
               style={{ maxHeight: '400px', objectFit: 'cover' }}
@@ -126,12 +126,11 @@ const Home = () => {
             <p>"I love shopping here, always find what I need." - John Smith</p>
           </Col>
           <Col md={6}>
-            <h2>Featured Brands</h2>  
-            <p> {brands.map((data,index) =>  <span> {data.brand}  {index == brands.length-1? '':', '}</span> )}  </p>
+            <h2>Featured Brands</h2>
+            <p>{brands.map((data, index) => <span key={index}>{data.brand}{index === brands.length - 1 ? '' : ', '}</span>)}</p>
           </Col>
         </Row>
       </Container>
-
     </>
   );
 };

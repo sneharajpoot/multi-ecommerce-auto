@@ -44,6 +44,10 @@ class Products extends Model {
         type: DataTypes.ENUM('active', 'inactive'),
         defaultValue: 'active',
       },
+      is_on_sale: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
       createdAt: {
         type: DataTypes.DATE,
         allowNull: false,

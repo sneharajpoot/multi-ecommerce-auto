@@ -1,23 +1,24 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Navbar, Nav, NavDropdown, Container } from 'react-bootstrap'; // Import Bootstrap components
 
 const menuItems = [
-    { title: "Home", link: "/" },
-    {
-        title: "Shop", link: "/shop", subMenu: [
-            { title: "New Arrivals", link: "/shop/new-arrivals" },
-            { title: "Best Sellers", link: "/shop/best-sellers" },
-            { title: "On Sale", link: "/shop/sale" }
-        ]
-    },
-    { title: "Cart", link: "/cart" },
-    {
-        title: "My Account", link: "/account", subMenu: [
-            { title: "Orders", link: "/account/orders" },
-            { title: "Wishlist", link: "/account/wishlist" }
-        ]
-    },
-    { title: "Help", link: "/help" }
+  { title: "Home", link: "/" },
+  {
+    title: "Shop", link: "/shop", subMenu: [
+      { title: "New Arrivals", link: "/shop/new-arrivals" },
+      { title: "Best Sellers", link: "/shop/best-sellers" },
+      { title: "On Sale", link: "/shop/sale" }
+    ]
+  },
+  { title: "Cart", link: "/cart" },
+  {
+    title: "My Account", link: "/account", subMenu: [
+      { title: "Orders", link: "/account/orders" },
+      { title: "Wishlist", link: "/account/wishlist" }
+    ]
+  },
+  { title: "Help", link: "/help" }
 ];
 
 const menu = [
@@ -126,27 +127,29 @@ const menu = [
 ]
 
 
-const SidebarMenu = () => {
-    return (
-        <nav>
-            <ul>
-                {menuItems.map((item, index) => (
-                    <li key={index}>
-                        <Link to={item.link}>{item.title}</Link>
-                        {item.subMenu && (
-                            <ul>
-                                {item.subMenu.map((sub, i) => (
-                                    <li key={i}>
-                                        <Link to={sub.link}>{sub.title}</Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </li>
-                ))}
-            </ul>
-        </nav>
-    );
+const Menu = () => {
+  return (
+    <Navbar bg="light" expand="lg">
+      <Container>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-center">
+          <Nav>
+            {menuItems.map((item, index) => (
+              item.subMenu ? (
+                <NavDropdown title={item.title} id={`nav-dropdown-${index}`} key={index}>
+                  {item.subMenu.map((sub, i) => (
+                    <NavDropdown.Item as={Link} to={sub.link} key={i}>{sub.title}</NavDropdown.Item>
+                  ))}
+                </NavDropdown>
+              ) : (
+                <Nav.Link as={Link} to={item.link} key={index}>{item.title}</Nav.Link>
+              )
+            ))}
+          </Nav>
+        </Navbar.Collapse>
+      </Container>
+    </Navbar>
+  );
 };
 
-export default SidebarMenu;
+export default Menu;

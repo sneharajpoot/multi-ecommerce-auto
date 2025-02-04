@@ -105,32 +105,6 @@ router.get('/brand/list', productController.branList);
  */
 router.get('/', productController.listProducts);
 
-/**
- * @swagger
- * /api/products/{product_id}:
- *   get:
- *     summary: Get a single product by ID
- *     tags: [Products]
- *     parameters:
- *       - in: path
- *         name: product_id
- *         schema:
- *           type: integer
- *         required: true
- *         description: Product ID
- *     responses:
- *       200:
- *         description: Product details
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Product'
- *       404:
- *         description: Product not found
- *       500:
- *         description: Internal server error
- */
-router.get('/:product_id', productController.getProductById);
 
 /**
  * @swagger
@@ -205,5 +179,92 @@ router.patch('/:product_id', authenticate, authorize('admin', 'store_admin'), pr
  *         description: Internal server error
  */
 router.delete('/:product_id', authenticate, authorize('admin', 'store_admin'), productController.deleteProduct);
+
+/**
+ * @swagger
+ * /api/products/new-arrivals:
+ *   get:
+ *     summary: Get new arrivals
+ *     tags: [Products]
+ *     responses:
+ *       200:
+ *         description: List of new arrivals
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Product'
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/new-arrivals', productController.getNewArrivals);
+
+/**
+ * @swagger
+ * /api/products/best-sellers:
+ *   get:
+ *     summary: Get best sellers
+ *     tags: [Products]
+ *     responses:
+ *       200:
+ *         description: List of best sellers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Product'
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/best-sellers', productController.getBestSellers);
+
+/**
+ * @swagger
+ * /api/products/on-sale:
+ *   get:
+ *     summary: Get on-sale products
+ *     tags: [Products]
+ *     responses:
+ *       200:
+ *         description: List of on-sale products
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Product'
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/on-sale', productController.getOnSaleProducts);
+
+/**
+ * @swagger
+ * /api/products/{product_id}:
+ *   get:
+ *     summary: Get a single product by ID
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: product_id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: Product ID
+ *     responses:
+ *       200:
+ *         description: Product details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Product'
+ *       404:
+ *         description: Product not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/:product_id', productController.getProductById);
 
 module.exports = router;

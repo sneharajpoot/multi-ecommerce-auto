@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 
 exports.createProduct = async (req, res) => {
   try {
-    const { store_id, name, description, price, sku, status, brand, quantity } = req.body;
+    const { store_id, name, description, price, sku, status, brand, quantity, is_on_sale } = req.body;
 
     // Verify store_id
     const store = await Stores.findByPk(store_id);
@@ -26,7 +26,8 @@ exports.createProduct = async (req, res) => {
       sku,
       status,
       brand, 
-      quantity
+      quantity,
+      is_on_sale,
     });
 
     res.status(201).json({ message: 'Product created successfully', product: newProduct });
@@ -401,6 +402,7 @@ exports.updateProduct = async (req, res) => {
       sku: req.body.sku, 
       category_id: Number(req.body.category_id),
       brand: req.body.brand, 
+      is_on_sale: req.body.is_on_sale,
     }
     console.log('product',  body, product_id);
     // Update product
@@ -447,5 +449,71 @@ exports.deleteProduct = async (req, res) => {
   } catch (error) {
     console.error('Error deleting product:', error.message);
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+// Get new arrivals
+exports.getNewArrivals = async (req, res) => {
+  try {
+    const { limit = 10, page = 1 } = req.query;
+    const offset = (page - 1) * limit;
+
+    const newArrivals = await Products.findAll({
+      order: [['createdAt', 'DESC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+    });
+
+    res.status(200).json({ success: true, products: newArrivals });
+  } catch (error) {
+    console.error('Error fetching new arrivals:', error.message);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+// Get best sellers
+exports.getBestSellers = async (req, res) => {
+  try {
+    const { limit = 10, page = 1 } = req.query;
+    const offset = (page - 1) * limit;
+
+    const bestSellers = await db.sequelize.query(
+      `SELECT p.*, SUM(oi.quantity) as total_sold
+       FROM Products p
+       JOIN OrderItems oi ON p.id = oi.product_id
+       GROUP BY p.id
+       ORDER BY total_sold DESC
+       LIMIT :limit OFFSET :offset`,
+      {
+        replacements: { limit: parseInt(limit), offset: parseInt(offset) },
+        type: db.sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    res.status(200).json({ success: true, products: bestSellers });
+  } catch (error) {
+    console.error('Error fetching best sellers:', error.message);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+};
+
+// Get on-sale products
+exports.getOnSaleProducts = async (req, res) => {
+  try {
+    const { limit = 10, page = 1 } = req.query;
+    const offset = (page - 1) * limit;
+
+    const onSaleProducts = await Products.findAll({
+      where: {
+        is_on_sale: true,
+      },
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+    });
+
+    res.status(200).json({ success: true, products: onSaleProducts });
+  } catch (error) {
+    console.error('Error fetching on-sale products:', error.message);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 };
